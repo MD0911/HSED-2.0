@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35312.102
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HSED 2.0", "HSED 2.0\HSED 2.0.csproj", "{7115DF52-4D80-41D8-AA47-BD5E101A35FB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7115DF52-4D80-41D8-AA47-BD5E101A35FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7115DF52-4D80-41D8-AA47-BD5E101A35FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7115DF52-4D80-41D8-AA47-BD5E101A35FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7115DF52-4D80-41D8-AA47-BD5E101A35FB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {18F09609-DD55-4D1F-A33C-F68CBB6A91FA}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,145 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="HSED_2._0.Code"
+        Width="290" Height="280"
+        Background="#222222"
+        Title="HSED_2._0"
+		CanResize="False">
+
+
+	<Canvas Name="Numpad" IsVisible="True">
+		<Border Background="#303030" Width="250" Height="40" Canvas.Top="20" Canvas.Left="20">
+			<Border.Effect>
+				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5" ></DropShadowEffect>
+			</Border.Effect>
+
+			<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+				<TextBlock Name="Input" HorizontalAlignment="Center"  Margin="0" Foreground="White" Text="Kommando" FontSize="20"></TextBlock>
+			</StackPanel>
+		</Border>
+
+		<!-- Block 1 -->
+		<Border Tag="1" PointerPressed="Border_PointerPressed_1" Background="#303030" Width="63.33" Height="40" Canvas.Top="70" Canvas.Left="20">
+			<Border.Effect>
+				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"></DropShadowEffect>
+			</Border.Effect>
+			<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+				<TextBlock Name="Eins" HorizontalAlignment="Center" Margin="0" Foreground="White" Text="1" FontSize="20"></TextBlock>
+			</StackPanel>
+		</Border>
+
+		<Border Tag="2" PointerPressed="Border_PointerPressed_1" Background="#303030" Width="63.33" Height="40" Canvas.Top="70" Canvas.Left="113.33">
+			<Border.Effect>
+				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"></DropShadowEffect>
+			</Border.Effect>
+			<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+				<TextBlock Name="Zwei" HorizontalAlignment="Center" Margin="0" Foreground="White" Text="2" FontSize="20"></TextBlock>
+			</StackPanel>
+		</Border>
+
+		<Border Tag="3" PointerPressed="Border_PointerPressed_1" Background="#303030" Width="63.33" Height="40" Canvas.Top="70" Canvas.Left="206.66">
+			<Border.Effect>
+				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"></DropShadowEffect>
+			</Border.Effect>
+			<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+				<TextBlock Name="Drei" HorizontalAlignment="Center" Margin="0" Foreground="White" Text="3" FontSize="20"></TextBlock>
+			</StackPanel>
+		</Border>
+
+		<!-- Block 2 -->
+		<Border Tag="4" PointerPressed="Border_PointerPressed_1" Background="#303030" Width="63.33" Height="40" Canvas.Top="120" Canvas.Left="20">
+			<Border.Effect>
+				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"></DropShadowEffect>
+			</Border.Effect>
+			<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+				<TextBlock Name="Vier" HorizontalAlignment="Center" Margin="0" Foreground="White" Text="4" FontSize="20"></TextBlock>
+			</StackPanel>
+		</Border>
+
+		<Border Tag="5" PointerPressed="Border_PointerPressed_1" Background="#303030" Width="63.33" Height="40" Canvas.Top="120" Canvas.Left="113.33">
+			<Border.Effect>
+				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"></DropShadowEffect>
+			</Border.Effect>
+			<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+				<TextBlock Name="Fuenf" HorizontalAlignment="Center" Margin="0" Foreground="White" Text="5" FontSize="20"></TextBlock>
+			</StackPanel>
+		</Border>
+
+		<Border Tag="6" PointerPressed="Border_PointerPressed_1" Background="#303030" Width="63.33" Height="40" Canvas.Top="120" Canvas.Left="206.66">
+			<Border.Effect>
+				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"></DropShadowEffect>
+			</Border.Effect>
+			<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+				<TextBlock Name="Sechs" HorizontalAlignment="Center" Margin="0" Foreground="White" Text="6" FontSize="20"></TextBlock>
+			</StackPanel>
+		</Border>
+
+		<!-- Block 3 -->
+		<Border Tag="7" PointerPressed="Border_PointerPressed_1" Background="#303030" Width="63.33" Height="40" Canvas.Top="170" Canvas.Left="20">
+			<Border.Effect>
+				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"></DropShadowEffect>
+			</Border.Effect>
+			<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+				<TextBlock Name="Sieben" HorizontalAlignment="Center" Margin="0" Foreground="White" Text="7" FontSize="20"></TextBlock>
+			</StackPanel>
+		</Border>
+
+		<Border Tag="8" PointerPressed="Border_PointerPressed_1" Background="#303030" Width="63.33" Height="40" Canvas.Top="170" Canvas.Left="113.33">
+			<Border.Effect>
+				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"></DropShadowEffect>
+			</Border.Effect>
+			<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+				<TextBlock Name="Acht" HorizontalAlignment="Center" Margin="0" Foreground="White" Text="8" FontSize="20"></TextBlock>
+			</StackPanel>
+		</Border>
+
+		<Border Tag="9" PointerPressed="Border_PointerPressed_1" Background="#303030" Width="63.33" Height="40" Canvas.Top="170" Canvas.Left="206.66">
+			<Border.Effect>
+				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"></DropShadowEffect>
+			</Border.Effect>
+			<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+				<TextBlock Name="Neun" HorizontalAlignment="Center" Margin="0" Foreground="White" Text="9" FontSize="20"></TextBlock>
+			</StackPanel>
+		</Border>
+
+
+		<!-- Block 3 -->
+
+		<Border Tag="ESC" PointerPressed="Border_PointerPressed_2" Background="#303030" Width="63.33" Height="40" Canvas.Top="220" Canvas.Left="20">
+			<Border.Effect>
+				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5" ></DropShadowEffect>
+			</Border.Effect>
+
+			<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+				<TextBlock Name="Innenruf" HorizontalAlignment="Center"  Margin="0" Foreground="White" Text="ESC" FontSize="20"></TextBlock>
+			</StackPanel>
+		</Border>
+
+		<Border Tag="0" PointerPressed="Border_PointerPressed_1" Background="#303030" Width="63.33" Height="40" Canvas.Top="220" Canvas.Left="114.33">
+			<Border.Effect>
+				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5" ></DropShadowEffect>
+			</Border.Effect>
+
+			<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+				<TextBlock Name="Null" HorizontalAlignment="Center"  Margin="0" Foreground="White" Text="0" FontSize="20"></TextBlock>
+			</StackPanel>
+		</Border>
+
+		<Border Tag="E" PointerPressed="Border_PointerPressed_2" Background="#303030" Width="63.33" Height="40" Canvas.Top="220" Canvas.Left="206.66">
+			<Border.Effect>
+				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5" ></DropShadowEffect>
+			</Border.Effect>
+
+			<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+				<Image Width="25" Source="C:\Users\Mouad Ezzouine\source\repos\HSED 2.0\HSED 2.0\Images\Icons\enter-taste.png"></Image>
+			</StackPanel>
+		</Border>
+
+
+	</Canvas>
+
+
+
+
+
+</Window>

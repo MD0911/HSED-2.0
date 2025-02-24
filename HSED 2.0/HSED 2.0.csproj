@@ -1,0 +1,46 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <DisableCompiledBindings>true</DisableCompiledBindings>
+    <RuntimeIdentifiers>win-x64;linux-arm</RuntimeIdentifiers>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Images\Icons\analysieren.png" />
+    <None Remove="Images\Icons\aufzug.png" />
+    <None Remove="Images\Icons\aussicht.png" />
+    <None Remove="Images\Icons\enter-taste.png" />
+    <None Remove="Images\Icons\menu-offnen.png" />
+    <None Remove="Images\Icons\pfeil-Hoch.png" />
+    <None Remove="Images\Icons\pfeil-runter.png" />
+    <None Remove="Images\Icons\stift.png" />
+    <None Remove="Images\Icons\zuhause.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.1.0" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.1.0" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.1.0" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.1.0" />
+    <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
+    <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.1.0" />
+    <PackageReference Include="Material.Avalonia" Version="3.7.4" />
+    <PackageReference Include="System.IO.Ports" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Images\Icons\analysieren.png" />
+    <Resource Include="Images\Icons\aufzug.png" />
+    <Resource Include="Images\Icons\aussicht.png" />
+    <Resource Include="Images\Icons\enter-taste.png" />
+    <Resource Include="Images\Icons\menu-offnen.png" />
+    <Resource Include="Images\Icons\pfeil-Hoch.png" />
+    <Resource Include="Images\Icons\pfeil-runter.png" />
+    <Resource Include="Images\Icons\stift.png" />
+    <Resource Include="Images\Icons\zuhause.png" />
+  </ItemGroup>
+</Project>

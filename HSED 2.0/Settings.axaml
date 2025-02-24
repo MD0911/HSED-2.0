@@ -1,0 +1,170 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="HSED_2._0.Settings"
+        Width="800" Height="480"
+        Background="#222222"
+        Title="HSED_2._0"
+		CanResize="False">
+
+
+	<Canvas>
+
+		<TextBlock HorizontalAlignment="Center" Margin="100, 10,5,5" Foreground="White" FontSize="25">Einstellungen</TextBlock>
+		
+		<!-- Temperatur -->
+		<Border Background="#303030" Width="270" Height="65" Canvas.Top="60" Canvas.Left="470">
+			<Border.Effect>
+				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5" ></DropShadowEffect>
+			</Border.Effect>
+
+			<StackPanel  VerticalAlignment="Center">
+				<TextBlock HorizontalAlignment="Center" Margin="10" Foreground="White" FontSize="20" >Lernmodus</TextBlock>
+			</StackPanel>
+		</Border>
+		<!-- A-Nummer -->
+		<Border Background="#303030" Width="270" Height="65" Canvas.Top="150" Canvas.Left="470">
+			<Border.Effect>
+				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5" ></DropShadowEffect>
+			</Border.Effect>
+
+			<StackPanel  VerticalAlignment="Center">
+				<TextBlock HorizontalAlignment="Center" Margin="10" Foreground="White" FontSize="20" >Technische Prüfung</TextBlock>
+				
+			</StackPanel>
+		</Border>
+		<!-- Fehler -->
+		<Border Background="#303030" Width="270" Height="65" Canvas.Top="240" Canvas.Left="470">
+			<Border.Effect>
+				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5" ></DropShadowEffect>
+			</Border.Effect>
+
+			<StackPanel  VerticalAlignment="Center">
+				<TextBlock HorizontalAlignment="Center" Margin="10" Foreground="White" FontSize="20" >Knotennummer</TextBlock>
+				</StackPanel>
+		</Border>
+
+		<!-- Temperatur -->
+		<Border Background="#303030" Width="270" Height="65" Canvas.Top="330" Canvas.Left="470">
+			<Border.Effect>
+				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5" ></DropShadowEffect>
+			</Border.Effect>
+
+			<StackPanel  VerticalAlignment="Center">
+				<TextBlock HorizontalAlignment="Center" Margin="10" Foreground="White" FontSize="20" >Sonstiges</TextBlock>
+				</StackPanel>
+		</Border>
+		
+		<!-- Temperatur -->
+		<Border Background="#303030" Width="270" Height="65" Canvas.Top="60" Canvas.Left="125">
+			<Border.Effect>
+				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5" ></DropShadowEffect>
+			</Border.Effect>
+
+			<StackPanel  VerticalAlignment="Center">
+				<TextBlock HorizontalAlignment="Center" Margin="10" Foreground="White" FontSize="20" >Parameter</TextBlock>
+			</StackPanel>
+		</Border>
+		<!-- A-Nummer -->
+		<Border Background="#303030" Width="270" Height="65" Canvas.Top="150" Canvas.Left="125">
+			<Border.Effect>
+				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5" ></DropShadowEffect>
+			</Border.Effect>
+
+			<StackPanel  VerticalAlignment="Center">
+				<TextBlock HorizontalAlignment="Center" Margin="10" Foreground="White" FontSize="20" >Fehlerspeicher</TextBlock>
+
+			</StackPanel>
+		</Border>
+		<!-- Fehler -->
+		<Border Background="#303030" Width="270" Height="65" Canvas.Top="240" Canvas.Left="125">
+			<Border.Effect>
+				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5" ></DropShadowEffect>
+			</Border.Effect>
+
+			<StackPanel  VerticalAlignment="Center">
+				<TextBlock HorizontalAlignment="Center" Margin="10" Foreground="White" FontSize="20" >Hardwaretest</TextBlock>
+			</StackPanel>
+		</Border>
+
+		<!-- Temperatur -->
+		
+			<Border Background="#303030" Width="270" Height="65" Canvas.Top="330" Canvas.Left="125">
+				<Border.Effect>
+					<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5" ></DropShadowEffect>
+				</Border.Effect>
+
+				<StackPanel  VerticalAlignment="Center">
+					<TextBlock HorizontalAlignment="Center" Margin="10" Foreground="White" FontSize="20" >Fahrsteuerung</TextBlock>
+				</StackPanel>
+			</Border>
+			
+		
+
+		<!--NavBar-->
+		<Border x:Name="Overlap" Background="Black" Width="800" Height="480" Opacity="100" IsVisible="False"></Border>
+		<Border x:Name="NavBar" Background="Black" Width="60" Height="480">
+			<Border.Effect>
+				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5" ></DropShadowEffect>
+			</Border.Effect>
+
+			<StackPanel x:Name="StackPanelNavBar" HorizontalAlignment="Center" Margin="0,25,0,0">
+
+				
+				<Button Tag="Menu" x:Name="ButtonSettings" Width="50" Height="40" Click="Button_Click_Settings" >
+					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+						<Image Source="file:///C:\Users\Mouad Ezzouine\source\repos\HSED 2.0\HSED 2.0\Images\Icons\menu-offnen.png"></Image>
+						<TextBlock Margin="10,5,0,0" x:Name="SettingsText" IsVisible="False" Foreground="White">Menue</TextBlock>
+					</StackPanel>
+				</Button>
+
+				<Button Tag="Home" x:Name="ButtonSettings7" Width="50" Height="40" Margin="0,5,0,0"  Click="Button_Click_Settings" >
+					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+						<Image Source="file:///C:\Users\Mouad Ezzouine\source\repos\HSED 2.0\HSED 2.0\Images\Icons\zuhause.png"></Image>
+						<TextBlock Margin="10,5,0,0" x:Name="SettingsText7" IsVisible="False" Foreground="White">Home</TextBlock>
+					</StackPanel>
+				</Button>
+
+				<Button Tag="Testrufe" x:Name="ButtonSettings3" Width="50" Height="40" Margin="0,5,0,0" Click="Button_Click_Settings" >
+					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+						<Image Source="file:///C:\Users\Mouad Ezzouine\source\repos\HSED 2.0\HSED 2.0\Images\Icons\aufzug.png"></Image>
+						<TextBlock Margin="10,5,0,0" x:Name="SettingsText3" IsVisible="False" Foreground="White">Testrufe</TextBlock>
+					</StackPanel>
+				</Button>
+
+				<Button Tag="Codes" x:Name="ButtonSettings4" Width="50" Height="40" Margin="0,5,0,0" Click="Button_Click_Settings" >
+					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+						<Image Source="file:///C:\Users\Mouad Ezzouine\source\repos\HSED 2.0\HSED 2.0\Images\Icons\stift.png"></Image>
+						<TextBlock Margin="10,5,0,0" x:Name="SettingsText4" IsVisible="False" Foreground="White">Codes</TextBlock>
+					</StackPanel>
+				</Button>
+
+				<Button Tag="Ansicht" x:Name="ButtonSettings5" Width="50" Height="40" Margin="0,5,0,0" Click="Button_Click_Settings" >
+					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+						<Image Source="file:///C:\Users\Mouad Ezzouine\source\repos\HSED 2.0\HSED 2.0\Images\Icons\aussicht.png"></Image>
+						<TextBlock Margin="10,5,0,0" x:Name="SettingsText5" IsVisible="False" Foreground="White">Ansicht</TextBlock>
+					</StackPanel>
+				</Button>
+
+				<Button Tag="SelfDia" x:Name="ButtonSettings6" Width="50" Height="40" Margin="0,5,0,0" Click="Button_Click_Settings" >
+					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+						<Image Source="file:///C:\Users\Mouad Ezzouine\source\repos\HSED 2.0\HSED 2.0\Images\Icons\analysieren.png"></Image>
+						<TextBlock Margin="10,5,0,0" x:Name="SettingsText6" IsVisible="False" Foreground="White">Self-Dia</TextBlock>
+					</StackPanel>
+				</Button>
+
+				<Button Tag="Settings" x:Name="ButtonSettings2" Width="50" Height="40" Margin="0,130,0,0"  Click="Button_Click_Settings" >
+					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+						<Image Source="file:///C:/Users/Mouad%20Ezzouine/source/repos/HSED%202.0/HSED%202.0/Images/Icons/die-einstellungen.png"></Image>
+						<TextBlock Margin="10,5,0,0" x:Name="SettingsText2" IsVisible="False" Foreground="White">Settings</TextBlock>
+					</StackPanel>
+				</Button>
+
+			</StackPanel>
+		</Border>
+	</Canvas>
+
+
+
+
+
+</Window>
