@@ -1,7 +1,6 @@
 using Avalonia.Controls;
 using System;
 using System.IO.Ports;
-using Avalonia.Controls;
 using Avalonia.Interactivity;
 using System.Threading;
 using System.Diagnostics;
@@ -9,11 +8,10 @@ using HSED_2_0;
 using System.Threading.Tasks;
 using Avalonia.Threading;
 using Avalonia.Media;
-using Avalonia.Media;
 using System.Text.Json;
+
 namespace HSED_2._0
 {
-    
     public partial class MainWindow : Window
     {
         private CancellationTokenSource _cancellationTokenSource;
@@ -22,10 +20,8 @@ namespace HSED_2._0
         private bool _isGreen = false;
         public int gesamteFloors = HseCom.SendHse(1001);
 
-
         public MainWindow()
         {
-            
             InitializeComponent();
             HseConnect();
             SetupBlinkTimer();
@@ -33,48 +29,43 @@ namespace HSED_2._0
             StartPeriodicUpdateO(TimeSpan.FromSeconds(1), _cancellationTokenSource.Token);
             StartPeriodicUpdate(TimeSpan.FromSeconds(30), _cancellationTokenSource.Token);
             StartPeriodicUpdateBlink(TimeSpan.FromSeconds(4), _cancellationTokenSource.Token);
-
         }
 
         private void SetupBlinkTimer()
         {
             _blinkTimer = new DispatcherTimer
             {
-                Interval = TimeSpan.FromMilliseconds(1000) // Blink-Intervall (500 ms)
+                Interval = TimeSpan.FromMilliseconds(1000)
             };
             _blinkTimer.Tick += ToggleColor;
             _blinkTimer.Start();
+            
         }
 
         private void ToggleColor(object sender, EventArgs e)
         {
-            // Temp-Textfarbe abwechseln
             Temp.Foreground = _isGreen
                 ? new SolidColorBrush(Colors.White)
                 : new SolidColorBrush(Colors.GreenYellow);
-
-            _isGreen = !_isGreen; // Zustand umschalten für die nächste Blinkschleife
-
-           
+            _isGreen = !_isGreen;
         }
 
-     
         private async void StartPeriodicUpdateO(TimeSpan interval, CancellationToken token)
         {
             while (!token.IsCancellationRequested)
             {
                 try
                 {
-                    HseUpdatedO(); // Call your update method
+                    HseUpdatedO();
+                    SerialPortManager.Instance.Open();
                 }
                 catch (Exception ex)
                 {
-                    // Log or handle any errors in HSEConnect
                     Debug.WriteLine(ex);
                 }
                 try
                 {
-                    await Task.Delay(interval, token); // Wait for the specified interval
+                    await Task.Delay(interval, token);
                 }
                 catch (Exception ex)
                 {
@@ -87,22 +78,14 @@ namespace HSED_2._0
         {
             var progressBar = this.FindControl<ProgressBar>("EtageProgressBar");
             if (progressBar == null) return;
-
-            // Aktueller Wert der ProgressBar
             double currentValue = progressBar.Value;
-
-            // Schrittgröße für die Animation (kann angepasst werden)
             double step = 0.1 * Math.Sign(targetValue - currentValue);
-
-            // Animationsschleife
             while (Math.Abs(targetValue - currentValue) > Math.Abs(step))
             {
                 currentValue += step;
                 progressBar.Value = currentValue;
-                await Task.Delay(15); // Verzögerung zwischen den Schritten für eine flüssige Animation
+                await Task.Delay(15);
             }
-
-            // Endwert setzen, um Ungenauigkeiten zu vermeiden
             progressBar.Value = targetValue;
         }
 
@@ -112,16 +95,15 @@ namespace HSED_2._0
             {
                 try
                 {
-                    SK(); // Call your update method
+                    SK();
                 }
                 catch (Exception ex)
                 {
-                    // Log or handle any errors in HSEConnect
                     Debug.WriteLine(ex);
                 }
                 try
                 {
-                    await Task.Delay(interval, token); // Wait for the specified interval
+                    await Task.Delay(interval, token);
                 }
                 catch (Exception ex)
                 {
@@ -130,23 +112,21 @@ namespace HSED_2._0
             }
         }
 
-
         private async void StartPeriodicUpdate(TimeSpan interval, CancellationToken token)
         {
             while (!token.IsCancellationRequested)
             {
                 try
                 {
-                    HseUpdated(); // Call your update method
+                    HseUpdated();
                 }
                 catch (Exception ex)
                 {
-                    // Log or handle any errors in HSEConnect
                     Debug.WriteLine(ex);
                 }
                 try
                 {
-                    await Task.Delay(interval, token); // Wait for the specified interval
+                    await Task.Delay(interval, token);
                 }
                 catch (Exception ex)
                 {
@@ -157,16 +137,14 @@ namespace HSED_2._0
 
         protected override void OnClosed(EventArgs e)
         {
-            
             _blinkTimer.Stop();
             _blinkTimer.Tick -= ToggleColor;
-            _cancellationTokenSource.Cancel(); // Stop the update loop when the window closes
+            _cancellationTokenSource.Cancel();
             base.OnClosed(e);
         }
 
         private void HseConnect()
         {
-           
             EtageProgressBar.Maximum = gesamteFloors - 1;
             int temp = HseCom.SendHse(3001);
             Temp.Text = temp.ToString() + "°C";
@@ -174,38 +152,31 @@ namespace HSED_2._0
             Etage.Text = currentfloor.ToString();
         }
 
-        private void SK() { 
-          
-            Zustand.Foreground = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.Gray);
-            SK1.Background = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.Gray);
-            SK2.Background = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.Gray);
-            SK3.Background = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.Gray);
-            SK4.Background = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.Gray);
-
+        private void SK()
+        {
+            Zustand.Foreground = new SolidColorBrush(Colors.Gray);
+            SK1.Background = new SolidColorBrush(Colors.Gray);
+            SK2.Background = new SolidColorBrush(Colors.Gray);
+            SK3.Background = new SolidColorBrush(Colors.Gray);
+            SK4.Background = new SolidColorBrush(Colors.Gray);
         }
 
         private void HseUpdatedO()
         {
-            var skBorders = new Avalonia.Controls.Border[] { SK1, SK2, SK3, SK4 };
-
-            // Hole die Ganzzahl und konvertiere sie in ein Array von Ziffern
+            var skBorders = new Border[] { SK1, SK2, SK3, SK4 };
             int GanzeSK = HseCom.SendHse(1003);
             int[] SK = HseCom.IntToArray(GanzeSK);
-
-            // Setze die Farben entsprechend der Werte in SK
             for (int i = 0; i < SK.Length; i++)
             {
                 if (SK[i] == 0)
                 {
-                    skBorders[i].Background = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.Red);
+                    skBorders[i].Background = new SolidColorBrush(Colors.Red);
                 }
                 else
                 {
-                    skBorders[i].Background = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.GreenYellow); // Beispiel für gesetzten Zustand
+                    skBorders[i].Background = new SolidColorBrush(Colors.GreenYellow);
                 }
             }
-
-
 
             int currentfloor = HseCom.SendHse(1002);
             if (currentfloor == 505 || currentfloor == 404)
@@ -217,41 +188,33 @@ namespace HSED_2._0
             int AZustand = HseCom.SendHse(1005);
             if (AZustand == 505 || AZustand == 404)
             {
-
                 return;
             }
 
-            switch(AZustand)
+            switch (AZustand)
             {
                 case 4:
                     Zustand.Text = "Stillstand";
-                    Zustand.Foreground = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.White);
+                    Zustand.Foreground = new SolidColorBrush(Colors.White);
                     break;
                 case 5:
                     Zustand.Text = "Fährt";
-                    Zustand.Foreground = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.GreenYellow);
+                    Zustand.Foreground = new SolidColorBrush(Colors.GreenYellow);
                     break;
                 case 6:
                     Zustand.Text = "Einfahrt";
-                    Zustand.Foreground = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.Yellow);
+                    Zustand.Foreground = new SolidColorBrush(Colors.Yellow);
                     break;
                 case 17:
                     Zustand.Text = "SK Fehlt";
-                    Zustand.Foreground = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.Red);
+                    Zustand.Foreground = new SolidColorBrush(Colors.Red);
                     break;
             }
-            EtageProgressBar.Value = currentfloor +1;
-            //  AnimateProgressBar(HseCom.SendHse(1004));
-
+            EtageProgressBar.Value = currentfloor + 1;
         }
-
-       
 
         private void HseUpdated()
         {
-
-            
-
             int temp = HseCom.SendHse(3001);
             if (temp == 505 || temp == 404)
             {
@@ -260,17 +223,13 @@ namespace HSED_2._0
             Temp.Text = temp.ToString() + "°C";
         }
 
-
-        private void Button_Click_Settings(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+        private void Button_Click_Settings(object? sender, RoutedEventArgs e)
         {
-           if (sender is Button button)
+            if (sender is Button button)
             {
-                // Speichere den Namen des Buttons als String
                 string buttonTag = button.Tag?.ToString();
                 if (buttonTag == "Menu")
                 {
-                    
-
                     if (NavBarStatus == false)
                     {
                         NavBar.Width += 100;
@@ -315,19 +274,15 @@ namespace HSED_2._0
                         Overlap.IsVisible = false;
                         NavBarStatus = false;
                     }
-
-                   
                 }
                 else
                 {
-
                     switch (buttonTag)
                     {
                         case "Settings":
                             var newWindowSettings = new Settings();
                             newWindowSettings.Show();
                             break;
-
                         case "Testrufe":
                             var newWindowTestrufe = new Testrufe();
                             newWindowTestrufe.Show();
@@ -337,12 +292,9 @@ namespace HSED_2._0
                             var newWindowCode = new Code();
                             newWindowCode.Show();
                             break;
-
-
                     }
-
                 }
             }
         }
     }
-}   
+}
