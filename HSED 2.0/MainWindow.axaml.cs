@@ -1,34 +1,76 @@
 using Avalonia.Controls;
-using System;
-using System.IO.Ports;
 using Avalonia.Interactivity;
-using System.Threading;
-using System.Diagnostics;
-using HSED_2_0;
-using System.Threading.Tasks;
 using Avalonia.Threading;
 using Avalonia.Media;
-using System.Text.Json;
+using System;
+using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
+using HSED_2_0; // Enth‰lt MonetoringManager und HseCom
+using HSED_2_0.ViewModels;
 
 namespace HSED_2._0
 {
     public partial class MainWindow : Window
     {
+        public static MainWindow Instance { get; private set; }
+        public MainViewModel ViewModel { get; }
+        private MonetoringManager _monetoringManager;
         private CancellationTokenSource _cancellationTokenSource;
         bool NavBarStatus = false;
         private DispatcherTimer _blinkTimer;
+        private DispatcherTimer _floorTimer;
         private bool _isGreen = false;
         public int gesamteFloors = HseCom.SendHse(1001);
+        private CancellationTokenSource _heartbeatCancellationTokenSource;
 
         public MainWindow()
         {
             InitializeComponent();
+            Instance = this; // Speichert die Instanz
+            ViewModel = new MainViewModel();
+            DataContext = ViewModel;
             HseConnect();
             SetupBlinkTimer();
+            StartFloorTimer(); // Startet den Timer, der die Floor-Anzeige regelm‰ﬂig updatet
             _cancellationTokenSource = new CancellationTokenSource();
             StartPeriodicUpdateO(TimeSpan.FromSeconds(1), _cancellationTokenSource.Token);
             StartPeriodicUpdate(TimeSpan.FromSeconds(30), _cancellationTokenSource.Token);
             StartPeriodicUpdateBlink(TimeSpan.FromSeconds(4), _cancellationTokenSource.Token);
+        }
+
+        /// <summary>
+        /// Aktualisiert die Anzeige der aktuellen Etage.
+        /// </summary>
+        public void DisplayFloor()
+        {
+            Etage.Text = ViewModel.CurrentFloor.ToString();
+            EtageProgressBar.Value = ViewModel.CurrentFloor + 1;
+        }
+
+        /// <summary>
+        /// Aktualisiert den SK-Zustand in der UI.
+        /// </summary>
+        public void UpdateSK(int skValue)
+        {
+            // Beispielhafte Logik: Setze alle SK-Elemente auf Rot, wenn skValue 0 ist, sonst auf GreenYellow.
+            SK1.Background = skValue == 0 ? new SolidColorBrush(Colors.Red) : new SolidColorBrush(Colors.GreenYellow);
+            SK2.Background = skValue == 0 ? new SolidColorBrush(Colors.Red) : new SolidColorBrush(Colors.GreenYellow);
+            SK3.Background = skValue == 0 ? new SolidColorBrush(Colors.Red) : new SolidColorBrush(Colors.GreenYellow);
+            SK4.Background = skValue == 0 ? new SolidColorBrush(Colors.Red) : new SolidColorBrush(Colors.GreenYellow);
+        }
+
+        /// <summary>
+        /// Startet einen DispatcherTimer, der alle 50 ms die Floor-Anzeige aktualisiert.
+        /// </summary>
+        private void StartFloorTimer()
+        {
+            _floorTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(50)
+            };
+            _floorTimer.Tick += (sender, e) => DisplayFloor();
+            _floorTimer.Start();
         }
 
         private void SetupBlinkTimer()
@@ -37,9 +79,9 @@ namespace HSED_2._0
             {
                 Interval = TimeSpan.FromMilliseconds(1000)
             };
+            // Verwende als Signatur (object, EventArgs)
             _blinkTimer.Tick += ToggleColor;
             _blinkTimer.Start();
-            
         }
 
         private void ToggleColor(object sender, EventArgs e)
@@ -72,21 +114,6 @@ namespace HSED_2._0
                     Debug.WriteLine(ex);
                 }
             }
-        }
-
-        private async void AnimateProgressBar(int targetValue)
-        {
-            var progressBar = this.FindControl<ProgressBar>("EtageProgressBar");
-            if (progressBar == null) return;
-            double currentValue = progressBar.Value;
-            double step = 0.1 * Math.Sign(targetValue - currentValue);
-            while (Math.Abs(targetValue - currentValue) > Math.Abs(step))
-            {
-                currentValue += step;
-                progressBar.Value = currentValue;
-                await Task.Delay(15);
-            }
-            progressBar.Value = targetValue;
         }
 
         private async void StartPeriodicUpdateBlink(TimeSpan interval, CancellationToken token)
@@ -138,8 +165,10 @@ namespace HSED_2._0
         protected override void OnClosed(EventArgs e)
         {
             _blinkTimer.Stop();
+            _floorTimer?.Stop();
             _blinkTimer.Tick -= ToggleColor;
             _cancellationTokenSource.Cancel();
+            _heartbeatCancellationTokenSource?.Cancel();
             base.OnClosed(e);
         }
 
@@ -150,6 +179,12 @@ namespace HSED_2._0
             Temp.Text = temp.ToString() + "∞C";
             int currentfloor = HseCom.SendHse(1002);
             Etage.Text = currentfloor.ToString();
+
+            // Initialisiere einmalig die statischen Floor-Parameter:
+            MonetoringManager.startMonetoring();
+
+            _monetoringManager = new MonetoringManager();
+            _monetoringManager.Start();
         }
 
         private void SK()
@@ -163,63 +198,50 @@ namespace HSED_2._0
 
         private void HseUpdatedO()
         {
+            // Aktualisiere den SK-Zustand basierend auf HseCom.SendHse(1003)
             var skBorders = new Border[] { SK1, SK2, SK3, SK4 };
             int GanzeSK = HseCom.SendHse(1003);
-            int[] SK = HseCom.IntToArray(GanzeSK);
-            for (int i = 0; i < SK.Length; i++)
+            int[] skValues = HseCom.IntToArray(GanzeSK);
+            for (int i = 0; i < skValues.Length; i++)
             {
-                if (SK[i] == 0)
-                {
-                    skBorders[i].Background = new SolidColorBrush(Colors.Red);
-                }
-                else
-                {
-                    skBorders[i].Background = new SolidColorBrush(Colors.GreenYellow);
-                }
+                skBorders[i].Background = skValues[i] == 0
+                    ? new SolidColorBrush(Colors.Red)
+                    : new SolidColorBrush(Colors.GreenYellow);
             }
 
-            int currentfloor = HseCom.SendHse(1002);
-            if (currentfloor == 505 || currentfloor == 404)
-            {
-                return;
-            }
-            Etage.Text = currentfloor.ToString();
-
+            // Aktualisiere den A-Zustand basierend auf HseCom.SendHse(1005)
             int AZustand = HseCom.SendHse(1005);
             if (AZustand == 505 || AZustand == 404)
-            {
                 return;
-            }
-
-            switch (AZustand)
+            Dispatcher.UIThread.Post(() =>
             {
-                case 4:
-                    Zustand.Text = "Stillstand";
-                    Zustand.Foreground = new SolidColorBrush(Colors.White);
-                    break;
-                case 5:
-                    Zustand.Text = "F‰hrt";
-                    Zustand.Foreground = new SolidColorBrush(Colors.GreenYellow);
-                    break;
-                case 6:
-                    Zustand.Text = "Einfahrt";
-                    Zustand.Foreground = new SolidColorBrush(Colors.Yellow);
-                    break;
-                case 17:
-                    Zustand.Text = "SK Fehlt";
-                    Zustand.Foreground = new SolidColorBrush(Colors.Red);
-                    break;
-            }
-            EtageProgressBar.Value = currentfloor + 1;
+                switch (AZustand)
+                {
+                    case 4:
+                        Zustand.Text = "Stillstand";
+                        Zustand.Foreground = new SolidColorBrush(Colors.White);
+                        break;
+                    case 5:
+                        Zustand.Text = "F‰hrt";
+                        Zustand.Foreground = new SolidColorBrush(Colors.GreenYellow);
+                        break;
+                    case 6:
+                        Zustand.Text = "Einfahrt";
+                        Zustand.Foreground = new SolidColorBrush(Colors.Yellow);
+                        break;
+                    case 17:
+                        Zustand.Text = "SK Fehlt";
+                        Zustand.Foreground = new SolidColorBrush(Colors.Red);
+                        break;
+                }
+            });
         }
 
         private void HseUpdated()
         {
             int temp = HseCom.SendHse(3001);
             if (temp == 505 || temp == 404)
-            {
                 return;
-            }
             Temp.Text = temp.ToString() + "∞C";
         }
 
@@ -230,7 +252,7 @@ namespace HSED_2._0
                 string buttonTag = button.Tag?.ToString();
                 if (buttonTag == "Menu")
                 {
-                    if (NavBarStatus == false)
+                    if (!NavBarStatus)
                     {
                         NavBar.Width += 100;
                         StackPanelNavBar.HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left;
