@@ -40,6 +40,31 @@ namespace HSED_2_0
 
         public static SerialPortManager Instance => _instance;
 
+        /// <summary>
+        /// Sendet ein Telegramm ohne auf eine Antwort zu warten.
+        /// </summary>
+        public async Task SendWithoutResponse(byte[] data)
+        {
+            byte[] command = new byte[data.Length + 6];
+            command[0] = 0x95;
+            command[1] = 0x9A;
+            command[2] = 0x00;
+            command[3] = (byte)(data.Length + 6);
+            Array.Copy(data, 0, command, 4, data.Length);
+            command[data.Length + 4] = HseCom.CalculateCRC(data);
+            command[data.Length + 5] = 0x85;
+
+            Debug.WriteLine("Sende Telegramm ohne Antwort zu erwarten:");
+            Debug.WriteLine(BitConverter.ToString(command).Replace("-", " "));
+
+            // Optional: Nur wenn wirklich notwendig, alte Telegramme löschen
+            while (_telegramQueue.TryDequeue(out _)) { }
+
+            // Falls der serielle Port asynchrones Schreiben über seine BaseStream unterstützt:
+            await _serialPort.BaseStream.WriteAsync(command, 0, command.Length);
+        }
+
+
         public void Open()
         {
             lock (_lock)
@@ -96,6 +121,7 @@ namespace HSED_2_0
                                 _telegramQueue.Enqueue(telegram);
                                 _telegramAvailable.Release();
                                 MonetoringManager.AnalyzeResponse(telegram);
+                                TerminalManager.AnalyzeResponse(telegram);
                             }
                             else if (buffer.Count > expectedLength)
                             {
@@ -343,6 +369,8 @@ namespace HSED_2_0
                 try
                 {
                     byte[] zustand = SendHseCommand(new byte[] { 0x03, 0x01, 0x20, 0xFF, 0x00, 0x05 });
+                    int Zustand = zustand[10];
+                    Debug.WriteLine("Zustand: " + Zustand);
                     if (zustand == null || zustand.Length <= 10)
                         return 505;
                     return zustand[10];

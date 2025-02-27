@@ -131,14 +131,15 @@
 		<!-- Live-View -->
 		<Border Background="#303030" Width="200" Height="395" Canvas.Top="25" Canvas.Left="300">
 			<Border.Effect>
-				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5" ></DropShadowEffect>
+				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
 			</Border.Effect>
-
 			<StackPanel HorizontalAlignment="Center">
-				<TextBlock Margin="10" Foreground="White" FontSize="20
-				   ">Live-View</TextBlock>
+				<TextBlock Margin="10" Foreground="White" FontSize="20">Live-View</TextBlock>
+				<!-- Sprite-Box in Weiß -->
+				<Rectangle Width="100" Height="200" Fill="White" Margin="0,75,0,0"/>
 			</StackPanel>
 		</Border>
+
 
 		<!-- NavBar -->
 

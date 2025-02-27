@@ -11,16 +11,16 @@ namespace HSED_2_0
 {
     public class MonetoringManager
     {
-        // Globale (statische) Parameter für die Etagenwerte:
+        // Statische Parameter für Etagenwerte:
         public static int BootFloor { get; private set; }
         public static int TopFloor { get; private set; }
         public static int GesamtFloor { get; private set; }
-        public static int CurrentFloor { get; private set; } // umgerechneter Etagenwert (raw + BootFloor - 1)
+        public static int CurrentFloor { get; private set; } // umgerechneter Floor: raw + BootFloor - 1
 
         private CancellationTokenSource _cts;
 
         /// <summary>
-        /// Startet den periodischen Abfragevorgang (Monitoring-Kommandos).
+        /// Startet den periodischen Monitoring-Abfragevorgang.
         /// </summary>
         public void Start()
         {
@@ -29,7 +29,7 @@ namespace HSED_2_0
             {
                 while (!_cts.Token.IsCancellationRequested)
                 {
-                    // Sende Monitoring-Befehl (z. B. 0x05,0x01) ohne auf Antwort zu warten
+                    // Sende Monitoring-Befehl (z. B. 0x05,0x01) ohne auf Antwort zu warten.
                     HseCom.SendHseCommand(new byte[] { 0x05, 0x01 });
                     try
                     {
@@ -44,7 +44,7 @@ namespace HSED_2_0
         }
 
         /// <summary>
-        /// Stoppt den periodischen Abfragevorgang.
+        /// Stoppt den Monitoring-Vorgang.
         /// </summary>
         public void Stop() => _cts?.Cancel();
 
@@ -64,11 +64,11 @@ namespace HSED_2_0
                 return;
             }
 
-            // Annahme: TopFloor-Wert steht an Position 10 im topfloorResponse.
+            // Annahme: TopFloor-Wert steht an Position 10
             TopFloor = topfloorResponse[10];
             Debug.WriteLine("TopFloor (Rohwert): " + TopFloor);
 
-            // BootFloor: Nehme an, dass die Bytes an Position 11 und 10 ASCII-codiert sind.
+            // BootFloor: Bytes an Position 11 und 10 als ASCII
             byte[] bottomfloorName = new byte[2];
             bottomfloorName[0] = bottomfloorResponse[11];
             bottomfloorName[1] = bottomfloorResponse[10];
@@ -92,8 +92,7 @@ namespace HSED_2_0
         }
 
         /// <summary>
-        /// Aktualisiert CurrentFloor anhand eines Monitoring-Telegramms.
-        /// Hier wird angenommen, dass ab Offset 10 ein roher Floor-Wert enthalten ist.
+        /// Aktualisiert CurrentFloor anhand eines Monitoring-Telegramms (angenommen ab Offset 10).
         /// Umrechnung: CurrentFloor = rawFloor + BootFloor - 1.
         /// </summary>
         private static void setCurrentFloor(byte[] currentFloorResponse)
@@ -107,10 +106,9 @@ namespace HSED_2_0
             int rawFloor = currentFloorResponse[10];
             Debug.WriteLine("Rohwert (rawFloor) an Offset 10: " + rawFloor);
             CurrentFloor = rawFloor + BootFloor;
-
             Debug.WriteLine($"setCurrentFloor: raw = {rawFloor}, BootFloor = {BootFloor}, CurrentFloor = {CurrentFloor}");
 
-            // Update des ViewModels im UI-Thread
+            // Aktualisiere das ViewModel im UI-Thread:
             Dispatcher.UIThread.Post(() =>
             {
                 if (MainWindow.Instance?.ViewModel != null)
@@ -122,10 +120,16 @@ namespace HSED_2_0
 
         /// <summary>
         /// Analysiert empfangene Telegramme.
-        /// Bei einem Monitoring-Telegramm (0x05,0x02) wird anhand des Zustandsindexes entschieden:
-        /// - 0x2101: Floor
-        /// - 0x2102: SK-Zustand (Beispiel)
+        /// Bei einem Monitoring-Telegramm (0x05,0x02) wird unterschieden:
+        ///  - Zustandsindex 0x2101: Floor (wird via setCurrentFloor verarbeitet)
+        ///  - Zustandsindex 0x2102: SK-Zustand (wird ins ViewModel geschrieben)
         /// </summary>
+        /// 
+        /*public static void animationValidator()
+        {
+            HseCom.SendHseCommand(new byte[] { 0x03, 0x01,  });
+
+        }*/
         public static void AnalyzeResponse(byte[] response)
         {
             Debug.WriteLine("Derzeitige Etage (vor Analyse): " + CurrentFloor);
@@ -154,7 +158,6 @@ namespace HSED_2_0
                         {
                             MainWindow.Instance.ViewModel.SKValue = skValue;
                         }
-                        MainWindow.Instance.UpdateSK(skValue);
                     });
                 }
                 // Weitere Zustände (z. B. A-Zustand) können hier analog verarbeitet werden.

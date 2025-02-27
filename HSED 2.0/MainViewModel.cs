@@ -33,7 +33,7 @@ namespace HSED_2_0.ViewModels
             }
         }
 
-        // Weitere Properties (z. B. A-Zustand) können hier ergänzt werden
+        // Weitere Properties (z. B. A-Zustand) können hier ergänzt werden.
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)

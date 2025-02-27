@@ -40,7 +40,7 @@ namespace HSED_2._0
         }
 
         /// <summary>
-        /// Aktualisiert die Anzeige der aktuellen Etage.
+        /// Aktualisiert die Anzeige der aktuellen Etage via Binding.
         /// </summary>
         public void DisplayFloor()
         {
@@ -53,7 +53,7 @@ namespace HSED_2._0
         /// </summary>
         public void UpdateSK(int skValue)
         {
-            // Beispielhafte Logik: Setze alle SK-Elemente auf Rot, wenn skValue 0 ist, sonst auf GreenYellow.
+            // Beispiel: Setze alle SK-Elemente auf Rot, wenn skValue 0 ist, sonst auf GreenYellow.
             SK1.Background = skValue == 0 ? new SolidColorBrush(Colors.Red) : new SolidColorBrush(Colors.GreenYellow);
             SK2.Background = skValue == 0 ? new SolidColorBrush(Colors.Red) : new SolidColorBrush(Colors.GreenYellow);
             SK3.Background = skValue == 0 ? new SolidColorBrush(Colors.Red) : new SolidColorBrush(Colors.GreenYellow);
@@ -79,11 +79,11 @@ namespace HSED_2._0
             {
                 Interval = TimeSpan.FromMilliseconds(1000)
             };
-            // Verwende als Signatur (object, EventArgs)
             _blinkTimer.Tick += ToggleColor;
             _blinkTimer.Start();
         }
 
+        // Signatur: (object, EventArgs)
         private void ToggleColor(object sender, EventArgs e)
         {
             Temp.Foreground = _isGreen
@@ -204,8 +204,8 @@ namespace HSED_2._0
             int[] skValues = HseCom.IntToArray(GanzeSK);
             for (int i = 0; i < skValues.Length; i++)
             {
-                skBorders[i].Background = skValues[i] == 0
-                    ? new SolidColorBrush(Colors.Red)
+                skBorders[i].Background = skValues[i] == 0 
+                    ? new SolidColorBrush(Colors.Red) 
                     : new SolidColorBrush(Colors.GreenYellow);
             }
 
@@ -222,6 +222,7 @@ namespace HSED_2._0
                         Zustand.Foreground = new SolidColorBrush(Colors.White);
                         break;
                     case 5:
+                        //MonetoringManager.animationValidator
                         Zustand.Text = "Fährt";
                         Zustand.Foreground = new SolidColorBrush(Colors.GreenYellow);
                         break;
@@ -313,6 +314,11 @@ namespace HSED_2._0
                         case "Codes":
                             var newWindowCode = new Code();
                             newWindowCode.Show();
+                            break;
+                        case "Ansicht":
+                            var newWindowAnsicht = new Terminal();
+                            newWindowAnsicht.Show();
+                            this.Close();
                             break;
                     }
                 }
