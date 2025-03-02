@@ -1,0 +1,486 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="HSED_2._0.TestrufeNeu"
+        Width="800" Height="480"
+        Background="#222222"
+        Title="HSED_2_0"
+        CanResize="False"
+		SystemDecorations="None"
+        WindowStartupLocation="Manual">
+	<Canvas>
+
+		<!-- Live-View Bereich: Gleiche Höhe wie die Scroll-Leiste (380) -->
+		<Border CornerRadius="10" Background="#303030" Width="270" Height="448" Canvas.Top="15" Canvas.Left="100">
+			<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+				<!-- Hier deinen Live-View Inhalt einfügen -->
+			</StackPanel>
+		</Border>
+
+		<!-- Vertikale, scrollbare Leiste mit weißen, abgerundeten Buttons (von 6 bis -1) -->
+		<Border CornerRadius="10" Background="#303030" Width="60" Height="448" Canvas.Top="15" Canvas.Left="395">
+			<ScrollViewer HorizontalScrollBarVisibility="Disabled">
+				<StackPanel VerticalAlignment="Center" Spacing="20" Margin="5">
+					<Button Width="40" Height="40" Content="6"
+        HorizontalAlignment="Center"
+        Background="LightGray" Foreground="Black"
+        CornerRadius="25" Padding="0"
+		Click="Button_Click_Number"
+        HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+					<Button Width="40" Height="40" Content="5"
+							HorizontalAlignment="Center"
+							Background="LightGray" Foreground="Black"
+							CornerRadius="25" Padding="0"
+							HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+							Click="Button_Click_Number"/>
+					<Button Width="40" Height="40" Content="4"
+							HorizontalAlignment="Center"
+							Background="LightGray" Foreground="Black"
+							CornerRadius="25" Padding="0"
+							Click="Button_Click_Number"
+							HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+					<Button Width="40" Height="40" Content="3"
+							HorizontalAlignment="Center"
+							Click="Button_Click_Number"
+							Background="LightGray" Foreground="Black"
+							CornerRadius="25" Padding="0"
+							HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+					<Button Width="40" Height="40" Content="2"
+							HorizontalAlignment="Center"
+							Click="Button_Click_Number"
+							Background="LightGray" Foreground="Black"
+							CornerRadius="25" Padding="0"
+							HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+					<Button Width="40" Height="40" Content="1"
+							HorizontalAlignment="Center"
+							Click="Button_Click_Number"
+							Background="LightGray" Foreground="Black"
+							CornerRadius="25" Padding="0"
+							HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+					<Button Width="40" Height="40" Content="0"
+							Click="Button_Click_Number"
+							HorizontalAlignment="Center"
+							Background="LightGray" Foreground="Black"
+							CornerRadius="25" Padding="0"
+							HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+					<Button Width="40" Height="40" Content="-1"
+							HorizontalAlignment="Center"
+							Click="Button_Click_Number"
+							Background="LightGray" Foreground="Black"
+							CornerRadius="25" Padding="0"
+							HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+
+				</StackPanel>
+			</ScrollViewer>
+		</Border>
+
+		<!-- Numpad und weitere Elemente (unverändert, nur kleinere Anpassungen an Margin und IsVisible) -->
+		<Canvas Name="Numpad" IsVisible="False">
+			<Border Background="#303030" Width="250" Height="40" Canvas.Top="225" Canvas.Left="525">
+				<Border.Effect>
+					<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
+				</Border.Effect>
+				<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+					<TextBlock Name="Input" HorizontalAlignment="Center" Margin="0" Foreground="White" Text="Etagenwert" FontSize="20"/>
+				</StackPanel>
+			</Border>
+
+			<!-- Block 1 -->
+			<Border Tag="1" PointerPressed="Border_PointerPressed_1" Background="#303030" Width="63.33" Height="40" Canvas.Top="275" Canvas.Left="525">
+				<Border.Effect>
+					<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
+				</Border.Effect>
+				<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+					<TextBlock Name="Eins" HorizontalAlignment="Center" Margin="0" Foreground="White" Text="1" FontSize="20"/>
+				</StackPanel>
+			</Border>
+
+			<Border Tag="2" PointerPressed="Border_PointerPressed_1" Background="#303030" Width="63.33" Height="40" Canvas.Top="275" Canvas.Left="618.33">
+				<Border.Effect>
+					<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
+				</Border.Effect>
+				<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+					<TextBlock Name="Zwei" HorizontalAlignment="Center" Margin="0" Foreground="White" Text="2" FontSize="20"/>
+				</StackPanel>
+			</Border>
+
+			<Border Tag="3" PointerPressed="Border_PointerPressed_1" Background="#303030" Width="63.33" Height="40" Canvas.Top="275" Canvas.Left="711.66">
+				<Border.Effect>
+					<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
+				</Border.Effect>
+				<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+					<TextBlock Name="Drei" HorizontalAlignment="Center" Margin="0" Foreground="White" Text="3" FontSize="20"/>
+				</StackPanel>
+			</Border>
+
+			<!-- Block 2 -->
+			<Border Tag="4" PointerPressed="Border_PointerPressed_1" Background="#303030" Width="63.33" Height="40" Canvas.Top="325" Canvas.Left="525">
+				<Border.Effect>
+					<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
+				</Border.Effect>
+				<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+					<TextBlock Name="Vier" HorizontalAlignment="Center" Margin="0" Foreground="White" Text="4" FontSize="20"/>
+				</StackPanel>
+			</Border>
+
+			<Border Tag="5" PointerPressed="Border_PointerPressed_1" Background="#303030" Width="63.33" Height="40" Canvas.Top="325" Canvas.Left="618.33">
+				<Border.Effect>
+					<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
+				</Border.Effect>
+				<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+					<TextBlock Name="Fuenf" HorizontalAlignment="Center" Margin="0" Foreground="White" Text="5" FontSize="20"/>
+				</StackPanel>
+			</Border>
+
+			<Border Tag="6" PointerPressed="Border_PointerPressed_1" Background="#303030" Width="63.33" Height="40" Canvas.Top="325" Canvas.Left="711.66">
+				<Border.Effect>
+					<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
+				</Border.Effect>
+				<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+					<TextBlock Name="Sechs" HorizontalAlignment="Center" Margin="0" Foreground="White" Text="6" FontSize="20"/>
+				</StackPanel>
+			</Border>
+
+			<!-- Block 3 -->
+			<Border Tag="7" PointerPressed="Border_PointerPressed_1" Background="#303030" Width="63.33" Height="40" Canvas.Top="375" Canvas.Left="525">
+				<Border.Effect>
+					<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
+				</Border.Effect>
+				<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+					<TextBlock Name="Sieben" HorizontalAlignment="Center" Margin="0" Foreground="White" Text="7" FontSize="20"/>
+				</StackPanel>
+			</Border>
+
+			<Border Tag="8" PointerPressed="Border_PointerPressed_1" Background="#303030" Width="63.33" Height="40" Canvas.Top="375" Canvas.Left="618.33">
+				<Border.Effect>
+					<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
+				</Border.Effect>
+				<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+					<TextBlock Name="Acht" HorizontalAlignment="Center" Margin="0" Foreground="White" Text="8" FontSize="20"/>
+				</StackPanel>
+			</Border>
+
+			<Border Tag="9" PointerPressed="Border_PointerPressed_1" Background="#303030" Width="63.33" Height="40" Canvas.Top="375" Canvas.Left="711.66">
+				<Border.Effect>
+					<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
+				</Border.Effect>
+				<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+					<TextBlock Name="Neun" HorizontalAlignment="Center" Margin="0" Foreground="White" Text="9" FontSize="20"/>
+				</StackPanel>
+			</Border>
+
+			<!-- Block 3 -->
+			<Border Tag="I" PointerPressed="Border_PointerPressed_2" Background="#303030" Width="63.33" Height="40" Canvas.Top="425" Canvas.Left="525">
+				<Border.Effect>
+					<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
+				</Border.Effect>
+				<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+					<TextBlock Name="Innenruf" HorizontalAlignment="Center" Margin="0" Foreground="White" Text="I" FontSize="20"/>
+				</StackPanel>
+			</Border>
+
+			<Border Tag="0" PointerPressed="Border_PointerPressed_1" Background="#303030" Width="63.33" Height="40" Canvas.Top="425" Canvas.Left="618.33">
+				<Border.Effect>
+					<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
+				</Border.Effect>
+				<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+					<TextBlock Name="Null" HorizontalAlignment="Center" Margin="0" Foreground="White" Text="0" FontSize="20"/>
+				</StackPanel>
+			</Border>
+
+			<Border Tag="A" PointerPressed="Border_PointerPressed_2" Background="#303030" Width="63.33" Height="40" Canvas.Top="425" Canvas.Left="711.66">
+				<Border.Effect>
+					<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
+				</Border.Effect>
+				<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+					<TextBlock Name="Aussenruf" HorizontalAlignment="Center" Margin="0" Foreground="White" Text="A" FontSize="20"/>
+				</StackPanel>
+			</Border>
+		</Canvas>
+
+		<!-- A-Zustand: Unterster Etagen-Bereich wird nun ausgeblendet -->
+		<Border IsVisible="False" Background="#303030" Width="90" Height="40" Canvas.Top="425" Canvas.Left="100">
+			<Border.Effect>
+				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
+			</Border.Effect>
+			<StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+				<TextBlock Name="EtagenInsgesamtUnterste" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" Foreground="White" Text="" FontSize="20"/>
+			</StackPanel>
+		</Border>
+
+		<!-- A-Zustand (Oberster Etagen-Bereich bleibt unsichtbar) -->
+		<Border IsVisible="False" Background="#303030" Width="90" Height="40" Canvas.Top="425" Canvas.Left="210">
+			<Border.Effect>
+				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
+			</Border.Effect>
+			<StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+				<TextBlock Name="EtagenInsgesamtOberste" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" Foreground="White" Text="" FontSize="20"/>
+			</StackPanel>
+		</Border>
+
+		<!-- OFahren, MFahren, UFahren -->
+		<Border IsVisible="False" Name="OFahrenBorder" Tag="OFahren" PointerPressed="Border_PointerPressed" Background="#303030" Width="40" Height="40" Canvas.Top="425" Canvas.Left="325">
+			<Border.Effect>
+				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
+			</Border.Effect>
+			<StackPanel HorizontalAlignment="Center">
+				<TextBlock Margin="10" Foreground="White" FontSize="15">O</TextBlock>
+				<TextBlock Name="ObersteEtage" HorizontalAlignment="Center" Margin="0" Foreground="White" Text="" FontSize="20"/>
+			</StackPanel>
+		</Border>
+
+		<Border IsVisible="False" Name="MFahrenBorder" Tag="MFahren" PointerPressed="Border_PointerPressed" Background="#303030" Width="40" Height="40" Canvas.Top="425" Canvas.Left="390">
+			<Border.Effect>
+				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
+			</Border.Effect>
+			<StackPanel HorizontalAlignment="Center">
+				<TextBlock Margin="10" Foreground="White" FontSize="15">M</TextBlock>
+				<TextBlock Name="MitteEtage" HorizontalAlignment="Center" Margin="0" Foreground="White" Text="" FontSize="20"/>
+			</StackPanel>
+		</Border>
+
+		<Border IsVisible="False" Name="UFahrenBorder" Tag="UFahren" PointerPressed="Border_PointerPressed" Background="#303030" Width="40" Height="40" Canvas.Top="425" Canvas.Left="455">
+			<Border.Effect>
+				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
+			</Border.Effect>
+			<StackPanel HorizontalAlignment="Center">
+				<TextBlock Margin="10" Foreground="White" FontSize="15">U</TextBlock>
+				<TextBlock Name="UntersteEtage" HorizontalAlignment="Center" Margin="0" Foreground="White" Text="" FontSize="20"/>
+			</StackPanel>
+		</Border>
+
+		<!-- A-Zustand Anzeige -->
+		<Border CornerRadius="10" Background="#303030" Width="250" Height="80" Canvas.Top="280" Canvas.Left="470">
+			<Border.Effect>
+				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
+			</Border.Effect>
+			<StackPanel HorizontalAlignment="Center">
+				<TextBlock Margin="10" Foreground="White" FontSize="15">A-Zustand</TextBlock>
+				<TextBlock Name="Zustand" HorizontalAlignment="Center" Margin="0" Foreground="White" Text="" FontSize="20"/>
+			</StackPanel>
+		</Border>
+
+		<!-- S-Kreis Anzeige -->
+		<Border CornerRadius="10" Background="#303030" Width="250" Height="80" Canvas.Top="385" Canvas.Left="470">
+			<Border.Effect>
+				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
+			</Border.Effect>
+			<StackPanel>
+				<TextBlock HorizontalAlignment="Center" Margin="10" Foreground="White" FontSize="15">S-Kreis</TextBlock>
+				<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="15">
+					<Border Name="SK1" Background="Red" Width="20" Height="30" BorderBrush="Gray" BorderThickness="1.5"/>
+					<Border Name="SK2" Background="Red" Width="20" Height="30" BorderBrush="Gray" BorderThickness="1.5"/>
+					<Border Name="SK3" Background="Red" Width="20" Height="30" BorderBrush="Gray" BorderThickness="1.5"/>
+					<Border Name="SK4" Background="Red" Width="20" Height="30" BorderBrush="Gray" BorderThickness="1.5"/>
+				</StackPanel>
+			</StackPanel>
+		</Border>
+
+		<!-- B-Stunden (Tür 1) -->
+		<Border CornerRadius="10" Background="#303030" Width="250" Height="80" Canvas.Top="175" Canvas.Left="470">
+			<Border.Effect>
+				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
+			</Border.Effect>
+			<StackPanel HorizontalAlignment="Center">
+				<TextBlock HorizontalAlignment="Center" Margin="10" Foreground="White" FontSize="15">Tür 2</TextBlock>
+				<TextBlock Name="Tuer2" HorizontalAlignment="Center" Margin="0" Foreground="White" Text="" FontSize="20"/>
+			</StackPanel>
+		</Border>
+
+		<!-- B-Stunden (Tür 2) -->
+		<Border CornerRadius="10" Background="#303030" Width="250" Height="80" Canvas.Top="70" Canvas.Left="470">
+			<Border.Effect>
+				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
+			</Border.Effect>
+			<StackPanel HorizontalAlignment="Center">
+				<TextBlock HorizontalAlignment="Center" Margin="10" Foreground="White" FontSize="15">Tür 1</TextBlock>
+				<TextBlock Name="Tuer1" HorizontalAlignment="Center" Margin="0" Foreground="White" Text="" FontSize="20"/>
+			</StackPanel>
+		</Border>
+
+		<!-- Etagenanzeige (unsichtbar) -->
+		<Border Background="#303030" Width="250" Height="0" Canvas.Top="15" Canvas.Left="470">
+			<Border.Effect>
+				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
+			</Border.Effect>
+			<Grid>
+				<Border Background="#303030" Width="250" Height="0" Canvas.Top="25" Canvas.Left="525">
+					<Border.Effect>
+						<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
+					</Border.Effect>
+					<StackPanel HorizontalAlignment="Center">
+						<ProgressBar Name="EtageProgressBar" Width="250" Height="35" Minimum="0" Maximum="" Value="" Foreground="#90ff22" Background="Gray"/>
+					</StackPanel>
+				</Border>
+			</Grid>
+		</Border>
+
+		<!-- Etagen-Text (oben rechts) -->
+		<Border CornerRadius="10"
+				Background="#303030"
+				Width="60" Height="40"
+				Canvas.Top="13" Canvas.Left="730">
+			<Border.Effect>
+				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
+			</Border.Effect>
+			<!-- Ein einfaches Grid oder StackPanel mit Horizontal/VerticalAlignment="Center" -->
+			<Grid>
+				<TextBlock x:Name="Etage"
+						   Text="Etage"
+						   Foreground="White"
+						   FontSize="16"
+						   HorizontalAlignment="Center"
+						   VerticalAlignment="Center"/>
+			</Grid>
+		</Border>
+
+		<Canvas Name="Aussengruppe" IsVisible="False">
+			<Border Tag="Hoch" PointerPressed="Border_PointerPressed_3" Background="#303030" Width="115" Height="240" Canvas.Top="225" Canvas.Left="525">
+				<Border.Effect>
+					<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
+				</Border.Effect>
+				<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+					<Image Width="75" Source="C:\Users\Mouad Ezzouine\source\repos\HSED 2.0\HSED 2.0\Images\Icons\pfeil-Hoch.png"/>
+				</StackPanel>
+			</Border>
+
+			<Border Tag="Runter" PointerPressed="Border_PointerPressed_3" Background="#303030" Width="115" Height="240" Canvas.Top="225" Canvas.Left="660">
+				<Border.Effect>
+					<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
+				</Border.Effect>
+				<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+					<Image Width="75" Source="C:\Users\Mouad Ezzouine\source\repos\HSED 2.0\HSED 2.0\Images\Icons\pfeil-runter.png"/>
+				</StackPanel>
+			</Border>
+		</Canvas>
+
+		<Border x:Name="Overlap" Background="Black" Width="800" Height="480" Opacity="100" IsVisible="False"/>
+		<Border x:Name="NavBar" Background="Black" Width="60" Height="480">
+			<Border.Effect>
+				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
+			</Border.Effect>
+			<StackPanel x:Name="StackPanelNavBar" HorizontalAlignment="Center" Margin="0,25,0,0">
+				<Button Tag="Menu" x:Name="ButtonSettings" Width="50" Height="40" Click="Button_Click_Settings">
+					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+						<Image Source="file:///C:\Users\Mouad Ezzouine\source\repos\HSED 2.0\HSED 2.0\Images\Icons\menu-offnen.png"/>
+						<TextBlock Margin="10,5,0,0" x:Name="SettingsText" IsVisible="False" Foreground="White">Menue</TextBlock>
+					</StackPanel>
+				</Button>
+
+				<Button Tag="Home" x:Name="ButtonSettings7" Width="50" Height="40" Margin="0,5,0,0" Click="Button_Click_Settings">
+					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+						<Image Source="file:///C:\Users\Mouad Ezzouine\source\repos\HSED 2.0\HSED 2.0\Images\Icons\zuhause.png"/>
+						<TextBlock Margin="10,5,0,0" x:Name="SettingsText7" IsVisible="False" Foreground="White">Home</TextBlock>
+					</StackPanel>
+				</Button>
+
+				<Button Tag="Testrufe" x:Name="ButtonSettings3" Width="50" Height="40" Margin="0,5,0,0" Click="Button_Click_Settings">
+					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+						<Image Source="file:///C:\Users\Mouad Ezzouine\source\repos\HSED 2.0\HSED 2.0\Images\Icons\aufzug.png"/>
+						<TextBlock Margin="10,5,0,0" x:Name="SettingsText3" IsVisible="False" Foreground="White">Testrufe</TextBlock>
+					</StackPanel>
+				</Button>
+
+				<Button Tag="Codes" x:Name="ButtonSettings4" Width="50" Height="40" Margin="0,5,0,0" Click="Button_Click_Settings">
+					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+						<Image Source="file:///C:\Users\Mouad Ezzouine\source\repos\HSED 2.0\HSED 2.0\Images\Icons\stift.png"/>
+						<TextBlock Margin="10,5,0,0" x:Name="SettingsText4" IsVisible="False" Foreground="White">Codes</TextBlock>
+					</StackPanel>
+				</Button>
+
+				<Button Tag="Ansicht" x:Name="ButtonSettings5" Width="50" Height="40" Margin="0,5,0,0" Click="Button_Click_Settings">
+					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+						<Image Source="file:///C:\Users\Mouad Ezzouine\source\repos\HSED 2.0\HSED 2.0\Images\Icons\aussicht.png"/>
+						<TextBlock Margin="10,5,0,0" x:Name="SettingsText5" IsVisible="False" Foreground="White">Ansicht</TextBlock>
+					</StackPanel>
+				</Button>
+
+				<Button Tag="SelfDia" x:Name="ButtonSettings6" Width="50" Height="40" Margin="0,5,0,0" Click="Button_Click_Settings">
+					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+						<Image Source="file:///C:\Users\Mouad Ezzouine\source\repos\HSED 2.0\HSED 2.0\Images\Icons\analysieren.png"/>
+						<TextBlock Margin="10,5,0,0" x:Name="SettingsText6" IsVisible="False" Foreground="White">Self-Dia</TextBlock>
+					</StackPanel>
+				</Button>
+
+				<Button Tag="Settings" x:Name="ButtonSettings2" Width="50" Height="40" Margin="0,130,0,0" Click="Button_Click_Settings">
+					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+						<Image Source="file:///C:/Users/Mouad%20Ezzouine/source/repos/HSED%202.0/HSED%202.0/Images/Icons/die-einstellungen.png"/>
+						<TextBlock Margin="10,5,0,0" x:Name="SettingsText2" IsVisible="False" Foreground="White">Settings</TextBlock>
+					</StackPanel>
+				</Button>
+			</StackPanel>
+		</Border>
+
+		<!-- Neuer Refresh-Button in der unteren rechten Ecke -->
+		<Button CornerRadius="90" x:Name="RefreshButton" Width="50" Height="50" Canvas.Left="740" Canvas.Top="400" Click="">
+			<Button.Content>
+				<Image Source="file:///C:/Users/Mouad%20Ezzouine/source/repos/HSED%202.0/HSED%202.0/Images/Icons/refresh.png" Stretch="Uniform"/>
+			</Button.Content>
+		</Button>
+		<Button CornerRadius="90" Tag="OFahren" x:Name="OEtage" Width="50" Height="50" Canvas.Left="740" Canvas.Top="85" Click="Button_Click_OMU">
+			<Button.Content>
+				<TextBlock HorizontalAlignment="Center" Tag="MFahren" VerticalAlignment="Center" FontSize="20" Foreground="White">O</TextBlock>
+			</Button.Content>
+		</Button>
+		<Button CornerRadius="90" Tag="MFahren" x:Name="MEtgae" Width="50" Height="50" Canvas.Left="740" Canvas.Top="195" Click="Button_Click_OMU">
+			<Button.Content>
+				<TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20" Foreground="White">M</TextBlock>
+			</Button.Content>
+		</Button>
+		<Button  CornerRadius="90" Tag="UFahren" x:Name="UEtage" Width="50" Height="50" Canvas.Left="740" Canvas.Top="295" Click="Button_Click_OMU">
+			<Button.Content>
+				<TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20" Foreground="White">U</TextBlock>
+				</Button.Content>
+		</Button>
+
+		<Grid Name="IoA" Width="800" Height="480" IsVisible="False">
+			
+			<Border Background="Black" Opacity="70"/>
+			<Border Background="#303030" Width="350" Height="200" CornerRadius="10"
+					HorizontalAlignment="Center" VerticalAlignment="Center">
+				<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal" Spacing="20">
+					<Button Click="Button_Click_IoA" Content="I" Tag="I" CornerRadius="10" Height="150" Width="125">
+						<TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="70" Foreground="White">I</TextBlock>
+					</Button>
+					<Button Click="Button_Click_IoA" Content="A" Tag="A" CornerRadius="10" Height="150" Width="125">
+						<TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="70" Foreground="White">A</TextBlock>
+					</Button>
+				</StackPanel>
+				<Border.Effect>
+					<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
+				</Border.Effect>
+			</Border>
+			<Canvas>
+				<Button Canvas.Left="530" Canvas.Top="90" CornerRadius="90" Width="40" Height="40" Background="Red" Click="Button_Click_X">
+					<TextBlock Foreground="White" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center">X</TextBlock>
+				</Button>
+			</Canvas>
+		</Grid>
+
+
+		<Grid Name="AOoU" Width="800" Height="480" IsVisible="False">
+			<Border Background="Black" Opacity="70"/>
+			<Border Background="#303030" Width="350" Height="200" CornerRadius="10"
+					HorizontalAlignment="Center" VerticalAlignment="Center">
+				<StackPanel  HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal" Spacing="20">
+					<Button Tag="R" Content="R" Click="Button_Click_AOoU" CornerRadius="10" Height="150" Width="125">
+						<Image Width="75" Source="C:\Users\Mouad Ezzouine\source\repos\HSED 2.0\HSED 2.0\Images\Icons\pfeil-runter.png"/>
+					</Button>
+					<Button Tag="H" Content="H" Click="Button_Click_AOoU" CornerRadius="10" Height="150" Width="125">
+						<Image Width="75" Source="C:\Users\Mouad Ezzouine\source\repos\HSED 2.0\HSED 2.0\Images\Icons\pfeil-Hoch.png"/>
+					</Button>
+				</StackPanel>
+				<Border.Effect>
+					<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
+				</Border.Effect>
+			</Border>
+			<Canvas>
+				<Button Canvas.Left="530" Canvas.Top="90" CornerRadius="90" Width="40" Height="40" Background="Red" Click="Button_Click_X">
+					<TextBlock Foreground="White" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center">X</TextBlock>
+				</Button>
+			</Canvas>
+		</Grid>
+	
+	</Canvas>
+
+
+</Window>

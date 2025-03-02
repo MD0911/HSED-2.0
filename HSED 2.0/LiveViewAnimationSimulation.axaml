@@ -1,0 +1,137 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="HSED_2._0.LiveViewAnimationSimulation"
+        Width="800" Height="480"
+        Background="#222222"
+        Title="HSED_2._0"
+        CanResize="False">
+	
+	<!-- Um mehrere Elemente zu positionieren, wird ein Grid verwendet -->
+	<Grid>
+		<!-- Der bestehende Inhalt -->
+		<StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="10">
+			<!-- Live-View Bereich -->
+			<Border CornerRadius="10" Background="#303030" Width="200" Height="395" ClipToBounds="True">
+				<Border.Effect>
+					<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
+				</Border.Effect>
+				<!-- In diesem Grid befinden sich alle Elemente innerhalb des Borders -->
+				<Grid>
+					<!-- Hintergrund-Canvas für die Linien -->
+					<Canvas x:Name="WindCanvas" ZIndex="0" Width="200" Height="395"/>
+
+					<!-- TextBlock für die Zahl -->
+
+					<TextBlock x:Name="ClockText"
+                     HorizontalAlignment="Right"
+                     VerticalAlignment="Top"
+                     Margin="0,10,10,0"
+                     Foreground="White"
+                     FontSize="14"
+                     ZIndex="4"/>
+
+					<StackPanel Orientation="Horizontal"
+					HorizontalAlignment="Left"
+					VerticalAlignment="Top"
+					Margin="10"
+					ZIndex="4"
+					Spacing="5">
+						<Border Width="30" Height="30" Background="#525252" CornerRadius="5" Padding="5">
+							<TextBlock Text="-1" Foreground="White" FontSize="16" HorizontalAlignment="Center"/>
+						</Border>
+						<Border Width="30" Height="30" Background="#525252" CornerRadius="5" Padding="5">
+							<TextBlock Text="6" Foreground="White" FontSize="16" HorizontalAlignment="Center"/>
+						</Border>
+					</StackPanel>
+					
+					<TextBlock x:Name="NumberText"
+							   Text="42"
+							   FontSize="36"
+							   Foreground="White"
+							   HorizontalAlignment="Center"
+							   VerticalAlignment="Top"
+							   Margin="0,30,10,0"
+							   ZIndex="1">
+						<TextBlock.RenderTransform>
+							<TranslateTransform X="0" Y="0"/>
+						</TextBlock.RenderTransform>
+					</TextBlock>
+
+					<!-- Vordergrund: Inhalt des Live-View -->
+					<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" ZIndex="2">
+						<!-- SVG-basierter Aufzug in einer Viewbox -->
+						<Viewbox x:Name="ElevatorView" Width="100" Height="200">
+							<Viewbox.RenderTransform>
+								<TransformGroup>
+									<!-- Basisbewegung -->
+									<TranslateTransform Y="0"/>
+									<!-- Dynamische (oszillierende) Bewegung -->
+									<TranslateTransform/>
+								</TransformGroup>
+							</Viewbox.RenderTransform>
+							<Canvas Height="212.47" Width="173.74">
+								<!-- Die vorhandenen Polygon-Definitionen -->
+								<Polygon Fill="#dadada" Points="85.7 17.51 173.74 35.12 85.7 61.44 0 35.55 85.7 17.51" />
+								<Polygon Fill="#dadada" Points="14.76 168.01 0 158.9 0 35.12 14.76 39.48 14.76 168.01" />
+								<Polygon Fill="#dadada" Points="66.55 199.94 86.87 212.47 85.7 61.44 66.55 55.3 66.55 199.94" />
+								<Polygon Fill="#dadada" Points="107.19 199.94 86.87 212.47 85.7 61.44 107.88 54.45 107.19 199.94" />
+								<Polygon Fill="#dadada" Points="158.98 168.01 173.74 158.9 173.74 35.12 157.71 39.69 158.98 168.01" />
+								<Polygon Fill="#b2b2b2" Points="139.86 57.02 158.98 62.06 158.98 168.01 139.86 159.3 139.86 57.02" />
+								<Polygon Fill="#b2b2b2" Points="33.39 61.44 14.76 66.5 14.76 168.01 33.39 159.52 33.39 61.44" />
+								<Polygon Fill="#dadada" Points="158.98 66.03 107.19 85.02 107.19 54.95 157.71 39.69 158.98 66.03" />
+								<Polygon Fill="#dadada" Points="14.76 66.03 66.55 85.02 66.55 55.3 14.76 39.48 14.76 66.03" />
+								<Polygon Fill="#706f6f" Points="119.55 80.49 139.86 73.04 139.86 159.3 119.55 170.85 119.55 80.49" />
+								<Polygon Fill="#706f6f" Points="107.19 85.02 119.55 80.49 119.55 170.85 107.19 177.88 107.19 85.02" />
+								<Polygon Fill="#706f6f" Points="54.19 80.49 33.39 72.86 33.39 159.52 54.19 171.37 54.19 80.49" />
+								<Polygon Fill="#706f6f" Points="66.55 85.02 54.19 80.49 54.19 171.37 66.55 178.42 66.55 85.02" />
+								<!-- Tür3 -->
+								<Canvas x:Name="Door3Canvas">
+									<Polygon Fill="#3aaa35" Points="143.06 11.53 154.76 8.9 154.76 21.62 143.06 24.6 143.06 11.53" />
+									<Polygon Fill="#3aaa35" Points="90.1 14 143.06 24.69 143.06 11.53 90.1 2.14 90.1 14" />
+									<Polygon Fill="#3aaa35" Points="90.1 2.14 143.06 11.53 154.76 8.9 101.99 0 90.1 2.14" />
+								</Canvas>
+								<!-- Tür2 -->
+								<Canvas x:Name="Door2Canvas">
+									<Polygon Fill="#e30613" Points="158.98 15.05 107.34 27.53 107.34 43.63 158.98 29.34 158.98 15.05" />
+									<Polygon Fill="#e30613" Points="94.35 40.31 107.34 43.63 107.34 27.53 94.31 24.63 94.35 40.31" />
+									<Polygon Fill="#e30613" Points="158.98 15.05 146.18 12.76 94.31 24.63 107.34 27.53 158.98 15.05" />
+								</Canvas>
+								<!-- Türbereich (Tür1) -->
+								<Canvas x:Name="Door1Canvas" Height="212.47" Width="173.74">
+									<Polygon Fill="#e62d22" Points="66.55 27.56 14.76 15.05 14.76 29.34 66.55 43.68 66.55 27.56" />
+									<Polygon Fill="#e62d22" Points="78.47 40.28 66.55 43.68 66.55 27.56 78.47 24.92 78.47 40.28" />
+									<Polygon Fill="#e62d22" Points="14.76 15.05 66.55 27.56 78.47 24.92 26.46 12.96 14.76 15.05" />
+								</Canvas>
+							</Canvas>
+						</Viewbox>
+					</StackPanel>
+
+					<!-- Blinking-Dots innerhalb des Borders, rechts unten positioniert -->
+					<Canvas HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,70,20" ZIndex="3">
+						<Ellipse x:Name="Dot1" Width="10" Height="10"
+								 Fill="DarkGray" Stroke="LightGray" StrokeThickness="2"
+								 Canvas.Left="0" Canvas.Top="0"/>
+						<Ellipse x:Name="Dot2" Width="10" Height="10"
+								 Fill="DarkGray" Stroke="LightGray" StrokeThickness="2"
+								 Canvas.Left="15" Canvas.Top="0"/>
+						<Ellipse x:Name="Dot3" Width="10" Height="10"
+								 Fill="DarkGray" Stroke="LightGray" StrokeThickness="2"
+								 Canvas.Left="30" Canvas.Top="0"/>
+						<Ellipse x:Name="Dot4" Width="10" Height="10"
+								 Fill="DarkGray" Stroke="LightGray" StrokeThickness="2"
+								 Canvas.Left="45" Canvas.Top="0"/>
+					</Canvas>
+				</Grid>
+			</Border>
+
+			<!-- Steuerungs-Buttons -->
+			<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10">
+				<Button x:Name="BtnUp" Content="Aufbewegung"/>
+				<Button x:Name="BtnStop" Content="Stopp"/>
+				<Button x:Name="BtnDown" Content="Runterbewegung"/>
+				
+			</StackPanel>
+		</StackPanel>
+		<Button Content="Zurück zur App" Click="Button_Click"/>
+	</Grid>
+</Window>

@@ -4,7 +4,9 @@
         Width="800" Height="480"
         Background="#222222"
         Title="HSED_2._0"
-		CanResize="False">
+		CanResize="False"
+		SystemDecorations="None"
+        WindowStartupLocation="Manual">
 
 
 	<Canvas>

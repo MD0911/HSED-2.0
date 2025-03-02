@@ -128,6 +128,7 @@
     <None Remove="bitmap\ASCIIEF.bmp" />
     <None Remove="bitmap\ASCIIF5.bmp" />
     <None Remove="bitmap\ASCIIFF.bmp" />
+    <None Remove="Images\BackgroundGradient.png" />
     <None Remove="Images\Icons\analysieren.png" />
     <None Remove="Images\Icons\aufzug.png" />
     <None Remove="Images\Icons\aussicht.png" />
@@ -491,6 +492,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="bitmap\ASCIIFF.bmp">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\BackgroundGradient.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

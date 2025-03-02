@@ -30,7 +30,7 @@ namespace HSED_2_0
                 while (!_cts.Token.IsCancellationRequested)
                 {
                     // Sende Monitoring-Befehl (z. B. 0x05,0x01) ohne auf Antwort zu warten.
-                    HseCom.SendHseCommand(new byte[] { 0x05, 0x01 });
+                    SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x05, 0x01 });
                     try
                     {
                         await Task.Delay(1000, _cts.Token);

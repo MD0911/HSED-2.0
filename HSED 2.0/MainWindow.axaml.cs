@@ -27,6 +27,7 @@ namespace HSED_2._0
         public MainWindow()
         {
             InitializeComponent();
+            this.Position = new Avalonia.PixelPoint(100, 100);
             Instance = this; // Speichert die Instanz
             ViewModel = new MainViewModel();
             DataContext = ViewModel;
@@ -175,17 +176,25 @@ namespace HSED_2._0
         private void HseConnect()
         {
             EtageProgressBar.Maximum = gesamteFloors - 1;
+
+            // Temperatur abfragen und anzeigen
             int temp = HseCom.SendHse(3001);
             Temp.Text = temp.ToString() + "°C";
-            int currentfloor = HseCom.SendHse(1002);
-            Etage.Text = currentfloor.ToString();
 
             // Initialisiere einmalig die statischen Floor-Parameter:
             MonetoringManager.startMonetoring();
 
+            // Initiales Abfragen der aktuellen Etage (Art 1002)
+            int currentFloor = HseCom.SendHse(1002);
+            // Hier aktualisieren wir direkt das ViewModel:
+            ViewModel.CurrentFloor = currentFloor;
+            Debug.WriteLine("Initialer Etagenwert: " + currentFloor);
+
+            // Starte den Monitoring-Manager
             _monetoringManager = new MonetoringManager();
             _monetoringManager.Start();
         }
+
 
         private void SK()
         {
@@ -307,7 +316,7 @@ namespace HSED_2._0
                             newWindowSettings.Show();
                             break;
                         case "Testrufe":
-                            var newWindowTestrufe = new Testrufe();
+                            var newWindowTestrufe = new TestrufeNeu();
                             newWindowTestrufe.Show();
                             this.Close();
                             break;
@@ -315,10 +324,16 @@ namespace HSED_2._0
                             var newWindowCode = new Code();
                             newWindowCode.Show();
                             break;
+                        case "SelfDia":
+                            var newWindowDia = new LiveViewAnimationSimulation();
+                            newWindowDia.Show();
+                           this.Close();
+
+                            break;
                         case "Ansicht":
+                            TerminalManager.terminalActive = true;
                             var newWindowAnsicht = new Terminal();
                             newWindowAnsicht.Show();
-                            this.Close();
                             break;
                     }
                 }

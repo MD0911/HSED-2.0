@@ -1,4 +1,4 @@
-using Avalonia.Controls;
+ï»¿using Avalonia.Controls;
 using Avalonia.Media.Imaging;
 using System;
 using System.Diagnostics;
@@ -13,9 +13,12 @@ namespace HSED_2_0
         public Terminal()
         {
             InitializeComponent();
+            // Fensterposition Ã¼ber die Property 'Position' setzen
+            this.Position = new Avalonia.PixelPoint(100, 100);
             terminalManager.Start();
             Instance = this;
         }
+
 
         /// <summary>
         /// Aktualisiert eine Zelle im Bild-Display.
@@ -54,66 +57,71 @@ namespace HSED_2_0
                         SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x01, 0x03, 0x00, 0x31 });
                         break;
             case "2":
-                        // Logik für Button 2
+                        // Logik fÃ¼r Button 2
                         SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x01, 0x03, 0x00, 0x32 });
                         break;
             case "3":
-                        // Logik für Button 3
+                        // Logik fÃ¼r Button 3
                         SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x01, 0x03, 0x00, 0x33});
                         break;
             case "4":
-                        // Logik für Button 4
+                        // Logik fÃ¼r Button 4
                         SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x01, 0x03, 0x00, 0x34 });
                         break;
             case "5":
-                        // Logik für Button 5
+                        // Logik fÃ¼r Button 5
                         SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x01, 0x03, 0x00, 0x35 });
                         break;
             case "6":
-                        // Logik für Button 6
+                        // Logik fÃ¼r Button 6
                         SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x01, 0x03, 0x00, 0x36 });
                         break;
             case "7":
-                        // Logik für Button 7
+                        // Logik fÃ¼r Button 7
                         SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x01, 0x03, 0x00, 0x37 });
                         break;
             case "8":
-                        // Logik für Button 8
+                        // Logik fÃ¼r Button 8
                         SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x01, 0x03, 0x00, 0x38 });
                         break;
             case "9":
-                        // Logik für Button 9
+                        // Logik fÃ¼r Button 9
                         SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x01, 0x03, 0x00, 0x39 });
                         break;
             case "0":
-                        // Logik für Button 0
+                        // Logik fÃ¼r Button 0
                         SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x01, 0x03, 0x00, 0x30 });
                         break;
             case "ESC":
-                        // Logik für ESC-Taste
+                        // Logik fÃ¼r ESC-Taste
                         SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x01, 0x03, 0x00, 0x1B });
                         break;
-            case "ENT":
-                        // Logik für ENTER-Taste
+            case "â†µ":
+                        // Logik fÃ¼r ENTER-Taste
                         SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x01, 0x03, 0x00, 0x0D });
                         break;
-             case "UP":
-                        // Logik für ESC-Taste
+             case "â†‘":
+                        // Logik fÃ¼r ESC-Taste
                         SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x01, 0x03, 0x00, 0x26 });
                         break;
-             case "DOWN":
-                        // Logik für ENTER-Taste
+             case "â†“":
+                        // Logik fÃ¼r ENTER-Taste
                         SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x01, 0x03, 0x00, 0x28 });
                         break;
 
                     default:
-                // Fallback für unbekannte Buttons
+                // Fallback fÃ¼r unbekannte Buttons
                 break;
         }
     }
 }
 
+        private void Button_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+        {
+            TerminalManager.terminalActive = false;
+            this.Close();
         }
+    }
 
     }
 

@@ -1,188 +1,102 @@
-using Avalonia.Controls;
-using System;
-using System.IO.Ports;
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Interactivity;
-using System.Threading;
+using System;
 using System.Diagnostics;
+using System.Collections.Generic;
 using HSED_2_0;
-using System.Text;
+using System.Threading;
+using Avalonia.Rendering;
 using System.Threading.Tasks;
+
 namespace HSED_2._0
 {
-
     public partial class Code : Window
     {
         bool NavBarStatus = false;
         private CancellationTokenSource _cancellationTokenSource;
+
         public Code()
         {
             InitializeComponent();
-          
-
         }
 
-       
-
-        private void HseUpdated()
+        private void Button_Click_Numpad(object? sender, RoutedEventArgs e)
         {
-            
-        }
-
-            /* private void Button_Click_Settings(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
-             {
-                 if (sender is Button button)
-                 {
-                     // Speichere den Namen des Buttons als String
-                     string buttonTag = button.Tag?.ToString();
-                     if (buttonTag == "Menu")
-                     {
-
-
-                         if (NavBarStatus == false)
-                         {
-                             NavBar.Width += 100;
-                             StackPanelNavBar.HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left;
-                             StackPanelNavBar.Margin = new Avalonia.Thickness(10, 25, 0, 0);
-                             SettingsText.IsVisible = true;
-                             ButtonSettings.Width = 100;
-                             SettingsText2.IsVisible = true;
-                             ButtonSettings2.Width = 100;
-                             SettingsText3.IsVisible = true;
-                             ButtonSettings3.Width = 100;
-                             SettingsText4.IsVisible = true;
-                             ButtonSettings4.Width = 100;
-                             SettingsText5.IsVisible = true;
-                             ButtonSettings5.Width = 100;
-                             Overlap.IsVisible = true;
-                             SettingsText6.IsVisible = true;
-                             ButtonSettings6.Width = 100;
-                             SettingsText7.IsVisible = true;
-                             ButtonSettings7.Width = 100;
-                             NavBarStatus = true;
-                         }
-                         else
-                         {
-                             NavBar.Width -= 100;
-                             StackPanelNavBar.HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center;
-                             StackPanelNavBar.Margin = new Avalonia.Thickness(0, 25, 0, 0);
-                             SettingsText.IsVisible = false;
-                             ButtonSettings.Width = 50;
-                             SettingsText2.IsVisible = false;
-                             ButtonSettings2.Width = 50;
-                             SettingsText3.IsVisible = false;
-                             ButtonSettings3.Width = 50;
-                             SettingsText4.IsVisible = false;
-                             ButtonSettings4.Width = 50;
-                             SettingsText5.IsVisible = false;
-                             ButtonSettings5.Width = 50;
-                             SettingsText6.IsVisible = false;
-                             ButtonSettings6.Width = 50;
-                             SettingsText7.IsVisible = false;
-                             ButtonSettings7.Width = 50;
-                             Overlap.IsVisible = false;
-                             NavBarStatus = false;
-                         }
-
-
-                     }
-                     else
-                     {
-
-                         switch (buttonTag)
-                         {
-
-
-                             case "Home":
-                                 var newWindowHome = new MainWindow();
-                                 newWindowHome.Show();
-                                 this.Close();
-                                 break;
-
-
-                         }
-
-                     }
-                 }
-             } */
-            private void Border_PointerPressed_1(object? sender, Avalonia.Input.PointerPressedEventArgs e)
-        {
+            // Wenn der bisherige Text "Kommando" ist, wird er geleert.
             if (Input.Text == "Kommando")
             {
                 Input.Text = "";
             }
 
-            if (sender is Border border)
+            if (sender is Button button)
             {
-                string buttonTag = border.Tag?.ToString();
-
+                string buttonTag = button.Tag?.ToString();
+                // Je nach Tag wird eine entsprechende Ziffer an den Input angehängt.
                 switch (buttonTag)
                 {
-
                     case "0":
-                        Input.Text = Input.Text + "0";
+                        Input.Text += "0";
                         break;
                     case "1":
-                        Input.Text = Input.Text + "1";
+                        Input.Text += "1";
                         break;
                     case "2":
-                        Input.Text = Input.Text + "2";
+                        Input.Text += "2";
                         break;
                     case "3":
-                        Input.Text = Input.Text + "3";
+                        Input.Text += "3";
                         break;
                     case "4":
-                        Input.Text = Input.Text + "4";
+                        Input.Text += "4";
                         break;
                     case "5":
-                        Input.Text = Input.Text + "5";
+                        Input.Text += "5";
                         break;
                     case "6":
-                        Input.Text = Input.Text + "6";
+                        Input.Text += "6";
                         break;
                     case "7":
-                        Input.Text = Input.Text + "7";
+                        Input.Text += "7";
                         break;
                     case "8":
-                        Input.Text = Input.Text + "8";
+                        Input.Text += "8";
                         break;
                     case "9":
-                        Input.Text = Input.Text + "9";
+                        Input.Text += "9";
                         break;
-
                 }
             }
         }
 
-        private void Border_PointerPressed_2(object? sender, Avalonia.Input.PointerPressedEventArgs e)
+        private async void Button_Click_Action(object? sender, RoutedEventArgs e)
         {
-
-            if (sender is Border border)
+            if (sender is Button button)
             {
-                string buttonTag = border.Tag?.ToString();
+                string buttonTag = button.Tag?.ToString();
 
-                if(buttonTag == "ESC")
+                if (buttonTag == "ESC")
                 {
                     Input.Text = "Kommando";
                 }
                 if (buttonTag == "E")
                 {
-                    int input = Convert.ToInt32(Input.Text);
+                    string inputText = Input.Text;
+                    // Durchlaufe den Input-Text Zeichen für Zeichen und sende die Bytes direkt
+                    foreach (char c in inputText)
+                    {
+                        if (char.IsDigit(c))
+                        {
+                            int asciiDecimal = (int)c;
+                            byte asciiByte = (byte)asciiDecimal;
+                            SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x01, 0x03, 0x00, asciiByte });
+                            await Task.Delay(100);
+                        }
+                    }
+                    SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x01, 0x03, 0x00, 0x0D });
                     Input.Text = "Kommando";
-
-                    /*   switch (input) {
-                           case 15:
-                               HseCom.SendHseCommand(new byte[] {0x07, 0x04, 0x01});
-                               break;
-
-
-                       }*/
                 }
-
-
             }
-            }
-
-        
         }
+
+    }
 }

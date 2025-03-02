@@ -10,6 +10,7 @@ namespace HSED_2_0
     {
         // Aktuelle Cursorposition (wird bei jeder Cursor-Nachricht aktualisiert)
         private static int _cursorRow = -1;
+        public static bool terminalActive { get; set; }
         private static int _cursorCol = -1;
         // Letzte blinkende Position (wird vom Timer verwendet, um zu prüfen, ob sich die Position geändert hat)
         private static int _lastBlinkRow = -1;
@@ -20,6 +21,8 @@ namespace HSED_2_0
         private static DispatcherTimer _blinkTimer;
         private CancellationTokenSource _cts;
 
+        public static object Instance { get; internal set; }
+
         public void Start()
         {
             _cts = new CancellationTokenSource();
@@ -29,7 +32,7 @@ namespace HSED_2_0
                 while (!_cts.Token.IsCancellationRequested)
                 {
                     // Sende beispielsweise den Terminalbefehl (dieser liefert auch Cursor-Nachrichten)
-                    HseCom.SendHseCommand(new byte[] { 0x01, 0x03 });
+                    SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x01, 0x03 });
                     try
                     {
                         await Task.Delay(1900, _cts.Token);
@@ -50,70 +53,73 @@ namespace HSED_2_0
         /// </summary>
         public static void AnalyzeResponse(byte[] response)
         {
-            // Aktualisiere die Bildzellen (s. früheren Code)
-            if (response.Length >= 70 && response[4] == 0x01 && response[5] == 0x04)
+            if (terminalActive)
             {
-                Dispatcher.UIThread.Post(() =>
+                // Aktualisiere die Bildzellen (s. früheren Code)
+                if (response.Length >= 70 && response[4] == 0x01 && response[5] == 0x04)
                 {
-                    for (int row = 1; row <= 4; row++)
+                    Dispatcher.UIThread.Post(() =>
                     {
-                        for (int col = 1; col <= 16; col++)
+                        for (int row = 1; row <= 4; row++)
                         {
-                            int index = (row - 1) * 16 + (col - 1);
-                            if (6 + index < response.Length)
+                            for (int col = 1; col <= 16; col++)
                             {
-                                byte value = response[6 + index];
-                                try
+                                int index = (row - 1) * 16 + (col - 1);
+                                if (6 + index < response.Length)
                                 {
-                                    var bmp = AsciiLoader.LoadAsciiBitmap(value);
-                                    Terminal.Instance.UpdateCellImage(row, col, bmp);
-                                }
-                                catch (Exception ex)
-                                {
-                                    Debug.WriteLine($"Error updating cell {row},{col}: {ex.Message}");
+                                    byte value = response[6 + index];
+                                    try
+                                    {
+                                        var bmp = AsciiLoader.LoadAsciiBitmap(value);
+                                        Terminal.Instance.UpdateCellImage(row, col, bmp);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Debug.WriteLine($"Error updating cell {row},{col}: {ex.Message}");
+                                    }
                                 }
                             }
                         }
-                    }
-                });
-            }
+                    });
+                }
 
-            // Cursor-Nachricht
-            if (response.Length >= 8 && response[4] == 0x01 && response[5] == 0x02)
-            {
-                Dispatcher.UIThread.Post(() =>
+                // Cursor-Nachricht
+                if (response.Length >= 8 && response[4] == 0x01 && response[5] == 0x02)
                 {
-                    int position = response[7];
-                    int newRow = position / 16 + 1;
-                    int newCol = position % 16;
-                    Debug.WriteLine($"Neue Cursorposition: Zeile {newRow}, Spalte {newCol}");
+                    Dispatcher.UIThread.Post(() =>
+                    {
+                        int position = response[7];
+                        int newRow = position / 16 + 1;
+                        int newCol = position % 16;
+                        Debug.WriteLine($"Neue Cursorposition: Zeile {newRow}, Spalte {newCol}");
 
-                    // Falls sich die Position ändert, lösche den Cursor in der alten Position
-                    if (_lastBlinkRow != -1 && _lastBlinkCol != -1 &&
-                        (newRow != _lastBlinkRow || newCol != _lastBlinkCol))
-                    {
-                        Terminal.Instance.UpdateCusorImage(_lastBlinkRow, _lastBlinkCol, null);
-                    }
-                    // Aktualisiere die aktuelle Cursorposition
-                    _cursorRow = newRow;
-                    _cursorCol = newCol;
-                    // Setze die letzte blinkende Position auf die neue Position
-                    _lastBlinkRow = newRow;
-                    _lastBlinkCol = newCol;
+                        // Falls sich die Position ändert, lösche den Cursor in der alten Position
+                        if (_lastBlinkRow != -1 && _lastBlinkCol != -1 &&
+                            (newRow != _lastBlinkRow || newCol != _lastBlinkCol))
+                        {
+                            Terminal.Instance.UpdateCusorImage(_lastBlinkRow, _lastBlinkCol, null);
+                        }
+                        // Aktualisiere die aktuelle Cursorposition
+                        _cursorRow = newRow;
+                        _cursorCol = newCol;
+                        // Setze die letzte blinkende Position auf die neue Position
+                        _lastBlinkRow = newRow;
+                        _lastBlinkCol = newCol;
 
-                    // Zeige den Cursor sofort an (z.B. mit Bitmap 0xFF)
-                    try
-                    {
-                        var cursorBmp = AsciiLoader.LoadAsciiBitmap(0xFF);
-                        Terminal.Instance.UpdateCusorImage(_cursorRow, _cursorCol, cursorBmp);
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine($"Error loading cursor bitmap: {ex.Message}");
-                    }
-                    // Starte den Blink-Timer
-                    StartBlinkTimer();
-                });
+                        // Zeige den Cursor sofort an (z.B. mit Bitmap 0xFF)
+                        try
+                        {
+                            var cursorBmp = AsciiLoader.LoadAsciiBitmap(0xFF);
+                            Terminal.Instance.UpdateCusorImage(_cursorRow, _cursorCol, cursorBmp);
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine($"Error loading cursor bitmap: {ex.Message}");
+                        }
+                        // Starte den Blink-Timer
+                        StartBlinkTimer();
+                    });
+                }
             }
         }
 

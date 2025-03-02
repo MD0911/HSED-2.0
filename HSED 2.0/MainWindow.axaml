@@ -2,14 +2,19 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="HSED_2._0.MainWindow"
         Width="800" Height="480"
-        Background="#222222"
+		Background="#222222"
         Title="HSED_2._0"
-		CanResize="False">
+		CanResize="False"
+		SystemDecorations="None"
+        WindowStartupLocation="Manual">
 
-	
+ 
 	<Canvas>
+
+		
+		
 		<!-- Etgae -->
-		<Border Background="#303030" Width="250" Height="180" Canvas.Top="25" Canvas.Left="525">
+		<Border CornerRadius="10" Background="#303030" Width="250" Height="180" Canvas.Top="25" Canvas.Left="525">
 			<Border.Effect>
 				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"></DropShadowEffect>
 			</Border.Effect>
@@ -17,7 +22,7 @@
 			<!-- Verwende ein Grid oder StackPanel, um mehrere Elemente zu gruppieren -->
 			<Grid>
 				
-				<Border Background="#303030" Width="250" Height="180" Canvas.Top="25" Canvas.Left="525">
+				<Border CornerRadius="10" Background="#303030" Width="250" Height="180" Canvas.Top="25" Canvas.Left="525">
 					<Border.Effect>
 						<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"></DropShadowEffect>
 					</Border.Effect>
@@ -40,7 +45,7 @@
 
 
 		<!-- S-Kreis -->
-		<Border Background="#303030" Width="170" Height="80" Canvas.Top="25" Canvas.Left="100">
+		<Border CornerRadius="10" Background="#303030" Width="170" Height="80" Canvas.Top="25" Canvas.Left="100">
 			<Border.Effect>
 				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5" ></DropShadowEffect>
 			</Border.Effect>
@@ -60,7 +65,7 @@
 			
 		</Border>
 		<!-- B-Stunden -->
-		<Border Background="#303030" Width="170" Height="80" Canvas.Top="130" Canvas.Left="100">
+		<Border CornerRadius="10" Background="#303030" Width="170" Height="80" Canvas.Top="130" Canvas.Left="100">
 			<Border.Effect>
 				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5" ></DropShadowEffect>
 			</Border.Effect>
@@ -71,7 +76,7 @@
 			</StackPanel>
 		</Border>
 		<!-- Last -->
-		<Border Background="#303030" Width="170" Height="80" Canvas.Top="230" Canvas.Left="100">
+		<Border CornerRadius="10" Background="#303030" Width="170" Height="80" Canvas.Top="230" Canvas.Left="100">
 			<Border.Effect>
 				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5" ></DropShadowEffect>
 			</Border.Effect>
@@ -82,7 +87,7 @@
 			</StackPanel>
 		</Border>
 		<!-- A-Zustand -->
-		<Border Background="#303030" Width="170" Height="80" Canvas.Top="340" Canvas.Left="100">
+		<Border CornerRadius="10" Background="#303030" Width="170" Height="80" Canvas.Top="340" Canvas.Left="100">
 			<Border.Effect>
 				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5" ></DropShadowEffect>
 			</Border.Effect>
@@ -94,7 +99,7 @@
 		</Border>
 
 		<!-- Temperatur -->
-		<Border Background="#303030" Width="250" Height="45" Canvas.Top="230" Canvas.Left="525">
+		<Border CornerRadius="10" Background="#303030" Width="250" Height="45" Canvas.Top="230" Canvas.Left="525">
 	<Border.Effect>
 		 <DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5" ></DropShadowEffect>
 	</Border.Effect>
@@ -105,7 +110,7 @@
 	</StackPanel>
 	</Border>
 		<!-- A-Nummer -->
-		<Border Background="#303030" Width="250" Height="45" Canvas.Top="300" Canvas.Left="525">
+		<Border CornerRadius="10" Background="#303030" Width="250" Height="45" Canvas.Top="300" Canvas.Left="525">
 	<Border.Effect>
 		 <DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5" ></DropShadowEffect>
 	</Border.Effect>
@@ -117,7 +122,7 @@
 		</StackPanel>
 	</Border>
 		<!-- Fehler -->
-	<Border Background="#303030" Width="250" Height="45" Canvas.Top="375" Canvas.Left="525">
+	<Border CornerRadius="10" Background="#303030" Width="250" Height="45" Canvas.Top="375" Canvas.Left="525">
 	<Border.Effect>
 		 <DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5" ></DropShadowEffect>
 	</Border.Effect>
@@ -129,7 +134,7 @@
 	</Border>
 
 		<!-- Live-View -->
-		<Border Background="#303030" Width="200" Height="395" Canvas.Top="25" Canvas.Left="300">
+		<Border CornerRadius="10" Background="#303030" Width="200" Height="395" Canvas.Top="25" Canvas.Left="300">
 			<Border.Effect>
 				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
 			</Border.Effect>
