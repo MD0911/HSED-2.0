@@ -35,7 +35,8 @@ namespace HSED_2_0
         /// </summary>
         public static int[] IntToArray(int number)
         {
-            string numberString = number.ToString();
+            // Formatiert die Zahl immer als 4-stelliger String, z.B. "0000" bei 0.
+            string numberString = number.ToString("D4");
             int[] digits = new int[numberString.Length];
             for (int i = 0; i < numberString.Length; i++)
             {

@@ -1,27 +1,23 @@
-﻿using Avalonia.Controls;
-using System;
-using System.IO.Ports;
+﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
-using System.Threading;
-using System.Diagnostics;
-using HSED_2_0;
-using System.Threading.Tasks;
-using Avalonia.Threading;
 using Avalonia.Media;
-using System.Linq;
-using System.Text.Json;
+using Avalonia.Threading;
+using Avalonia.Layout;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Diagnostics;
 using System.Text;
-using System.Drawing;
-
+using HSED_2_0;
 
 namespace HSED_2._0
 {
     public partial class TestrufeNeu : Window
     {
         private CancellationTokenSource _cancellationTokenSource;
-        bool NavBarStatus = false;
         private DispatcherTimer _blinkTimer;
+        private bool NavBarStatus = false;
         private bool _isGreen = false;
         private int ZielEtage;
         private bool isAussenRuf;
@@ -30,12 +26,17 @@ namespace HSED_2._0
         public TestrufeNeu()
         {
             InitializeComponent();
-            this.Position = new Avalonia.PixelPoint(100, 100);
+            // Fensterposition setzen
+            this.Position = new PixelPoint(100, 100);
             HseConnect();
+
             _cancellationTokenSource = new CancellationTokenSource();
             StartPeriodicUpdateO(TimeSpan.FromSeconds(1), _cancellationTokenSource.Token);
             StartPeriodicUpdate(TimeSpan.FromSeconds(30), _cancellationTokenSource.Token);
             StartPeriodicUpdateBlink(TimeSpan.FromSeconds(6), _cancellationTokenSource.Token);
+
+            // Dynamisch die Etagenbuttons erzeugen
+            GenerateFloorButtons();
         }
 
         private async void StartPeriodicUpdateO(TimeSpan interval, CancellationToken token)
@@ -61,21 +62,27 @@ namespace HSED_2._0
             }
         }
 
-        private async void AnimateProgressBar(int targetValue)
+        private async void StartPeriodicUpdate(TimeSpan interval, CancellationToken token)
         {
-            var progressBar = this.FindControl<ProgressBar>("EtageProgressBar");
-            if (progressBar == null) return;
-
-            double currentValue = progressBar.Value;
-            double step = 0.1 * Math.Sign(targetValue - currentValue);
-
-            while (Math.Abs(targetValue - currentValue) > Math.Abs(step))
+            while (!token.IsCancellationRequested)
             {
-                currentValue += step;
-                progressBar.Value = currentValue;
-                await Task.Delay(15);
+                try
+                {
+                    HseUpdated(); // Zusätzliche Update-Logik (falls benötigt)
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(ex);
+                }
+                try
+                {
+                    await Task.Delay(interval, token);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(ex);
+                }
             }
-            progressBar.Value = targetValue;
         }
 
         private async void StartPeriodicUpdateBlink(TimeSpan interval, CancellationToken token)
@@ -84,7 +91,7 @@ namespace HSED_2._0
             {
                 try
                 {
-                    SK(); // Update-Methode aufrufen
+                    SK(); // SK-Status updaten
                 }
                 catch (Exception ex)
                 {
@@ -101,26 +108,130 @@ namespace HSED_2._0
             }
         }
 
-        private async void StartPeriodicUpdate(TimeSpan interval, CancellationToken token)
+        private void GenerateFloorButtons()
         {
-            while (!token.IsCancellationRequested)
+            // Beispiel: min und max aus MonetoringManager (z. B. BootFloor und TopFloor)
+            int maxFloor = MonetoringManager.TopFloor - 1;
+            int minFloor = MonetoringManager.BootFloor;
+
+            // Vorhandene Buttons im Panel löschen
+            FloorButtonsPanel.Children.Clear();
+
+            // Für jede Etage wird eine horizontale Zeile erzeugt, die drei Buttons enthält:
+            // einen "Pfeil oben", einen "Pfeil unten" und einen Button mit dem Etagenwert
+            for (int floor = maxFloor; floor >= minFloor; floor--)
             {
-                try
+                var rowPanel = new StackPanel
                 {
-                    HseUpdated(); // Update-Methode aufrufen
-                }
-                catch (Exception ex)
+                    Orientation = Orientation.Horizontal,
+                    Spacing = 5,
+                    HorizontalAlignment = HorizontalAlignment.Center
+                };
+
+                // Pfeil oben
+                // Pfeil oben
+                var btnUp = new Button
                 {
-                    Debug.WriteLine(ex);
-                }
-                try
+                    Width = 40,
+                    Height = 40,
+                    Content = "▲",
+                    Tag = floor.ToString(), // Floor wird hier im Tag gespeichert
+                    Background = Brushes.LightGray,
+                    Foreground = Brushes.Black,
+                    CornerRadius = new CornerRadius(90),
+                    Padding = new Thickness(0),
+                    HorizontalContentAlignment = HorizontalAlignment.Center,
+                    VerticalContentAlignment = VerticalAlignment.Center
+                };
+                btnUp.Click += (sender, e) =>
                 {
-                    await Task.Delay(interval, token);
-                }
-                catch (Exception ex)
+                    if (sender is Button button)
+                    {
+                        string floorStr = btnUp.Tag.ToString();
+                        int ziel = Convert.ToInt32(floorStr);
+                        int calculatedEtage = (1 + ziel) - MonetoringManager.BootFloor;
+                        byte floor = (byte)calculatedEtage;
+                        SerialPortManager.Instance.SendWithoutResponse(new byte[]
+                        {   0x04, 0x01, 0x02, 0x01, 0x01, floor, 0x01, 0x01
+                        });
+                        Debug.WriteLine("Etagenbutton geklickt: " + floorStr);
+                    }
+                };
+
+
+                // Pfeil unten
+                var btnDown = new Button
                 {
-                    Debug.WriteLine(ex);
-                }
+                    Width = 40,
+                    Height = 40,
+                    Content = "▼",
+                    Tag = floor.ToString(), // Floor wird hier im Tag gespeichert
+                    Background = Brushes.LightGray,
+                    Foreground = Brushes.Black,
+                    CornerRadius = new CornerRadius(90),
+                    Padding = new Thickness(0),
+                    HorizontalContentAlignment = HorizontalAlignment.Center,
+                    VerticalContentAlignment = VerticalAlignment.Center
+                };
+                btnDown.Click += (sender, e) =>
+                {
+                    if (sender is Button button)
+                    {
+                        string floorStr = btnDown.Tag.ToString();
+                        int ziel = Convert.ToInt32(floorStr);
+                        int calculatedEtage = (1 + ziel) - MonetoringManager.BootFloor;
+                        byte floor = (byte)calculatedEtage;
+                        SerialPortManager.Instance.SendWithoutResponse(new byte[]
+                        {
+                   0x04, 0x01, 0x02, 0x02, 0x01, floor, 0x01, 0x01   });
+                        Debug.WriteLine("Etagenbutton geklickt: " + floorStr);
+                    }
+                };
+
+
+                // Etagen-Button (mittlerer Button)
+                var floorBtn = new Button
+                {
+                    Width = 40,
+                    Height = 40,
+                    Content = floor.ToString(),
+                    Background = Brushes.LightGray,
+                    Foreground = Brushes.Black,
+                    CornerRadius = new CornerRadius(25),
+                    Padding = new Thickness(0),
+                    HorizontalContentAlignment = HorizontalAlignment.Center,
+                    VerticalContentAlignment = VerticalAlignment.Center
+                };
+                floorBtn.Click += Button_Click_Number_New;
+
+                // Buttons zum Zeilen-Panel hinzufügen (Reihenfolge: Pfeil oben, Pfeil unten, Etagen-Button)
+                rowPanel.Children.Add(btnUp);
+                rowPanel.Children.Add(btnDown);
+                rowPanel.Children.Add(floorBtn);
+
+                // Füge die gesamte Zeile dem übergeordneten Panel hinzu
+                FloorButtonsPanel.Children.Add(rowPanel);
+            }
+        }
+
+        private void ArrowDown_Click(int floor)
+        {
+            Debug.WriteLine($"Pfeil runter für Etage {floor} geklickt.");
+            // Hier kannst du die Logik für den Pfeil unten ergänzen
+        }
+
+        private void Button_Click_Number_New(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn)
+            {
+                string floorStr = btn.Content.ToString();
+                int ziel = Convert.ToInt32(floorStr);
+                int calculatedEtage = (1 + ziel) - MonetoringManager.BootFloor;
+                SerialPortManager.Instance.SendWithoutResponse(new byte[]
+                {
+                    0x04, 0x01, 0x05, (byte)calculatedEtage, 0x01, 0x00, 0x01, 0x01
+                });
+                Debug.WriteLine("Etagenbutton geklickt: " + floorStr);
             }
         }
 
@@ -128,9 +239,7 @@ namespace HSED_2._0
         {
             try
             {
-                byte[] bottomfloor = new byte[12];
-                byte[] currentfloor = new byte[12];
-                bottomfloor = HseCom.SendHseCommand(new byte[] { 0x03, 0x01, 0x24, 0x07, 0x01, 0x03 });
+                byte[] bottomfloor = HseCom.SendHseCommand(new byte[] { 0x03, 0x01, 0x24, 0x07, 0x01, 0x03 });
                 int topFloor = bottomfloor[10];
                 byte[] bottomfloorName = new byte[2];
                 bottomfloorName[0] = bottomfloor[11];
@@ -138,57 +247,78 @@ namespace HSED_2._0
                 string asciiString = Encoding.ASCII.GetString(bottomfloorName);
                 int bootFloor = Convert.ToInt32(asciiString);
                 int AllFloorsTop = HseCom.SendHse(1001);
-
                 int obersteEtagenBezeichnung = (AllFloorsTop + bootFloor) - 1;
 
-                EtagenInsgesamtOberste.Text = obersteEtagenBezeichnung.ToString();
-                EtagenInsgesamtUnterste.Text = bootFloor.ToString();
+                var obersteTextBlock = this.FindControl<TextBlock>("EtagenInsgesamtOberste");
+                var untersteTextBlock = this.FindControl<TextBlock>("EtagenInsgesamtUnterste");
+                if (obersteTextBlock != null)
+                    obersteTextBlock.Text = obersteEtagenBezeichnung.ToString();
+                if (untersteTextBlock != null)
+                    untersteTextBlock.Text = bootFloor.ToString();
             }
             catch (Exception ex)
             {
                 Debug.WriteLine(ex);
             }
-
             int allFloors = HseCom.SendHse(1001);
-            EtageProgressBar.Maximum = allFloors - 1;
-            int currentfloorBezeichnung = HseCom.SendHse(1002);
-            Etage.Text = currentfloorBezeichnung.ToString();
+            var progressBar = this.FindControl<ProgressBar>("EtageProgressBar");
+            if (progressBar != null)
+                progressBar.Maximum = allFloors - 1;
+            var etageTextBlock = this.FindControl<TextBlock>("Etage");
+            if (etageTextBlock != null)
+                etageTextBlock.Text = HseCom.SendHse(1002).ToString();
         }
 
         private void SK()
         {
-            Zustand.Foreground = new SolidColorBrush(Colors.Gray);
-            Tuer1.Foreground = new SolidColorBrush(Colors.Gray);
-            Tuer2.Foreground = new SolidColorBrush(Colors.Gray);
-            SK1.Background = new SolidColorBrush(Colors.Gray);
-            SK2.Background = new SolidColorBrush(Colors.Gray);
-            SK3.Background = new SolidColorBrush(Colors.Gray);
-            SK4.Background = new SolidColorBrush(Colors.Gray);
+            var zustand = this.FindControl<TextBlock>("Zustand");
+            var tuer1 = this.FindControl<TextBlock>("Tuer1");
+            var tuer2 = this.FindControl<TextBlock>("Tuer2");
+            var sk1 = this.FindControl<Border>("SK1");
+            var sk2 = this.FindControl<Border>("SK2");
+            var sk3 = this.FindControl<Border>("SK3");
+            var sk4 = this.FindControl<Border>("SK4");
+
+            if (zustand != null)
+                zustand.Foreground = new SolidColorBrush(Colors.Gray);
+            if (tuer1 != null)
+                tuer1.Foreground = new SolidColorBrush(Colors.Gray);
+            if (tuer2 != null)
+                tuer2.Foreground = new SolidColorBrush(Colors.Gray);
+            if (sk1 != null)
+                sk1.Background = new SolidColorBrush(Colors.Gray);
+            if (sk2 != null)
+                sk2.Background = new SolidColorBrush(Colors.Gray);
+            if (sk3 != null)
+                sk3.Background = new SolidColorBrush(Colors.Gray);
+            if (sk4 != null)
+                sk4.Background = new SolidColorBrush(Colors.Gray);
         }
 
         private void HseUpdatedO()
         {
-            var skBorders = new Border[] { SK1, SK2, SK3, SK4 };
+            // Aktualisiere SK-Buttons
+            var sk1 = this.FindControl<Border>("SK1");
+            var sk2 = this.FindControl<Border>("SK2");
+            var sk3 = this.FindControl<Border>("SK3");
+            var sk4 = this.FindControl<Border>("SK4");
+
             int GanzeSK = HseCom.SendHse(1003);
             int[] SK = HseCom.IntToArray(GanzeSK);
-
-            for (int i = 0; i < SK.Length; i++)
+            if (sk1 != null && sk2 != null && sk3 != null && sk4 != null)
             {
-                if (SK[i] == 0)
-                {
-                    skBorders[i].Background = new SolidColorBrush(Colors.Red);
-                }
-                else
-                {
-                    skBorders[i].Background = new SolidColorBrush(Colors.GreenYellow);
-                }
+                sk1.Background = new SolidColorBrush(SK[0] == 0 ? Colors.Red : Colors.GreenYellow);
+                sk2.Background = new SolidColorBrush(SK[1] == 0 ? Colors.Red : Colors.GreenYellow);
+                sk3.Background = new SolidColorBrush(SK[2] == 0 ? Colors.Red : Colors.GreenYellow);
+                sk4.Background = new SolidColorBrush(SK[3] == 0 ? Colors.Red : Colors.GreenYellow);
             }
 
             int currentfloor = HseCom.SendHse(1002);
+            var etageTextBlock = this.FindControl<TextBlock>("Etage");
             if (currentfloor == 505 || currentfloor == 404)
                 return;
-
-            Etage.Text = currentfloor.ToString();
+            if (etageTextBlock != null)
+                etageTextBlock.Text = currentfloor.ToString();
 
             int AZustand = HseCom.SendHse(1005);
             if (AZustand == 505 || AZustand == 404)
@@ -196,100 +326,89 @@ namespace HSED_2._0
 
             int tuerZustand1 = HseCom.SendHse(1006);
             int tuerZustand2 = HseCom.SendHse(1016);
+            var tuer1Text = this.FindControl<TextBlock>("Tuer1");
+            var tuer2Text = this.FindControl<TextBlock>("Tuer2");
 
-            switch (tuerZustand1)
+            if (tuer1Text != null)
             {
-                case 0:
-                    Tuer1.Text = "Geschlossen";
-                    Tuer1.Foreground = new SolidColorBrush(Colors.White);
-                    break;
-                case 50:
-                    Tuer1.Text = "Tür öffnet";
-                    Tuer1.Foreground = new SolidColorBrush(Colors.Yellow);
-                    break;
-                case 48:
-                    Tuer1.Text = "Tür geöffnet";
-                    Tuer1.Foreground = new SolidColorBrush(Colors.GreenYellow);
-                    break;
-                case 32:
-                    Tuer1.Text = "Tür schließt";
-                    Tuer1.Foreground = new SolidColorBrush(Colors.Yellow);
-                    break;
-                case 96:
-                    Tuer1.Text = "LS unterbrochen";
-                    Tuer1.Foreground = new SolidColorBrush(Colors.Orange);
-                    break;
-                case 97:
-                    Tuer1.Text = "Tür geöffnet";
-                    Tuer1.Foreground = new SolidColorBrush(Colors.GreenYellow);
-                    break;
-                case 224:
-                    Tuer1.Text = "Türfehler";
-                    Tuer1.Foreground = new SolidColorBrush(Colors.Red);
-                    break;
-                case 112:
-                    Tuer1.Text = "Tür gestoppt";
-                    Tuer1.Foreground = new SolidColorBrush(Colors.Red);
-                    break;
+                switch (tuerZustand1)
+                {
+                    case 0:
+                        tuer1Text.Text = "Geschlossen";
+                        tuer1Text.Foreground = new SolidColorBrush(Colors.White);
+                        break;
+                    case 50:
+                        tuer1Text.Text = "Tür öffnet";
+                        tuer1Text.Foreground = new SolidColorBrush(Colors.Yellow);
+                        break;
+                    case 48:
+                        tuer1Text.Text = "Tür geöffnet";
+                        tuer1Text.Foreground = new SolidColorBrush(Colors.GreenYellow);
+                        break;
+                    case 32:
+                        tuer1Text.Text = "Tür schließt";
+                        tuer1Text.Foreground = new SolidColorBrush(Colors.Yellow);
+                        break;
+                    case 96:
+                        tuer1Text.Text = "LS unterbrochen";
+                        tuer1Text.Foreground = new SolidColorBrush(Colors.Orange);
+                        break;
+                    case 97:
+                        tuer1Text.Text = "Tür geöffnet";
+                        tuer1Text.Foreground = new SolidColorBrush(Colors.GreenYellow);
+                        break;
+                    case 224:
+                        tuer1Text.Text = "Türfehler";
+                        tuer1Text.Foreground = new SolidColorBrush(Colors.Red);
+                        break;
+                    case 112:
+                        tuer1Text.Text = "Tür gestoppt";
+                        tuer1Text.Foreground = new SolidColorBrush(Colors.Red);
+                        break;
+                }
+            }
+            if (tuer2Text != null)
+            {
+                switch (tuerZustand2)
+                {
+                    case 0:
+                        tuer2Text.Text = "Geschlossen";
+                        tuer2Text.Foreground = new SolidColorBrush(Colors.White);
+                        break;
+                    case 50:
+                        tuer2Text.Text = "Tür öffnet";
+                        tuer2Text.Foreground = new SolidColorBrush(Colors.Yellow);
+                        break;
+                    case 48:
+                        tuer2Text.Text = "Tür geöffnet";
+                        tuer2Text.Foreground = new SolidColorBrush(Colors.GreenYellow);
+                        break;
+                    case 32:
+                        tuer2Text.Text = "Tür schließt";
+                        tuer2Text.Foreground = new SolidColorBrush(Colors.Yellow);
+                        break;
+                    case 96:
+                        tuer2Text.Text = "LS unterbrochen";
+                        tuer2Text.Foreground = new SolidColorBrush(Colors.Orange);
+                        break;
+                    case 97:
+                        tuer2Text.Text = "Tür geöffnet";
+                        tuer2Text.Foreground = new SolidColorBrush(Colors.GreenYellow);
+                        break;
+                    case 224:
+                        tuer2Text.Text = "Türfehler";
+                        tuer2Text.Foreground = new SolidColorBrush(Colors.Red);
+                        break;
+                    case 112:
+                        tuer2Text.Text = "Tür gestoppt";
+                        tuer2Text.Foreground = new SolidColorBrush(Colors.Red);
+                        break;
+                }
             }
 
-            switch (tuerZustand2)
-            {
-                case 0:
-                    Tuer2.Text = "Geschlossen";
-                    Tuer2.Foreground = new SolidColorBrush(Colors.White);
-                    break;
-                case 50:
-                    Tuer2.Text = "Tür öffnet";
-                    Tuer2.Foreground = new SolidColorBrush(Colors.Yellow);
-                    break;
-                case 48:
-                    Tuer2.Text = "Tür geöffnet";
-                    Tuer2.Foreground = new SolidColorBrush(Colors.GreenYellow);
-                    break;
-                case 32:
-                    Tuer2.Text = "Tür schließt";
-                    Tuer2.Foreground = new SolidColorBrush(Colors.Yellow);
-                    break;
-                case 96:
-                    Tuer2.Text = "LS unterbrochen";
-                    Tuer2.Foreground = new SolidColorBrush(Colors.Orange);
-                    break;
-                case 97:
-                    Tuer2.Text = "Tür geöffnet";
-                    Tuer2.Foreground = new SolidColorBrush(Colors.GreenYellow);
-                    break;
-                case 224:
-                    Tuer2.Text = "Türfehler";
-                    Tuer2.Foreground = new SolidColorBrush(Colors.Red);
-                    break;
-                case 112:
-                    Tuer2.Text = "Tür gestoppt";
-                    Tuer2.Foreground = new SolidColorBrush(Colors.Red);
-                    break;
-            }
-
-            switch (AZustand)
-            {
-                case 4:
-                    Zustand.Text = "Stillstand";
-                    Zustand.Foreground = new SolidColorBrush(Colors.White);
-                    break;
-                case 5:
-                    Zustand.Text = "Fährt";
-                    Zustand.Foreground = new SolidColorBrush(Colors.GreenYellow);
-                    break;
-                case 6:
-                    Zustand.Text = "Einfahrt";
-                    Zustand.Foreground = new SolidColorBrush(Colors.Yellow);
-                    break;
-                case 17:
-                    Zustand.Text = "SK Fehlt";
-                    Zustand.Foreground = new SolidColorBrush(Colors.Red);
-                    break;
-            }
-            EtageProgressBar.Value = currentfloor + 1;
-            //AnimateProgressBar(HseCom.SendHse(1004));
+            var progressBar = this.FindControl<ProgressBar>("EtageProgressBar");
+            if (progressBar != null)
+                progressBar.Value = currentfloor + 1;
         }
 
         private void HseUpdated()
@@ -297,18 +416,19 @@ namespace HSED_2._0
             // Zusätzliche Update-Logik (falls benötigt)
         }
 
-        private void Button_Click_Settings(object? sender, RoutedEventArgs e)
+        // Eventhandler für Settings-Button
+        private void Button_Click_Settings(object sender, RoutedEventArgs e)
         {
             if (sender is Button button)
             {
                 string buttonTag = button.Tag?.ToString();
                 if (buttonTag == "Menu")
                 {
-                    if (NavBarStatus == false)
+                    if (!NavBarStatus)
                     {
                         NavBar.Width += 100;
-                        StackPanelNavBar.HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left;
-                        StackPanelNavBar.Margin = new Avalonia.Thickness(10, 25, 0, 0);
+                        StackPanelNavBar.HorizontalAlignment = HorizontalAlignment.Left;
+                        StackPanelNavBar.Margin = new Thickness(10, 25, 0, 0);
                         SettingsText.IsVisible = true;
                         ButtonSettings.Width = 100;
                         SettingsText2.IsVisible = true;
@@ -329,8 +449,8 @@ namespace HSED_2._0
                     else
                     {
                         NavBar.Width -= 100;
-                        StackPanelNavBar.HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center;
-                        StackPanelNavBar.Margin = new Avalonia.Thickness(0, 25, 0, 0);
+                        StackPanelNavBar.HorizontalAlignment = HorizontalAlignment.Center;
+                        StackPanelNavBar.Margin = new Thickness(0, 25, 0, 0);
                         SettingsText.IsVisible = false;
                         ButtonSettings.Width = 50;
                         SettingsText2.IsVisible = false;
@@ -354,8 +474,7 @@ namespace HSED_2._0
                     switch (buttonTag)
                     {
                         case "Settings":
-                            var newWindowSettings = new Settings();
-                            newWindowSettings.Show();
+                            new Settings().Show();
                             break;
                         case "Testrufe":
                             var newWindowTestrufe = new TestrufeNeu();
@@ -363,23 +482,17 @@ namespace HSED_2._0
                             this.Close();
                             break;
                         case "Codes":
-                            var newWindowCode = new Code();
-                            newWindowCode.Show();
+                            new Code().Show();
                             break;
                         case "SelfDia":
-                            var newWindowDia = new LiveViewAnimationSimulation();
-                            newWindowDia.Show();
-                            
+                            new LiveViewAnimationSimulation().Show();
                             break;
                         case "Ansicht":
                             TerminalManager.terminalActive = true;
-                            var newWindowAnsicht = new Terminal();
-                            newWindowAnsicht.Show();
+                            new Terminal().Show();
                             break;
-
                         case "Home":
-                            var newWindowHome = new MainWindow();
-                            newWindowHome.Show();
+                            new MainWindow().Show();
                             this.Close();
                             break;
                     }
@@ -387,24 +500,23 @@ namespace HSED_2._0
             }
         }
 
-        private void Button_Click_X(object? sender, RoutedEventArgs e)
+        private void Button_Click_X(object sender, RoutedEventArgs e)
         {
             IoA.IsVisible = false;
             AOoU.IsVisible = false;
         }
 
-        private void Button_Click_IoA(object? sender, RoutedEventArgs e)
+        private void Button_Click_IoA(object sender, RoutedEventArgs e)
         {
             if (sender is Button button)
             {
-                
                 byte floor = (byte)ZielEtage;
-                switch(button.Tag?.ToString())
+                switch (button.Tag?.ToString())
                 {
                     case "I":
                         isAussenRuf = false;
                         IoA.IsVisible = false;
-                        SerialPortManager.Instance.SendWithoutResponse(new byte[] {0x04, 0x01, 0x05, floor, 0x01, 0x00, 0x01, 0x01});
+                        SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x04, 0x01, 0x05, floor, 0x01, 0x00, 0x01, 0x01 });
                         break;
                     case "A":
                         IoA.IsVisible = false;
@@ -414,9 +526,7 @@ namespace HSED_2._0
             }
         }
 
-      
-
-        private void Button_Click_AOoU(object? sender, RoutedEventArgs e)
+        private void Button_Click_AOoU(object sender, RoutedEventArgs e)
         {
             if (sender is Button button)
             {
@@ -434,70 +544,102 @@ namespace HSED_2._0
                 }
             }
         }
-        private void Button_Click_Number(object? sender, RoutedEventArgs e)
+
+        private void Button_Click_Number(object sender, RoutedEventArgs e)
         {
             if (sender is Button button)
             {
                 string buttonTag = button.Content?.ToString();
-
-                switch (buttonTag) {
-
-                    case "-1":
+                switch (buttonTag)
+                {
+                    case "-2":
                         ZielEtage = 1;
                         break;
-
-                    case "0":
+                    case "-1":
                         ZielEtage = 2;
                         break;
-
-                    case "1":
+                    case "0":
                         ZielEtage = 3;
                         break;
-
-                    case "2":
+                    case "1":
                         ZielEtage = 4;
                         break;
-
-                    case "3":
+                    case "2":
                         ZielEtage = 5;
-                    break;
-
-                    case "4":
+                        break;
+                    case "3":
                         ZielEtage = 6;
                         break;
-
-                    case "5":
+                    case "4":
                         ZielEtage = 7;
                         break;
-
-                    case "6":
+                    case "5":
                         ZielEtage = 8;
                         break;
-
-
+                    case "6":
+                        ZielEtage = 9;
+                        break;
+                    case "7":
+                        ZielEtage = 10;
+                        break;
+                    case "8":
+                        ZielEtage = 11;
+                        break;
+                    case "9":
+                        ZielEtage = 12;
+                        break;
+                    case "10":
+                        ZielEtage = 13;
+                        break;
+                    case "11":
+                        ZielEtage = 14;
+                        break;
+                    case "12":
+                        ZielEtage = 15;
+                        break;
+                    case "13":
+                        ZielEtage = 16;
+                        break;
+                    case "14":
+                        ZielEtage = 17;
+                        break;
+                    case "15":
+                        ZielEtage = 18;
+                        break;
+                    case "16":
+                        ZielEtage = 19;
+                        break;
+                    case "17":
+                        ZielEtage = 20;
+                        break;
+                    case "18":
+                        ZielEtage = 21;
+                        break;
+                    case "19":
+                        ZielEtage = 22;
+                        break;
+                    case "20":
+                        ZielEtage = 23;
+                        break;
+                    case "21":
+                        ZielEtage = 24;
+                        break;
                 }
-
-                if (ZielEtage != null)
-                {
-                    IoA.IsVisible = true;
-                }
-             
-
-
+                // Sobald ein Etagenwert eingegeben wurde, soll der Bereich IoA sichtbar werden.
+                IoA.IsVisible = true;
             }
         }
 
-        private void Button_Click_OMU(object? sender, RoutedEventArgs e)
+        private void Button_Click_OMU(object sender, RoutedEventArgs e)
         {
-            if (sender is Button border)
+            if (sender is Button button)
             {
-                string buttonTag = border.Tag?.ToString();
+                string buttonTag = button.Tag?.ToString();
                 if (buttonTag == "OFahren")
                 {
                     MainWindow mainWindow = new MainWindow();
                     int floors = mainWindow.gesamteFloors;
                     byte bytefloors = (byte)floors;
-                    //HseCom.SendHseCommand(new byte[] { 0x04, 0x01, 0x05, bytefloors, 0x01, 0x00, 0x01, 0x01 });
                     SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x04, 0x01, 0x05, bytefloors, 0x01, 0x00, 0x01, 0x01 });
                 }
                 if (buttonTag == "MFahren")
@@ -505,18 +647,17 @@ namespace HSED_2._0
                     int floors = HseCom.SendHse(1001);
                     floors = floors / 2;
                     byte bytefloors = (byte)floors;
-                   // HseCom.SendHseCommand(new byte[] { 0x04, 0x01, 0x05, bytefloors, 0x01, 0x00, 0x01, 0x01 });
                     SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x04, 0x01, 0x05, bytefloors, 0x01, 0x00, 0x01, 0x01 });
                 }
                 if (buttonTag == "UFahren")
                 {
-                    //HseCom.SendHseCommand(new byte[] { 0x04, 0x01, 0x05, 0x01, 0x01, 0x00, 0x01, 0x01 });
                     SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x04, 0x01, 0x05, 0x01, 0x01, 0x00, 0x01, 0x01 });
                 }
             }
         }
 
-        private void Border_PointerPressed(object? sender, Avalonia.Input.PointerPressedEventArgs e)
+        // Eventhandler für PointerPressed im XAML – stelle sicher, dass die Signatur korrekt ist
+        private void Border_PointerPressed(object sender, Avalonia.Input.PointerPressedEventArgs e)
         {
             if (sender is Border border)
             {
@@ -542,8 +683,9 @@ namespace HSED_2._0
             }
         }
 
-        private void Border_PointerPressed_1(object? sender, Avalonia.Input.PointerPressedEventArgs e)
+        private void Border_PointerPressed_1(object sender, Avalonia.Input.PointerPressedEventArgs e)
         {
+            // Lösche evtl. vorhandenen Text, wenn der Eingabebereich den Standardtext enthält
             if (Input.Text == "Etagenwert" || Input.Text == "Etage exestiert nicht!" || Input.Text == "Bitte erneut probieren.")
                 Input.Text = "";
             if (Input.Text == "0")
@@ -555,110 +697,96 @@ namespace HSED_2._0
                 switch (buttonTag)
                 {
                     case "0":
-                        Input.Text = Input.Text + "0";
+                        Input.Text += "0";
                         break;
                     case "1":
-                        Input.Text = Input.Text + "1";
+                        Input.Text += "1";
                         break;
                     case "2":
-                        Input.Text = Input.Text + "2";
+                        Input.Text += "2";
                         break;
                     case "3":
-                        Input.Text = Input.Text + "3";
+                        Input.Text += "3";
                         break;
                     case "4":
-                        Input.Text = Input.Text + "4";
+                        Input.Text += "4";
                         break;
                     case "5":
-                        Input.Text = Input.Text + "5";
+                        Input.Text += "5";
                         break;
                     case "6":
-                        Input.Text = Input.Text + "6";
+                        Input.Text += "6";
                         break;
                     case "7":
-                        Input.Text = Input.Text + "7";
+                        Input.Text += "7";
                         break;
                     case "8":
-                        Input.Text = Input.Text + "8";
+                        Input.Text += "8";
                         break;
                     case "9":
-                        Input.Text = Input.Text + "9";
+                        Input.Text += "9";
                         break;
                 }
             }
         }
 
-        private void Border_PointerPressed_2(object? sender, Avalonia.Input.PointerPressedEventArgs e)
+        private void Border_PointerPressed_2(object sender, Avalonia.Input.PointerPressedEventArgs e)
         {
             if (sender is Border border)
             {
                 string buttonTag = border.Tag?.ToString();
-                byte byteFloors;
                 if (Input.Text == "Etagenwert" || Input.Text == "Etage exestiert nicht!" || Input.Text == "Bitte erneut probieren.")
                     return;
 
                 int input = Convert.ToInt32(Input.Text);
+                byte byteFloors;
 
-                if (input >= 100)
+                byte[] bottomfloor = HseCom.SendHseCommand(new byte[] { 0x03, 0x01, 0x24, 0x07, 0x01, 0x03 });
+                int topFloor = bottomfloor[10];
+                byte[] bottomfloorName = new byte[2];
+                bottomfloorName[0] = bottomfloor[11];
+                bottomfloorName[1] = bottomfloor[10];
+                string asciiString = Encoding.ASCII.GetString(bottomfloorName);
+                int bootFloor = Convert.ToInt32(asciiString);
+                int AllFloorsTop = HseCom.SendHse(1001);
+                int obersteEtagenBezeichnung = (AllFloorsTop + bootFloor) - 1;
+
+                if (input > obersteEtagenBezeichnung)
                 {
                     Input.Text = "Etage exestiert nicht!";
                 }
                 else
                 {
-                    byte[] bottomfloor = new byte[12];
-                    byte[] currentfloor = new byte[12];
-                    bottomfloor = HseCom.SendHseCommand(new byte[] { 0x03, 0x01, 0x24, 0x07, 0x01, 0x03 });
-                    int topFloor = bottomfloor[10];
-                    byte[] bottomfloorName = new byte[2];
-                    bottomfloorName[0] = bottomfloor[11];
-                    bottomfloorName[1] = bottomfloor[10];
-                    string asciiString = Encoding.ASCII.GetString(bottomfloorName);
-                    int bootFloor = Convert.ToInt32(asciiString);
-                    int AllFloorsTop = HseCom.SendHse(1001);
-                    int obersteEtagenBezeichnung = (AllFloorsTop + bootFloor) - 1;
-                    if (input > obersteEtagenBezeichnung)
+                    if (buttonTag == "I")
                     {
-                        Input.Text = "Etage exestiert nicht!";
+                        int bootFloor2 = Convert.ToInt32(asciiString);
+                        input = input - bootFloor2 + 1;
+                        byteFloors = (byte)input;
+                        HseCom.SendHseCommand(new byte[] { 0x04, 0x01, 0x05, byteFloors, 0x01, 0x00, 0x01, 0x01 });
+                        Input.Text = "Etagenwert";
+                    }
+                    else if (buttonTag == "A")
+                    {
+                        Numpad.IsVisible = false;
+                        Aussengruppe.IsVisible = true;
                     }
                     else
                     {
-                        if (buttonTag == "I")
-                        {
-                            int bootFloor2 = Convert.ToInt32(asciiString);
-                            input = input - bootFloor2 + 1;
-                            byteFloors = (byte)input;
-                            HseCom.SendHseCommand(new byte[] { 0x04, 0x01, 0x05, byteFloors, 0x01, 0x00, 0x01, 0x01 });
-                            Input.Text = "Etagenwert";
-                        }
-                        else if (buttonTag == "A")
-                        {
-                            Numpad.IsVisible = false;
-                            Aussengruppe.IsVisible = true;
-                        }
-                        else
-                        {
-                            Input.Text = "Bitte erneut probieren.";
-                        }
+                        Input.Text = "Bitte erneut probieren.";
                     }
                 }
             }
         }
 
-        
-
-        private void Border_PointerPressed_3(object? sender, Avalonia.Input.PointerPressedEventArgs e)
+        private void Border_PointerPressed_3(object sender, Avalonia.Input.PointerPressedEventArgs e)
         {
             if (sender is Border border)
             {
                 string buttonTag = border.Tag?.ToString();
                 int input = Convert.ToInt32(Input.Text);
-
                 if (buttonTag == "Hoch")
                 {
-                    byte[] bottomfloor2 = new byte[12];
-                    byte[] currentfloor2 = new byte[12];
-                    bottomfloor2 = HseCom.SendHseCommand(new byte[] { 0x03, 0x01, 0x24, 0x07, 0x01, 0x03 });
-                    int topFloor2 = bottomfloor2[10];
+                    byte[] bottomfloor2 = HseCom.SendHseCommand(new byte[] { 0x03, 0x01, 0x24, 0x07, 0x01, 0x03 });
                     byte[] bottomfloorName2 = new byte[2];
                     bottomfloorName2[0] = bottomfloor2[11];
                     bottomfloorName2[1] = bottomfloor2[10];
@@ -672,13 +800,9 @@ namespace HSED_2._0
                     Numpad.IsVisible = true;
                     Aussengruppe.IsVisible = false;
                 }
-
                 if (buttonTag == "Runter")
                 {
-                    byte[] bottomfloor2 = new byte[12];
-                    byte[] currentfloor2 = new byte[12];
-                    bottomfloor2 = HseCom.SendHseCommand(new byte[] { 0x03, 0x01, 0x24, 0x07, 0x01, 0x03 });
-                    int topFloor2 = bottomfloor2[10];
+                    byte[] bottomfloor2 = HseCom.SendHseCommand(new byte[] { 0x03, 0x01, 0x24, 0x07, 0x01, 0x03 });
                     byte[] bottomfloorName2 = new byte[2];
                     bottomfloorName2[0] = bottomfloor2[11];
                     bottomfloorName2[1] = bottomfloor2[10];
@@ -695,8 +819,9 @@ namespace HSED_2._0
             }
         }
 
-        private void Button_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+        private void Button_Click(object sender, RoutedEventArgs e)
         {
+            // Falls benötigt, Logik hier ergänzen.
         }
     }
 }

@@ -10,68 +10,29 @@
 	<Canvas>
 
 		<!-- Live-View Bereich: Gleiche Höhe wie die Scroll-Leiste (380) -->
-		<Border CornerRadius="10" Background="#303030" Width="270" Height="448" Canvas.Top="15" Canvas.Left="100">
+		<Border CornerRadius="10" Background="#303030" Width="220" Height="448" Canvas.Top="15" Canvas.Left="80">
 			<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
 				<!-- Hier deinen Live-View Inhalt einfügen -->
 			</StackPanel>
 		</Border>
 
 		<!-- Vertikale, scrollbare Leiste mit weißen, abgerundeten Buttons (von 6 bis -1) -->
-		<Border CornerRadius="10" Background="#303030" Width="60" Height="448" Canvas.Top="15" Canvas.Left="395">
+		<Border CornerRadius="10"
+        Background="#303030"
+        Width="140"
+        Height="448"
+        Canvas.Top="15"
+        Canvas.Left="315">
 			<ScrollViewer HorizontalScrollBarVisibility="Disabled">
-				<StackPanel VerticalAlignment="Center" Spacing="20" Margin="5">
-					<Button Width="40" Height="40" Content="6"
-        HorizontalAlignment="Center"
-        Background="LightGray" Foreground="Black"
-        CornerRadius="25" Padding="0"
-		Click="Button_Click_Number"
-        HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-					<Button Width="40" Height="40" Content="5"
-							HorizontalAlignment="Center"
-							Background="LightGray" Foreground="Black"
-							CornerRadius="25" Padding="0"
-							HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
-							Click="Button_Click_Number"/>
-					<Button Width="40" Height="40" Content="4"
-							HorizontalAlignment="Center"
-							Background="LightGray" Foreground="Black"
-							CornerRadius="25" Padding="0"
-							Click="Button_Click_Number"
-							HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-					<Button Width="40" Height="40" Content="3"
-							HorizontalAlignment="Center"
-							Click="Button_Click_Number"
-							Background="LightGray" Foreground="Black"
-							CornerRadius="25" Padding="0"
-							HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-					<Button Width="40" Height="40" Content="2"
-							HorizontalAlignment="Center"
-							Click="Button_Click_Number"
-							Background="LightGray" Foreground="Black"
-							CornerRadius="25" Padding="0"
-							HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-					<Button Width="40" Height="40" Content="1"
-							HorizontalAlignment="Center"
-							Click="Button_Click_Number"
-							Background="LightGray" Foreground="Black"
-							CornerRadius="25" Padding="0"
-							HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-					<Button Width="40" Height="40" Content="0"
-							Click="Button_Click_Number"
-							HorizontalAlignment="Center"
-							Background="LightGray" Foreground="Black"
-							CornerRadius="25" Padding="0"
-							HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-					<Button Width="40" Height="40" Content="-1"
-							HorizontalAlignment="Center"
-							Click="Button_Click_Number"
-							Background="LightGray" Foreground="Black"
-							CornerRadius="25" Padding="0"
-							HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-
-				</StackPanel>
+				<!-- Dieses StackPanel wird per CodeBehind dynamisch befüllt -->
+				<StackPanel x:Name="FloorButtonsPanel"
+							Orientation="Vertical"
+							Spacing="20"
+							Margin="5" />
 			</ScrollViewer>
 		</Border>
+
+
 
 		<!-- Numpad und weitere Elemente (unverändert, nur kleinere Anpassungen an Margin und IsVisible) -->
 		<Canvas Name="Numpad" IsVisible="False">

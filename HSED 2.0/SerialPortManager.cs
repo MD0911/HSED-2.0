@@ -1,11 +1,18 @@
-﻿using HSED_2_0;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Threading;
+using Avalonia.Input;
+using Avalonia.Interactivity;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO.Ports;
-using System.Threading.Tasks;
 using System.Threading;
-using System;
+using System.Threading.Tasks;
+using HSED_2_0;
+using HSED_2._0;
+using Avalonia.Controls.ApplicationLifetimes;
 
 public class SerialPortManager
 {
@@ -17,6 +24,12 @@ public class SerialPortManager
     // Alle kompletten Telegramme werden hier gesammelt
     private readonly ConcurrentQueue<byte[]> _telegramQueue = new ConcurrentQueue<byte[]>();
     private readonly SemaphoreSlim _telegramAvailable = new SemaphoreSlim(0);
+    private bool firstStart = true;
+    public static SerialPortManager Instance => _instance;
+
+    // Statische Referenz für den Fehlerdialog
+
+    private static Window _connectionErrorDialog = null;
 
     private SerialPortManager()
     {
@@ -32,7 +45,115 @@ public class SerialPortManager
         _listeningTask = Task.Run(() => Listen(_cancellationTokenSource.Token));
     }
 
-    public static SerialPortManager Instance => _instance;
+    /// <summary>
+    /// Zeigt einen persistierenden Fehlerdialog an, falls keine Verbindung zur HSE besteht.
+    /// Der Dialog wird nur einmal angezeigt und kann vom Benutzer nicht geschlossen werden.
+    /// </summary>
+    private void ShowConnectionErrorDialog()
+    {
+        // Falls der Dialog schon offen ist, nichts tun
+        if (_connectionErrorDialog != null)
+            return;
+
+        Dispatcher.UIThread.Post(async () =>
+        {
+            var errorDialog = new Window
+            {
+                Title = "Verbindungsfehler",
+                Width = 300,
+                Height = 150,
+                WindowStartupLocation = WindowStartupLocation.CenterScreen,
+                CanResize = false,
+                // Entferne Schließ-Optionen
+                SystemDecorations = SystemDecorations.None,
+                Content = new StackPanel
+                {
+                    Margin = new Thickness(10),
+                    Spacing = 10,
+                    Children =
+                    {
+                        new TextBlock
+                        {
+                            Text = "Keine Verbindung zur HSE.",
+                            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center
+                        },
+                        // Optional: Ein Hinweis, dass der Dialog nicht geschlossen werden kann.
+                        new TextBlock
+                        {
+                            Text = "Bitte warten...",
+                            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
+                            FontStyle = Avalonia.Media.FontStyle.Italic
+                        },
+                        new TextBlock
+                        {
+                            Text = "Eine Verbindung wird ",
+                            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
+                            FontStyle = Avalonia.Media.FontStyle.Italic
+                        },
+                        new TextBlock
+                        {
+                            Text = "automatisch versucht herzustellen.",
+                            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
+                            FontStyle = Avalonia.Media.FontStyle.Italic
+                        }
+
+                    }
+                }
+            };
+
+            // Verhindere, dass der Benutzer das Fenster schließt (z. B. per Alt-F4)
+            errorDialog.Closing += (s, e) =>
+            {
+                // Abbrechen, falls der Fehlerzustand noch besteht
+                if (_serialPort == null || !_serialPort.IsOpen)
+                {
+                    e.Cancel = true;
+                }
+            };
+
+            _connectionErrorDialog = errorDialog;
+
+            var lifetime = Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime;
+            var owner = lifetime?.MainWindow;
+            if (owner != null && owner.IsVisible)
+            {
+                await errorDialog.ShowDialog(owner);
+            }
+            else
+            {
+                errorDialog.Show();
+            }
+        });
+    }
+
+    /// <summary>
+    /// Schließt den Fehlerdialog, falls er offen ist.
+    /// </summary>
+   private void CloseConnectionErrorDialog()
+{
+    if (_connectionErrorDialog != null)
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            try
+            {
+                if (_connectionErrorDialog.IsVisible)
+                {
+                    _connectionErrorDialog.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Fehler beim Schließen des Fehlerdialogs: " + ex.Message);
+            }
+            finally
+            {
+                _connectionErrorDialog = null;
+            }
+        });
+    }
+}
+
 
     /// <summary>
     /// Sendet ein Telegramm ohne auf eine Antwort zu warten.
@@ -51,13 +172,23 @@ public class SerialPortManager
         Debug.WriteLine("Sende Telegramm ohne Antwort zu erwarten:");
         Debug.WriteLine(BitConverter.ToString(command).Replace("-", " "));
 
-        // Optional: Nur wenn wirklich notwendig, alte Telegramme löschen
+        // Alte Telegramme löschen
         while (_telegramQueue.TryDequeue(out _)) { }
 
-        // Falls der serielle Port asynchrones Schreiben über seine BaseStream unterstützt:
+        // Prüfe, ob der Port offen ist, andernfalls zeige Fehlerdialog
+        if (!_serialPort.IsOpen)
+        {
+            ShowConnectionErrorDialog();
+            return;
+        }
+        else
+        {
+            // Falls der Port wieder offen ist, schließe den Fehlerdialog
+            CloseConnectionErrorDialog();
+        }
+
         await _serialPort.BaseStream.WriteAsync(command, 0, command.Length);
     }
-
 
     public void Open()
     {
@@ -69,10 +200,22 @@ public class SerialPortManager
                 {
                     _serialPort.Open();
                     Debug.WriteLine("Serielle Verbindung erfolgreich geöffnet (Open-Methode).");
+                    Debug.WriteLine("Erster Start: " + firstStart);
+                    if (!firstStart)
+                    {
+                        MainWindow.Instance.HseConnect();
+                    }
+                    else
+                    {
+                        firstStart = false;
+                    }
+                    // Bei erfolgreicher Verbindung ggf. Fehlerdialog schließen
+                    CloseConnectionErrorDialog();
                 }
                 catch (Exception ex)
                 {
                     Debug.WriteLine($"Fehler beim Öffnen der seriellen Schnittstelle: {ex.Message}");
+                    ShowConnectionErrorDialog();
                 }
             }
             else
@@ -82,11 +225,6 @@ public class SerialPortManager
         }
     }
 
-    /// <summary>
-    /// Der Listener liest kontinuierlich vom Port, sammelt Bytes in einem lokalen Puffer,
-    /// und sobald ein komplettes Telegramm (definiert durch das Footerbyte 0x85 und die Länge aus Index 3)
-    /// empfangen wurde, wird es in die Queue gestellt und geloggt.
-    /// </summary>
     private void Listen(CancellationToken token)
     {
         List<byte> buffer = new List<byte>();
@@ -94,13 +232,12 @@ public class SerialPortManager
         {
             try
             {
-                int byteRead = _serialPort.ReadByte(); // blockiert bis ein Byte oder Timeout
+                int byteRead = _serialPort.ReadByte();
                 if (byteRead >= 0)
                 {
                     byte b = (byte)byteRead;
                     buffer.Add(b);
 
-                    // Es werden mindestens 6 Bytes erwartet (Header, Längenfeld etc.)
                     if (b == 0x85 && buffer.Count >= 6)
                     {
                         int expectedLength = buffer[3];
@@ -111,15 +248,16 @@ public class SerialPortManager
 
                             string hexString = BitConverter.ToString(telegram).Replace("-", " ");
                             Debug.WriteLine("Listener: " + hexString);
-
                             _telegramQueue.Enqueue(telegram);
                             _telegramAvailable.Release();
-                            MonetoringManager.AnalyzeResponse(telegram);
+                            //MonetoringManager.AnalyzeResponse(telegram);
                             TerminalManager.AnalyzeResponse(telegram);
+                            var tp = new TelegramProcessor();
+                            tp.ProcessTelegram(telegram);
+                            
                         }
                         else if (buffer.Count > expectedLength)
                         {
-                            // Ungültiger Puffer – zurücksetzen
                             buffer.Clear();
                         }
                     }
@@ -127,7 +265,7 @@ public class SerialPortManager
             }
             catch (TimeoutException)
             {
-                // Timeout – nichts tun
+                // Timeout ignorieren
             }
             catch (Exception ex)
             {
@@ -136,17 +274,12 @@ public class SerialPortManager
         }
     }
 
-    /// <summary>
-    /// Sendet ein Telegramm und wartet synchron auf ein passendes Antworttelegramm,
-    /// das anhand der erwarteten Datenbytes (ab Index 4 und 5) bestimmt wird.
-    /// </summary>
     public byte[] SendCommand(byte[] data)
     {
         lock (_lock)
         {
             try
             {
-                // Telegramm erzeugen: Header, Länge, Daten, CRC, Footer
                 byte[] command = new byte[data.Length + 6];
                 command[0] = 0x95;
                 command[1] = 0x9A;
@@ -159,25 +292,19 @@ public class SerialPortManager
                 Debug.WriteLine("Zu sendendes Telegramm:");
                 Debug.WriteLine(BitConverter.ToString(command).Replace("-", " "));
 
-                // Vor dem Senden werden alle alten Telegramme aus der Queue entfernt
                 while (_telegramQueue.TryDequeue(out _)) { }
 
                 _serialPort.Write(command, 0, command.Length);
                 Debug.WriteLine("Befehl gesendet, warte auf Antwort...");
 
-                // Beispielhafte Ableitung:
-                // Bei einem gesendeten Telegramm mit data[0] = 0x03 und data[1] = 0x01
-                // erwarten wir, dass an Position 4 der gleiche Wert (0x03)
-                // und an Position 5 der Wert (0x01 + 0x10 = 0x11) steht.
                 byte expectedByte1 = data[0];
                 byte expectedByte2 = (byte)(data[1] + 0x10);
 
-                // Warte insgesamt bis zu 2000 ms auf ein passendes Telegramm
                 int timeout = 2000;
                 DateTime start = DateTime.Now;
                 while ((DateTime.Now - start).TotalMilliseconds < timeout)
                 {
-                    if (_telegramAvailable.Wait(100)) // Warte in 100-ms-Intervallen
+                    if (_telegramAvailable.Wait(100))
                     {
                         while (_telegramQueue.TryDequeue(out byte[] telegram))
                         {
@@ -197,6 +324,7 @@ public class SerialPortManager
             {
                 Debug.WriteLine($"Fehler: {ex.Message}");
                 Debug.WriteLine($"Stack Trace: {ex.StackTrace}");
+                ShowConnectionErrorDialog();
                 return null;
             }
         }
