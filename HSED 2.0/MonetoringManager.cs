@@ -20,7 +20,9 @@ namespace HSED_2_0
         public static int CurrentSK1 { get; private set; }
         public static int CurrentSK2 { get; private set; }
 
+        public static int Betriebsstunden { get; private set; }
 
+        public static float LastKorbPosition { get; private set; }
         public static int CurrentSK3 { get; private set; }
 
         public static int CurrentSK4 { get; private set; }
@@ -217,7 +219,7 @@ namespace HSED_2_0
 
         private static void setBStunden(byte[] zustand)
         {
-            Debug.WriteLine("GG");
+            
             int newBStunden = BitConverter.ToInt16(new byte[] { zustand[4], zustand[5] }, 0);
             Debug.WriteLine("Betriebsstunden: " + newBStunden);
             
@@ -228,6 +230,7 @@ namespace HSED_2_0
                 if (MainWindow.Instance?.ViewModel != null)
                 {
                     MainWindow.Instance.ViewModel.CurrentBStunden = newBStunden;
+                    Betriebsstunden = newBStunden;
                 }
             });
         }
@@ -247,6 +250,128 @@ namespace HSED_2_0
             });
 
         }
+
+        private static void setDoorState1(byte[] zustand)
+        {
+           
+            int newDoorState = BitConverter.ToInt16(new byte[] { zustand[5], zustand[4] }, 0);
+            Debug.WriteLine("DoorState: " + newDoorState);
+            // Aktualisiere das ViewModel im UI-Thread:
+            Dispatcher.UIThread.Post(() =>
+            {
+                if (MainWindow.Instance?.ViewModel != null)
+                {
+                    MainWindow.Instance.ViewModel.CurrentStateTueur1 = newDoorState;
+                }
+            });
+        }
+
+        private static void setDoorState2(byte[] zustand)
+        {
+            Debug.WriteLine(zustand);
+            int newDoorState = BitConverter.ToInt16(new byte[] { zustand[5], zustand[4] }, 0);
+            Debug.WriteLine("DoorState: " + newDoorState);
+            // Aktualisiere das ViewModel im UI-Thread:
+            Dispatcher.UIThread.Post(() =>
+            {
+                if (MainWindow.Instance?.ViewModel != null)
+                {
+                    MainWindow.Instance.ViewModel.CurrentStateTueur2 = newDoorState;
+                }
+            });
+        }
+
+        private static void setFahrkorb(byte[] zustand)
+        {
+            int newFahrkorb = BitConverter.ToInt32(new byte[] { zustand[4], zustand[5], zustand[6], zustand[7] }, 0);
+            Debug.WriteLine("Fahrkorb: " + newFahrkorb);
+            // Aktualisiere das ViewModel im UI-Thread:
+            Dispatcher.UIThread.Post(() =>
+            {
+                if (MainWindow.Instance?.ViewModel != null)
+                {
+                    MainWindow.Instance.ViewModel.CurrentFahrkorb = newFahrkorb;
+                }
+            });
+        }
+
+        // Eine statische Variable, um den vorherigen Y-Wert zu speichern (für Smoothing)
+        public static void setFahrkorbAnimationPosition(byte[] zustand)
+        {
+            // Lese den Fahrkorbwert aus dem Byte-Array (als Int32)
+            int newFahrkorb = BitConverter.ToInt32(zustand, 4);
+
+            // Gesamtzahl der Etagen und das Etagen-Inkremente-Array
+            int floorCount = GesamtFloor; // GesamtFloor sollte hier als int verfügbar sein
+            int[] originalEtagen = LievViewManager.IngrementEtage;
+
+            // Wert der obersten Etage (wird für die Normalisierung verwendet)
+            int topFloorValue = originalEtagen[floorCount - 1];
+
+            // Normalisiere die Etagenwerte und den Fahrkorbwert:
+            // Das Ergebnis: oberste Etage = 0, darunter negative Werte.
+            float[] normalizedEtagen = new float[floorCount];
+            for (int i = 0; i < floorCount; i++)
+            {
+                normalizedEtagen[i] = originalEtagen[i] - topFloorValue;
+            }
+            float normalizedFahrkorb = newFahrkorb - topFloorValue;
+
+            // UI-Schritt in Y-Einheiten (z. B. 95 pro Etage)
+            float yStep = 95f;
+            float YPosition = 0f;
+
+            // Clamping, falls der Fahrkorbwert außerhalb des bekannten Bereichs liegt:
+            if (normalizedFahrkorb <= normalizedEtagen[0])
+            {
+                // Unterste Etage
+                YPosition = -((floorCount - 1) * yStep);
+            }
+            else if (normalizedFahrkorb >= normalizedEtagen[floorCount - 1])
+            {
+                // Oberste Etage
+                YPosition = 0f;
+            }
+            else
+            {
+                // Finde das Intervall, in dem normalizedFahrkorb liegt.
+                for (int i = 0; i < floorCount - 1; i++)
+                {
+                    if (normalizedFahrkorb >= normalizedEtagen[i] && normalizedFahrkorb <= normalizedEtagen[i + 1])
+                    {
+                        // Berechne den Anteil innerhalb des Intervalls:
+                        // fraction = 0  -> genau an Etage i+1 (höher)
+                        // fraction = 1  -> genau an Etage i (niedriger)
+                        float fraction = (normalizedFahrkorb - normalizedEtagen[i]) /
+                                         (normalizedEtagen[i + 1] - normalizedEtagen[i]);
+
+                        // Berechne den UI-Wert der unteren Etage (i) in diesem Intervall:
+                        // UI(i) = -((floorCount - 1 - i) * yStep)
+                        float uiLower = -((floorCount - 1 - i) * yStep);
+
+                        // Da die Differenz zwischen zwei Etagen immer yStep (z. B. 95) beträgt,
+                        // erhalten wir die interpolierte Y-Position:
+                        YPosition = uiLower + fraction * yStep;
+                        break;
+                    }
+                }
+            }
+
+            Debug.WriteLine("FahrkorbAnimationY: " + YPosition);
+
+            // Aktualisiere das ViewModel im UI-Thread:
+            Dispatcher.UIThread.Post(() =>
+            {
+                if (MainWindow.Instance?.ViewModel != null)
+                {
+                    MainWindow.Instance.ViewModel.PositionY = YPosition;
+                    LastKorbPosition = YPosition;
+                }
+            });
+        }
+
+
+
 
 
         /// <summary>
@@ -304,6 +429,33 @@ namespace HSED_2_0
             {
                 Debug.WriteLine("Betriebsstunden-Änderung erkannt.");
                 setBStunden(response);
+            }
+
+            else if (response[0] == 0x63 && response[1] == 0x01 && response[2] == 0x01)
+            {
+
+                Debug.WriteLine("Tür1-Änderung erkannt.");
+                setDoorState1(response);
+            }
+            else if (response[0] == 0x63 && response[1] == 0x01 && response[2] == 0x02)
+            {
+
+                Debug.WriteLine("Tür2-Änderung erkannt.");
+                setDoorState2(response);
+            }
+            else if (response[0] == 0x63 && response[1] == 0x01 && response[2] == 0x03)
+            {
+
+                Debug.WriteLine("Tür3-Änderung erkannt.");
+                setDoorState1(response);
+            }
+
+            else if (response[0] == 0x63 && response[1] == 0x83)
+            {
+
+                Debug.WriteLine("Fahrkorbposition-Änderung erkannt.");
+                setFahrkorb(response);
+                setFahrkorbAnimationPosition(response);
             }
 
         }

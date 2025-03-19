@@ -8,8 +8,13 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using SkiaSharp;
+using Svg.Skia;
+using System.IO;
 using System.Text;
 using HSED_2_0;
+using HSED_2_0.ViewModels;
+using Avalonia.Media.Imaging;
 
 namespace HSED_2._0
 {
@@ -23,20 +28,266 @@ namespace HSED_2._0
         private bool isAussenRuf;
         private bool AussenRufisUp;
 
+        public static TestrufeNeu Instance { get; private set; }
+        public MainViewModel ViewModel { get; }
+        private LievViewManager _lievViewManager;
+        private MonetoringManager _monetoringManager;
+        private CancellationTokenSource _heartbeatCancellationTokenSource;
+        private DispatcherTimer _floorTimer;
+        private MainWindow _mainWindow;
+        public int Pos_Cal = HseCom.SendHse(10101010);
+
+        // Beispiel: Floor-Anzahl (möglicherweise dynamisch über HseCom.SendHse(1001) ermittelt)
+        public int gesamteFloors = HseCom.SendHse(1001);
+
         public TestrufeNeu()
         {
             InitializeComponent();
             // Fensterposition setzen
             this.Position = new PixelPoint(100, 100);
-            HseConnect();
+            Instance = this;
+            ViewModel = MainWindow.MainViewModelInstance;
+            DataContext = ViewModel;
+            MainWindow.Instance.HseConnect();
+            InitializeProgressbar();
+            MonetoringCall();
 
-            _cancellationTokenSource = new CancellationTokenSource();
-            StartPeriodicUpdateO(TimeSpan.FromSeconds(1), _cancellationTokenSource.Token);
-            StartPeriodicUpdate(TimeSpan.FromSeconds(30), _cancellationTokenSource.Token);
-            StartPeriodicUpdateBlink(TimeSpan.FromSeconds(6), _cancellationTokenSource.Token);
+            // LievViewManager initialisieren und Schacht vorbereiten
+            _lievViewManager = new LievViewManager();
+            _lievViewManager.PrepareSchacht();
+
+            // Gesamt-SVG erzeugen (kombiniert: hinterer Schacht, Fahrkorb, vorderer Schacht)
+
+
+            // Rendern des SVG in ein Bitmap (Größe ggf. anpassen)
+            int renderWidth = 300;
+            int renderHeight = (int)Math.Round(_lievViewManager.TotalHeight);
+            Bitmap renderedBitmap = RenderSvgToBitmap(_lievViewManager.ComposedSvg, renderWidth, renderHeight);
+            SvgImageControl.Source = renderedBitmap;
+
+            renderedBitmap = RenderSvgToBitmap(_lievViewManager.ComposedSvgAlternative, renderWidth, renderHeight);
+            SvgImageControlAlternative.Source = renderedBitmap;
+
+            //_cancellationTokenSource = new CancellationTokenSource();
+            //StartPeriodicUpdateO(TimeSpan.FromSeconds(1), _cancellationTokenSource.Token);
+            //StartPeriodicUpdate(TimeSpan.FromSeconds(30), _cancellationTokenSource.Token);
+            //StartPeriodicUpdateBlink(TimeSpan.FromSeconds(6), _cancellationTokenSource.Token);
 
             // Dynamisch die Etagenbuttons erzeugen
+            StartFloorTimer();
+            StartSKTimer();
+            StartZustandTimer();
+            StartTuerenTimer();
             GenerateFloorButtons();
+            StartFahrkorbAnimationTimer();
+            StartKorbTimer();
+        }
+
+        private void InitializeProgressbar()
+        {
+            EtageProgressBar.Maximum = gesamteFloors - 1;
+        }
+
+
+
+        public void DisplayFahrkorbAnimation()
+        {
+            var transformGroup = (TransformGroup)PositionControl.RenderTransform;
+            var YTransform = (TranslateTransform)transformGroup.Children[1];
+            YTransform.Y = ViewModel.PositionY;
+            transformGroup = (TransformGroup)PositionControl2.RenderTransform;
+            YTransform = (TranslateTransform)transformGroup.Children[1];
+            YTransform.Y = ViewModel.PositionY;
+
+        }
+        public void DisplayFloor()
+        {
+            Etage.Text = ViewModel.CurrentFloor.ToString();
+            EtageProgressBar.Value = ViewModel.CurrentFloor + 1;
+        }
+
+        private void StartFloorTimer()
+        {
+            _floorTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(50) };
+            _floorTimer.Tick += (sender, e) => DisplayFloor();
+            _floorTimer.Start();
+        }
+
+        private void StartFahrkorbAnimationTimer()
+        {
+            _floorTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(50) };
+            _floorTimer.Tick += (sender, e) => DisplayFahrkorbAnimation();
+            _floorTimer.Start();
+        }
+
+        public void DisplayZustand()
+        {
+            switch (ViewModel.CurrentZustand)
+            {
+                case 4:
+                    Zustand.Text = "Stillstand";
+                    Zustand.Foreground = new SolidColorBrush(Colors.White);
+                    break;
+                case 5:
+                    Zustand.Text = "Fährt";
+                    Zustand.Foreground = new SolidColorBrush(Colors.GreenYellow);
+                    break;
+                case 6:
+                    Zustand.Text = "Einfahrt";
+                    Zustand.Foreground = new SolidColorBrush(Colors.Yellow);
+                    break;
+                case 17:
+                    Zustand.Text = "SK Fehlt";
+                    Zustand.Foreground = new SolidColorBrush(Colors.Red);
+                    break;
+            }
+        }
+
+        public void DisplayFahrkorbMM()
+        {
+            int fahrkorb = ViewModel.CurrentFahrkorb;
+            fahrkorb = fahrkorb / Pos_Cal;
+            korbPosition.Text = fahrkorb.ToString() + " mm";
+        }
+        private void StartKorbTimer()
+        {
+            _floorTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(50) };
+            _floorTimer.Tick += (sender, e) => DisplayFahrkorbMM();
+            _floorTimer.Start();
+        }
+
+        private void StartZustandTimer()
+        {
+            _floorTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(50) };
+            _floorTimer.Tick += (sender, e) => DisplayZustand();
+            _floorTimer.Start();
+        }
+
+        private void DisplayTueren()
+        {
+            switch (ViewModel.CurrentStateTueur1)
+            {
+                case 0:
+                    Tuer1.Text = "Geschlossen";
+                    Tuer1.Foreground = new SolidColorBrush(Colors.White);
+                    break;
+                case 80:
+                    Tuer1.Text = "Tür öffnet";
+                    Tuer1.Foreground = new SolidColorBrush(Colors.Yellow);
+                    break;
+                case 48:
+                    Tuer1.Text = "Tür geöffnet";
+                    Tuer1.Foreground = new SolidColorBrush(Colors.GreenYellow);
+                    break;
+                case 32:
+                    Tuer1.Text = "Tür schließt";
+                    Tuer1.Foreground = new SolidColorBrush(Colors.Yellow);
+                    break;
+                case 96:
+                    Tuer1.Text = "LS unterbrochen";
+                    Tuer1.Foreground = new SolidColorBrush(Colors.Orange);
+                    break;
+                case 97:
+                    Tuer1.Text = "Tür geöffnet";
+                    Tuer1.Foreground = new SolidColorBrush(Colors.GreenYellow);
+                    break;
+                case 224:
+                    Tuer1.Text = "Türfehler";
+                    Tuer1.Foreground = new SolidColorBrush(Colors.Red);
+                    break;
+                case 112:
+                    Tuer1.Text = "Tür gestoppt";
+                    Tuer1.Foreground = new SolidColorBrush(Colors.Red);
+                    break;
+            }
+            switch (ViewModel.CurrentStateTueur2)
+            {
+                case 0:
+                    Tuer2.Text = "Geschlossen";
+                    Tuer2.Foreground = new SolidColorBrush(Colors.White);
+                    break;
+                case 80:
+                    Tuer2.Text = "Tür öffnet";
+                    Tuer2.Foreground = new SolidColorBrush(Colors.Yellow);
+                    break;
+                case 48:
+                    Tuer2.Text = "Tür geöffnet";
+                    Tuer2.Foreground = new SolidColorBrush(Colors.GreenYellow);
+                    break;
+                case 32:
+                    Tuer2.Text = "Tür schließt";
+                    Tuer2.Foreground = new SolidColorBrush(Colors.Yellow);
+                    break;
+                case 96:
+                    Tuer2.Text = "LS unterbrochen";
+                    Tuer2.Foreground = new SolidColorBrush(Colors.Orange);
+                    break;
+                case 97:
+                    Tuer2.Text = "Tür geöffnet";
+                    Tuer2.Foreground = new SolidColorBrush(Colors.GreenYellow);
+                    break;
+            }
+        }
+
+        private void StartTuerenTimer()
+        {
+            _floorTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(50) };
+            _floorTimer.Tick += (sender, e) => DisplayTueren();
+            _floorTimer.Start();
+        }
+        public void DisplaySk()
+        {
+            Debug.WriteLine("SK1: " + ViewModel.CurrentSK1);
+            Debug.WriteLine("SK2: " + ViewModel.CurrentSK2);
+            Debug.WriteLine("SK3: " + ViewModel.CurrentSK3);
+            Debug.WriteLine("SK4: " + ViewModel.CurrentSK4);
+            SK1.Background = ViewModel.CurrentSK1 == 0 ? new SolidColorBrush(Colors.Red) : new SolidColorBrush(Colors.GreenYellow);
+            SK2.Background = ViewModel.CurrentSK2 == 0 ? new SolidColorBrush(Colors.Red) : new SolidColorBrush(Colors.GreenYellow);
+            SK3.Background = ViewModel.CurrentSK3 == 0 ? new SolidColorBrush(Colors.Red) : new SolidColorBrush(Colors.GreenYellow);
+            SK4.Background = ViewModel.CurrentSK4 == 0 ? new SolidColorBrush(Colors.Red) : new SolidColorBrush(Colors.GreenYellow);
+        }
+
+        private void StartSKTimer()
+        {
+            _floorTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(50) };
+            _floorTimer.Tick += (sender, e) => DisplaySk();
+            _floorTimer.Start();
+        }
+
+        public static void MonetoringCall()
+        {
+            SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x05, 0x01, 0x01 });
+            Debug.WriteLine("Send all");
+        }
+
+        private Bitmap RenderSvgToBitmap(string svgString, int width, int height)
+        {
+            var svg = new SKSvg();
+            svg.FromSvg(svgString);
+
+            SKPicture picture = svg.Picture;
+            if (picture == null)
+                throw new Exception("Das SVG konnte nicht geladen werden.");
+
+            SKBitmap skBitmap = new SKBitmap(width, height);
+            using (var canvas = new SKCanvas(skBitmap))
+            {
+                canvas.Clear(SKColors.Transparent);
+                float scaleX = width / picture.CullRect.Width;
+                float scaleY = height / picture.CullRect.Height;
+                float scale = Math.Min(scaleX, scaleY);
+                canvas.Scale(scale);
+                canvas.DrawPicture(picture);
+            }
+
+            using (var image = SKImage.FromBitmap(skBitmap))
+            using (var data = image.Encode(SKEncodedImageFormat.Png, 100))
+            using (var stream = new MemoryStream())
+            {
+                data.SaveTo(stream);
+                stream.Seek(0, SeekOrigin.Begin);
+                return new Bitmap(stream);
+            }
         }
 
         private async void StartPeriodicUpdateO(TimeSpan interval, CancellationToken token)
@@ -61,6 +312,7 @@ namespace HSED_2._0
                 }
             }
         }
+
 
         private async void StartPeriodicUpdate(TimeSpan interval, CancellationToken token)
         {
@@ -91,7 +343,7 @@ namespace HSED_2._0
             {
                 try
                 {
-                    SK(); // SK-Status updaten
+                    //SK(); // SK-Status updaten
                 }
                 catch (Exception ex)
                 {
@@ -235,7 +487,9 @@ namespace HSED_2._0
             }
         }
 
-        private void HseConnect()
+        
+
+       /* private void HseConnect()
         {
             try
             {
@@ -293,7 +547,7 @@ namespace HSED_2._0
                 sk3.Background = new SolidColorBrush(Colors.Gray);
             if (sk4 != null)
                 sk4.Background = new SolidColorBrush(Colors.Gray);
-        }
+        }*/
 
         private void HseUpdatedO()
         {

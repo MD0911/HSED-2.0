@@ -159,6 +159,78 @@ namespace HSED_2_0.ViewModels
             }
         }
 
+        private int _currentStateTueur1;
+        public int CurrentStateTueur1
+        {
+            get => _currentStateTueur1;
+            set
+            {
+                if (_currentStateTueur1 != value)
+                {
+                    _currentStateTueur1 = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private int _currentStateTueur2;
+        public int CurrentStateTueur2
+        {
+            get => _currentStateTueur2;
+            set
+            {
+                if (_currentStateTueur2 != value)
+                {
+                    _currentStateTueur2 = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private int _currentStateTueur3;
+        public int CurrentStateTueur3
+        {
+            get => _currentStateTueur3;
+            set
+            {
+                if (_currentStateTueur3 != value)
+                {
+                    _currentStateTueur3 = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private int _currentFahrkorb;
+        public int CurrentFahrkorb
+        {
+            get => _currentFahrkorb;
+            set
+            {
+                if (_currentFahrkorb != value)
+                {
+                    _currentFahrkorb = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private float _positionY;
+        public float PositionY
+        {
+            get => _positionY;
+            set
+            {
+                if (_positionY != value)
+                {
+                    _positionY = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+
+
         // Weitere Properties (z. B. A-Zustand) können hier ergänzt werden.
 
         public event PropertyChangedEventHandler PropertyChanged;

@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using HSED_2_0;
 using HSED_2._0;
 using Avalonia.Controls.ApplicationLifetimes;
+using Material.Styles.Controls;
 
 public class SerialPortManager
 {
@@ -64,47 +65,54 @@ public class SerialPortManager
                 Height = 150,
                 WindowStartupLocation = WindowStartupLocation.CenterScreen,
                 CanResize = false,
-                // Entferne Schließ-Optionen
-                SystemDecorations = SystemDecorations.None,
-                Content = new StackPanel
-                {
-                    Margin = new Thickness(10),
-                    Spacing = 10,
-                    Children =
-                    {
-                        new TextBlock
-                        {
-                            Text = "Keine Verbindung zur HSE.",
-                            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center
-                        },
-                        // Optional: Ein Hinweis, dass der Dialog nicht geschlossen werden kann.
-                        new TextBlock
-                        {
-                            Text = "Bitte warten...",
-                            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
-                            FontStyle = Avalonia.Media.FontStyle.Italic
-                        },
-                        new TextBlock
-                        {
-                            Text = "Eine Verbindung wird ",
-                            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
-                            FontStyle = Avalonia.Media.FontStyle.Italic
-                        },
-                        new TextBlock
-                        {
-                            Text = "automatisch versucht herzustellen.",
-                            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
-                            FontStyle = Avalonia.Media.FontStyle.Italic
-                        }
-
-                    }
-                }
+                SystemDecorations = SystemDecorations.None
             };
 
-            // Verhindere, dass der Benutzer das Fenster schließt (z. B. per Alt-F4)
+            var stackPanel = new StackPanel
+            {
+                Margin = new Thickness(10),
+                Spacing = 10,
+            };
+
+            stackPanel.Children.Add(new TextBlock
+            {
+                Text = "Keine Verbindung zur HSE.",
+                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center
+            });
+            stackPanel.Children.Add(new TextBlock
+            {
+                Text = "Bitte warten...",
+                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
+                FontStyle = Avalonia.Media.FontStyle.Italic
+            });
+            stackPanel.Children.Add(new TextBlock
+            {
+                Text = "Eine Verbindung wird alle 5 Sekunden",
+                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
+                FontStyle = Avalonia.Media.FontStyle.Italic
+            });
+            stackPanel.Children.Add(new TextBlock
+            {
+                Text = "automatisch versucht herzustellen.",
+                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
+                FontStyle = Avalonia.Media.FontStyle.Italic
+            });
+
+            // Button separat erstellen und das Click-Ereignis zuweisen
+            var reconnectButton = new Button
+            {
+                Content = "Manuell verbinden",
+                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center
+            };
+            reconnectButton.Click += (sender, e) => Open();
+            stackPanel.Children.Add(reconnectButton);
+
+            errorDialog.Content = stackPanel;
+
+            // Verhindere, dass der Benutzer das Fenster schließt (z. B. per Alt-F4),
+            // solange keine Verbindung besteht
             errorDialog.Closing += (s, e) =>
             {
-                // Abbrechen, falls der Fehlerzustand noch besteht
                 if (_serialPort == null || !_serialPort.IsOpen)
                 {
                     e.Cancel = true;
@@ -125,6 +133,7 @@ public class SerialPortManager
             }
         });
     }
+
 
     /// <summary>
     /// Schließt den Fehlerdialog, falls er offen ist.

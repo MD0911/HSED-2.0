@@ -9,11 +9,60 @@
         WindowStartupLocation="Manual">
 	<Canvas>
 
-		<!-- Live-View Bereich: Gleiche Höhe wie die Scroll-Leiste (380) -->
-		<Border CornerRadius="10" Background="#303030" Width="220" Height="448" Canvas.Top="15" Canvas.Left="80">
-			<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-				<!-- Hier deinen Live-View Inhalt einfügen -->
-			</StackPanel>
+
+		<!-- Live-View -->
+		<Border CornerRadius="10"
+        Background="#303030"
+        Width="225" Height="448"
+        Canvas.Top="15" Canvas.Left="75"
+        ClipToBounds="True">
+			<Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+				<!--<Border Width="100" Height="100" Background="White"></Border>-->
+
+				<Canvas Name="PositionControl" Height="300" Width="300">
+					<Canvas.RenderTransform>
+						<TransformGroup>
+							<ScaleTransform ScaleX="0.5" ScaleY="0.5"/>
+							<TranslateTransform X="0" Y=""/>
+						</TransformGroup>
+					</Canvas.RenderTransform>
+					<Image x:Name="SvgImageControlAlternative">
+						<Image.RenderTransform>
+							<TransformGroup>
+								<!-- Erstes Element: ScaleTransform -->
+								<ScaleTransform ScaleX="1" ScaleY="1"/>
+								<!-- Zweites Element: TranslateTransform -->
+								<TranslateTransform X="0" Y="0"/>
+							</TransformGroup>
+						</Image.RenderTransform>
+					</Image>
+				</Canvas>
+				<Image Margin="10,0,0,0" Width="150" Source="C:\Users\Mouad Ezzouine\source\repos\HSED 2.0\HSED 2.0\Animation\forBuild\Fahrkorb\Fahrkorb.png"></Image>
+				<Canvas Name="PositionControl2" Height="300" Width="300">
+					<Canvas.RenderTransform>
+						<TransformGroup>
+							<ScaleTransform ScaleX="0.5" ScaleY="0.5"/>
+							<TranslateTransform X="0" Y=""/>
+						</TransformGroup>
+					</Canvas.RenderTransform>
+					<Image x:Name="SvgImageControl">
+						<Image.RenderTransform>
+							<TransformGroup>
+								<!-- Erstes Element: ScaleTransform -->
+								<ScaleTransform ScaleX="1" ScaleY="1"/>
+								<!-- Zweites Element: TranslateTransform -->
+								<TranslateTransform X="0" Y="0"/>
+							</TransformGroup>
+						</Image.RenderTransform>
+					</Image>
+				</Canvas>
+				<Border Background="Black" Width="100" Height="25" VerticalAlignment="Bottom" HorizontalAlignment="Right">
+					<TextBlock Name="korbPosition" Text="Fahrkorb" FontFamily="Arial" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+					<Border.Effect>
+						<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
+					</Border.Effect>
+				</Border>
+			</Grid>
 		</Border>
 
 		<!-- Vertikale, scrollbare Leiste mit weißen, abgerundeten Buttons (von 6 bis -1) -->

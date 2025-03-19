@@ -71,7 +71,7 @@
 
 			<StackPanel HorizontalAlignment="Center">
 				<TextBlock Margin="10" Foreground="White" FontSize="15">Betriebszeit</TextBlock>
-				<TextBlock Name="BStunden" HorizontalAlignment="Center" Margin="0" Foreground="White" Text="5256000" FontSize="20"></TextBlock>
+				<TextBlock Name="BStunden" HorizontalAlignment="Center" Margin="0" Foreground="White" Text="" FontSize="20"></TextBlock>
 			</StackPanel>
 		</Button>
 		<!-- Last -->
@@ -139,14 +139,51 @@
         Canvas.Top="25" Canvas.Left="300"
         ClipToBounds="True">
 			<Grid HorizontalAlignment="Center" VerticalAlignment="Center">
-				<Image x:Name="SvgImageControl"
-					   Width="300" Height="600"
-					   Stretch="Uniform">
+				<!--<Border Width="100" Height="100" Background="White"></Border>-->
+				
+				<Canvas Name="PositionControl" Height="300" Width="300">
+					<Canvas.RenderTransform>
+						<TransformGroup>
+							<ScaleTransform ScaleX="0.5" ScaleY="0.5"/>
+							<TranslateTransform X="0" Y=""/>
+						</TransformGroup>
+					</Canvas.RenderTransform>
+					<Image x:Name="SvgImageControlAlternative">
+						<Image.RenderTransform>
+							<TransformGroup>
+								<!-- Erstes Element: ScaleTransform -->
+								<ScaleTransform ScaleX="1" ScaleY="1"/>
+								<!-- Zweites Element: TranslateTransform -->
+								<TranslateTransform X="0" Y="0"/>
+							</TransformGroup>
+						</Image.RenderTransform>
+					</Image>
+				</Canvas>
+				<Image Margin="10,0,0,0" Width="150" Source="C:\Users\Mouad Ezzouine\source\repos\HSED 2.0\HSED 2.0\Animation\forBuild\Fahrkorb\Fahrkorb.png"></Image>
+				<Canvas Name="PositionControl2" Height="300" Width="300">
+					<Canvas.RenderTransform>
+						<TransformGroup>
+							<ScaleTransform ScaleX="0.5" ScaleY="0.5"/>
+							<TranslateTransform X="0" Y=""/>
+						</TransformGroup>
+					</Canvas.RenderTransform>
+				<Image x:Name="SvgImageControl">
 					<Image.RenderTransform>
-						<!-- Hier kannst du den Offset manuell einstellen -->
-						<TranslateTransform X="100" Y="0"/>
+						<TransformGroup>
+							<!-- Erstes Element: ScaleTransform -->
+							<ScaleTransform ScaleX="1" ScaleY="1"/>
+							<!-- Zweites Element: TranslateTransform -->
+							<TranslateTransform X="0" Y="0"/>
+						</TransformGroup>
 					</Image.RenderTransform>
 				</Image>
+				</Canvas>
+				<Border Background="Black" Width="100" Height="25" VerticalAlignment="Bottom" HorizontalAlignment="Right">
+					<TextBlock Name="korbPosition" Text="Fahrkorb" FontFamily="Arial" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+					<Border.Effect>
+						<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
+					</Border.Effect>
+				</Border>
 			</Grid>
 		</Border>
 

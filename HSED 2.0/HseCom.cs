@@ -274,6 +274,63 @@ namespace HSED_2_0
                 }
             }
 
+            if (Art == 2045)
+            {
+                try
+                {
+                    byte[] date = SendHseCommand(new byte[] { 0x03, 0x01, 0x26, 0x4B });
+                    string Hex = BitConverter.ToString(date);
+                    int newBStunden = BitConverter.ToInt16(new byte[] { date[8], date[9] }, 0);
+                    Debug.WriteLine("BStunden Anfang: "+Hex);
+                    return newBStunden;
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Fehler (3001): {ex.Message}\n{ex.StackTrace}");
+                    return 505;
+                }
+            }
+
+            if (Art == 2145)
+            {
+                try
+                {
+                    byte[] date = SendHseCommand(new byte[] { 0x03, 0x01, 0x26, 0x4C });
+                    string Hex = BitConverter.ToString(date);
+                    int newBStunden = BitConverter.ToInt16(new byte[] { date[8], date[9] }, 0);
+                    Debug.WriteLine("Fahrtenzähler Anfang: " + Hex);
+                    return newBStunden;
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Fehler (3001): {ex.Message}\n{ex.StackTrace}");
+                    return 505;
+                }
+            }
+
+            // Art 10101010: Pos_Calc
+            if (Art == 10101010)
+            {
+                try
+                {
+                    byte[] date = SendHseCommand(new byte[] { 0x03, 0x01, 0x24, 0x3D });
+                    string Hex = BitConverter.ToString(date);
+                    Debug.WriteLine("Hex: " + Hex);
+                    if (date == null || date.Length <= 10)
+                        return 505;
+                    float temp = BitConverter.ToSingle(new byte[] { date[10], date[11], date[12], date[13] });
+                    int rund = Convert.ToInt32(temp);
+                    Debug.WriteLine("Pos_Calc: " + temp);
+                    return rund;
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Fehler (3001): {ex.Message}\n{ex.StackTrace}");
+                    return 505;
+                }
+            }
+
+
             return 404;
         }
     }

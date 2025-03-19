@@ -1,4 +1,4 @@
-using Avalonia;
+ï»¿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Media;
@@ -19,6 +19,7 @@ namespace HSED_2._0
     public partial class MainWindow : Window
     {
         public static MainWindow Instance { get; private set; }
+        public static MainViewModel MainViewModelInstance => Instance?.ViewModel;
         public MainViewModel ViewModel { get; }
         private LievViewManager _lievViewManager;
         private MonetoringManager _monetoringManager;
@@ -29,8 +30,8 @@ namespace HSED_2._0
         bool NavBarStatus = false;
         private bool _isGreen = false;
         public static bool BZeitSchalter = false;
-
-        // Beispiel: Floor-Anzahl (möglicherweise dynamisch über HseCom.SendHse(1001) ermittelt)
+        public int Pos_Cal = HseCom.SendHse(10101010);
+        // Beispiel: Floor-Anzahl (mÃ¶glicherweise dynamisch Ã¼ber HseCom.SendHse(1001) ermittelt)
         public int gesamteFloors = HseCom.SendHse(1001);
 
         public MainWindow()
@@ -52,9 +53,17 @@ namespace HSED_2._0
             // Gesamt-SVG erzeugen (kombiniert: hinterer Schacht, Fahrkorb, vorderer Schacht)
 
 
-            // Rendern des SVG in ein Bitmap (Größe ggf. anpassen)
-            Bitmap renderedBitmap = RenderSvgToBitmap(_lievViewManager.ComposedSvg, 300, 600);
+            // Rendern des SVG in ein Bitmap (GrÃ¶ÃŸe ggf. anpassen)
+            // Verwende die vom LievViewManager berechnete Gesamt-HÃ¶he als Render-HÃ¶he:
+            int renderWidth = 300;
+            int renderHeight = (int)Math.Round(_lievViewManager.TotalHeight);
+            Bitmap renderedBitmap = RenderSvgToBitmap(_lievViewManager.ComposedSvg, renderWidth, renderHeight);
             SvgImageControl.Source = renderedBitmap;
+
+            renderedBitmap = RenderSvgToBitmap(_lievViewManager.ComposedSvgAlternative, renderWidth, renderHeight);
+            SvgImageControlAlternative.Source = renderedBitmap;
+
+
 
             // Starte weitere Timer zur Aktualisierung der Anzeige
             StartFloorTimer();
@@ -64,6 +73,8 @@ namespace HSED_2._0
             StartZustandTimer();
             StartSkTimer();
             StartBStundenTimer();
+            StartKorbTimer();
+            StartFahrkorbAnimationTimer();
 
             _cancellationTokenSource = new CancellationTokenSource();
             StartPeriodicUpdateO(TimeSpan.FromSeconds(10), _cancellationTokenSource.Token);
@@ -75,6 +86,7 @@ namespace HSED_2._0
             SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x05, 0x01, 0x01 });
             Debug.WriteLine("Send all");
         }
+
 
 
         /// <summary>
@@ -112,9 +124,26 @@ namespace HSED_2._0
 
         #region Anzeige-Methoden
 
+
+        public void DisplayFahrkorbAnimation()
+        {
+            var transformGroup = (TransformGroup)PositionControl.RenderTransform;
+            var YTransform = (TranslateTransform)transformGroup.Children[1];
+            YTransform.Y = ViewModel.PositionY;
+            transformGroup = (TransformGroup)PositionControl2.RenderTransform;
+            YTransform = (TranslateTransform)transformGroup.Children[1];
+            YTransform.Y = ViewModel.PositionY;
+
+        }
+        public void DisplayFahrkorbMM()
+        {
+            int fahrkorb = ViewModel.CurrentFahrkorb;
+            fahrkorb = fahrkorb / Pos_Cal;
+            korbPosition.Text = fahrkorb.ToString() + " mm";
+        }
         public void DisplayTemp()
         {
-            Temp.Text = ViewModel.CurrentTemp.ToString() + "°C";
+            Temp.Text = ViewModel.CurrentTemp.ToString() + "Â°C";
         }
 
         public void DisplayFloor()
@@ -125,8 +154,9 @@ namespace HSED_2._0
 
         public void DisplayFahrtZahler()
         {
-            Debug.WriteLine("Fahrten: " + FahrtZahler);
+            
             FahrtZahler.Text = ViewModel.CurrentFahrtZahler.ToString();
+            Debug.WriteLine("Fahrten: " + FahrtZahler.Text);
         }
 
         public void DisplayBStunden() 
@@ -154,7 +184,7 @@ namespace HSED_2._0
                     Zustand.Foreground = new SolidColorBrush(Colors.White);
                     break;
                 case 5:
-                    Zustand.Text = "Fährt";
+                    Zustand.Text = "FÃ¤hrt";
                     Zustand.Foreground = new SolidColorBrush(Colors.GreenYellow);
                     break;
                 case 6:
@@ -193,6 +223,13 @@ namespace HSED_2._0
         {
             _floorTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(50) };
             _floorTimer.Tick += (sender, e) => DisplayFloor();
+            _floorTimer.Start();
+        }
+
+        private void StartFahrkorbAnimationTimer()
+        {
+            _floorTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(50) };
+            _floorTimer.Tick += (sender, e) => DisplayFahrkorbAnimation();
             _floorTimer.Start();
         }
 
@@ -236,6 +273,13 @@ namespace HSED_2._0
         {
             _floorTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(50) };
             _floorTimer.Tick += (sender, e) => DisplaySk();
+            _floorTimer.Start();
+        }
+
+        private void StartKorbTimer()
+        {
+            _floorTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(50) };
+            _floorTimer.Tick += (sender, e) => DisplayFahrkorbMM();
             _floorTimer.Start();
         }
 
@@ -297,6 +341,29 @@ namespace HSED_2._0
 
             ViewModel.CurrentZustand = HseCom.SendHse(1005);
 
+            ViewModel.CurrentStateTueur1 = HseCom.SendHse(1006);
+            ViewModel.CurrentStateTueur2 = HseCom.SendHse(1016);
+            // ViewModel.CurrentBStunden = HseCom.SendHse(2045); // GIbt eine falsche Anzeige.
+            ViewModel.CurrentFahrtZahler = HseCom.SendHse(2145);   
+
+
+
+            // var transformGroup = (TransformGroup)SvgImageControl.RenderTransform;
+            // Das erste Element in der TransformGroup ist der ScaleTransform
+            // var scaleTransform = (ScaleTransform)transformGroup.Children[0];
+            //  var YTransform = (TranslateTransform)transformGroup.Children[1];
+
+            //scaleTransform.ScaleX = 0.25 * gesamteFloors;
+            //scaleTransform.ScaleY = 0.25 * gesamteFloors;
+
+
+            // YTransform.Y = -53.75 * 0.25 * gesamteFloors;
+
+            var transformGroup = (TransformGroup)PositionControl.RenderTransform;
+            var YTransform = (TranslateTransform)transformGroup.Children[1];
+            //YTransform.Y = ViewModel.PositionY;
+
+
             int temp = HseCom.SendHse(3001);
             ViewModel.CurrentTemp = temp;
             byte[] last = HseCom.SendHseCommand(new byte[] { 0x03, 0x01, 0x64, 0x80 });
@@ -313,7 +380,7 @@ namespace HSED_2._0
             byte[] SK = HseCom.SendHseCommand(new byte[] { 0x03, 0x01, 0x21, 0x02, 0x00, 0x05 });
             if (SK == null || SK.Length <= 10)
             {
-                Debug.WriteLine("Ungültige Antwort für Temperatur.");
+                Debug.WriteLine("UngÃ¼ltige Antwort fÃ¼r Temperatur.");
                 return;
             }
             byte sk = SK[10];
@@ -334,15 +401,29 @@ namespace HSED_2._0
 
             _monetoringManager = new MonetoringManager();
             _monetoringManager.Start();
-          /*  DisplayFloor();
-            DisplaySk();
-            DisplayTemp();
-            DisplayLast();
-            DisplayZustand();
-            DisplayFahrtZahler();
-            DisplayBStunden();
-            SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x05, 0x01, 0x01 });
-            Debug.WriteLine("Send all");*/
+            /*  DisplayFloor();
+              DisplaySk();
+              DisplayTemp();
+              DisplayLast();
+              DisplayZustand();
+              DisplayFahrtZahler();
+              DisplayBStunden();
+              SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x05, 0x01, 0x01 });
+              Debug.WriteLine("Send all");*/
+           float lastKorbPosition =  MonetoringManager.LastKorbPosition;
+            int bStunden = MonetoringManager.Betriebsstunden; 
+            if (lastKorbPosition == null) 
+            {
+                ViewModel.PositionY = 0;
+                
+            }
+            else
+            {
+                ViewModel.PositionY = lastKorbPosition;
+                ViewModel.CurrentBStunden = bStunden;
+            }
+
+
         }
 
         #endregion
