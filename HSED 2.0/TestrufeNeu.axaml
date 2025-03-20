@@ -349,7 +349,7 @@
 					<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
 				</Border.Effect>
 				<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-					<Image Width="75" Source="C:\Users\Mouad Ezzouine\source\repos\HSED 2.0\HSED 2.0\Images\Icons\pfeil-Hoch.png"/>
+					<Image Width="75" Source="Images\Icons\pfeil-Hoch.png"/>
 				</StackPanel>
 			</Border>
 
@@ -358,7 +358,7 @@
 					<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
 				</Border.Effect>
 				<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-					<Image Width="75" Source="C:\Users\Mouad Ezzouine\source\repos\HSED 2.0\HSED 2.0\Images\Icons\pfeil-runter.png"/>
+					<Image Width="75" Source="Images\Icons\pfeil-runter.png"/>
 				</StackPanel>
 			</Border>
 		</Canvas>
@@ -477,10 +477,10 @@
 					HorizontalAlignment="Center" VerticalAlignment="Center">
 				<StackPanel  HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal" Spacing="20">
 					<Button Tag="R" Content="R" Click="Button_Click_AOoU" CornerRadius="10" Height="150" Width="125">
-						<Image Width="75" Source="C:\Users\Mouad Ezzouine\source\repos\HSED 2.0\HSED 2.0\Images\Icons\pfeil-runter.png"/>
+						<Image Width="75" Source="Images\Icons\pfeil-runter.png"/>
 					</Button>
 					<Button Tag="H" Content="H" Click="Button_Click_AOoU" CornerRadius="10" Height="150" Width="125">
-						<Image Width="75" Source="C:\Users\Mouad Ezzouine\source\repos\HSED 2.0\HSED 2.0\Images\Icons\pfeil-Hoch.png"/>
+						<Image Width="75" Source="Images\Icons\pfeil-Hoch.png"/>
 					</Button>
 				</StackPanel>
 				<Border.Effect>

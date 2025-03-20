@@ -178,8 +178,8 @@ namespace HSED_2._0
             BuildSchachtSvgAlternative();
 
             // Optional: Speichere das zusammengesetzte SVG in eine Datei.
-            string outputPath = Path.Combine(AppContext.BaseDirectory, "Output", "SchachtComposed.svg");
-            File.WriteAllText(outputPath, ComposedSvg);
+            //string outputPath = Path.Combine(AppContext.BaseDirectory, "Output", "SchachtComposed.svg");
+           // File.WriteAllText(outputPath, ComposedSvg);
         }
     }
 }

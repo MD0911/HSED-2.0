@@ -8,6 +8,7 @@
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <DisableCompiledBindings>true</DisableCompiledBindings>
     <RuntimeIdentifiers>win-x64;linux-arm</RuntimeIdentifiers>
+	<SelfContained>true</SelfContained>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Animation\forBuild\Fahrkorb\Fahrkorb.png" />

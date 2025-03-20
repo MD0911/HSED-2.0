@@ -105,7 +105,7 @@
 				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
 			</Button.Effect>
 			<!-- Hier kannst du entweder ein Bild oder Text verwenden -->
-			<Image Width="25" Source="C:\Users\Mouad Ezzouine\source\repos\HSED 2.0\HSED 2.0\Images\Icons\enter-taste.png"/>
+			<Image Width="25" Source="Images\Icons\enter-taste.png"/>
 		</Button>
 	</Canvas>
 </Window>
