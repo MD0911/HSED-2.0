@@ -10,6 +10,9 @@
     <RuntimeIdentifiers>win-x64;linux-arm</RuntimeIdentifiers>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Animation\forBuild\Fahrkorb\Fahrkorb.png" />
+    <None Remove="Animation\forBuild\SchachtHinten.svg" />
+    <None Remove="Animation\forBuild\SchachtVorne.svg" />
     <None Remove="bitmap\ASCII00.bmp" />
     <None Remove="bitmap\ASCII01.bmp" />
     <None Remove="bitmap\ASCII02.bmp" />
@@ -132,14 +135,31 @@
     <None Remove="Images\Icons\analysieren.png" />
     <None Remove="Images\Icons\aufzug.png" />
     <None Remove="Images\Icons\aussicht.png" />
+    <None Remove="Images\Icons\die-einstellungen.png" />
     <None Remove="Images\Icons\enter-taste.png" />
     <None Remove="Images\Icons\menu-offnen.png" />
     <None Remove="Images\Icons\pfeil-Hoch.png" />
     <None Remove="Images\Icons\pfeil-runter.png" />
+    <None Remove="Images\Icons\refresh.png" />
     <None Remove="Images\Icons\stift.png" />
     <None Remove="Images\Icons\zuhause.png" />
   </ItemGroup>
   <ItemGroup>
+    <AvaloniaXaml Include="Animation\forBuild\Fahrkorb\Fahrkorb.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </AvaloniaXaml>
+    <AvaloniaXaml Include="Images\Icons\die-einstellungen.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </AvaloniaXaml>
+    <AvaloniaXaml Include="Images\Icons\refresh.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </AvaloniaXaml>
+    <Content Include="Animation\forBuild\SchachtHinten.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Animation\forBuild\SchachtVorne.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="bitmap\ASCII00.bmp">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -514,18 +534,32 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="Images\Icons\analysieren.png" />
-    <Resource Include="Images\Icons\aufzug.png" />
-    <Resource Include="Images\Icons\aussicht.png" />
-    <Resource Include="Images\Icons\enter-taste.png" />
-    <Resource Include="Images\Icons\menu-offnen.png" />
-    <Resource Include="Images\Icons\pfeil-Hoch.png" />
-    <Resource Include="Images\Icons\pfeil-runter.png" />
-    <Resource Include="Images\Icons\stift.png" />
-    <Resource Include="Images\Icons\zuhause.png" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Animation\forBuild\" />
+    <AvaloniaXaml Include="Images\Icons\analysieren.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </AvaloniaXaml>
+    <AvaloniaXaml Include="Images\Icons\aufzug.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </AvaloniaXaml>
+    <AvaloniaXaml Include="Images\Icons\aussicht.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </AvaloniaXaml>
+    <AvaloniaXaml Include="Images\Icons\enter-taste.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </AvaloniaXaml>
+    <AvaloniaXaml Include="Images\Icons\menu-offnen.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </AvaloniaXaml>
+    <AvaloniaXaml Include="Images\Icons\pfeil-Hoch.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </AvaloniaXaml>
+    <AvaloniaXaml Include="Images\Icons\pfeil-runter.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </AvaloniaXaml>
+    <AvaloniaXaml Include="Images\Icons\stift.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </AvaloniaXaml>
+    <AvaloniaXaml Include="Images\Icons\zuhause.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </AvaloniaXaml>
   </ItemGroup>
 </Project>

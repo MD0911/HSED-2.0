@@ -28,6 +28,7 @@ namespace HSED_2._0
         private bool isAussenRuf;
         private bool AussenRufisUp;
 
+
         public static TestrufeNeu Instance { get; private set; }
         public MainViewModel ViewModel { get; }
         private LievViewManager _lievViewManager;
@@ -39,6 +40,7 @@ namespace HSED_2._0
 
         // Beispiel: Floor-Anzahl (möglicherweise dynamisch über HseCom.SendHse(1001) ermittelt)
         public int gesamteFloors = HseCom.SendHse(1001);
+
 
         public TestrufeNeu()
         {

@@ -21,8 +21,8 @@ namespace HSED_2._0
         public double TotalHeight { get; private set; }
 
         // Pfad zur SVG-Datei, die eine einzelne Etage darstellt.
-        public string SingleFloorSvgPath { get; set; } = "C:\\Users\\Mouad Ezzouine\\source\\repos\\HSED 2.0\\HSED 2.0\\Animation\\forBuild\\SchachtVorne.svg";
-        public string AlternativeSingleFloorSvgPath { get; set; } = "C:\\Users\\Mouad Ezzouine\\source\\repos\\HSED 2.0\\HSED 2.0\\Animation\\forBuild\\SchachtHinten.svg";
+        public string SingleFloorSvgPath { get; set; } = "Animation/forBuild/SchachtVorne.svg";
+        public string AlternativeSingleFloorSvgPath { get; set; } = "Animation/forBuild/SchachtHinten.svg";
 
         /// <summary>
         /// Liest die Floor-Werte aus dem MonetoringManager aus.

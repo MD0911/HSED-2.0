@@ -37,7 +37,7 @@
 						</Image.RenderTransform>
 					</Image>
 				</Canvas>
-				<Image Margin="10,0,0,0" Width="150" Source="C:\Users\Mouad Ezzouine\source\repos\HSED 2.0\HSED 2.0\Animation\forBuild\Fahrkorb\Fahrkorb.png"></Image>
+				<Image Margin="10,0,0,0" Width="150" Source="Animation\forBuild\Fahrkorb\Fahrkorb.png"></Image>
 				<Canvas Name="PositionControl2" Height="300" Width="300">
 					<Canvas.RenderTransform>
 						<TransformGroup>
@@ -363,63 +363,67 @@
 			</Border>
 		</Canvas>
 
-		<Border x:Name="Overlap" Background="Black" Width="800" Height="480" Opacity="100" IsVisible="False"/>
+		<!-- NavBar -->
+
+		<Border x:Name="Overlap" Background="Black" Width="800" Height="480" Opacity="100" IsVisible="False"></Border>
+
 		<Border x:Name="NavBar" Background="Black" Width="60" Height="480">
 			<Border.Effect>
-				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
+				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5" ></DropShadowEffect>
 			</Border.Effect>
+
 			<StackPanel x:Name="StackPanelNavBar" HorizontalAlignment="Center" Margin="0,25,0,0">
-				<Button Tag="Menu" x:Name="ButtonSettings" Width="50" Height="40" Click="Button_Click_Settings">
+				<Button Tag="Menu" x:Name="ButtonSettings" Width="50" Height="40" Click="Button_Click_Settings" >
 					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-						<Image Source="file:///C:\Users\Mouad Ezzouine\source\repos\HSED 2.0\HSED 2.0\Images\Icons\menu-offnen.png"/>
+						<Image Source="Images\Icons\menu-offnen.png"></Image>
 						<TextBlock Margin="10,5,0,0" x:Name="SettingsText" IsVisible="False" Foreground="White">Menue</TextBlock>
 					</StackPanel>
 				</Button>
 
-				<Button Tag="Home" x:Name="ButtonSettings7" Width="50" Height="40" Margin="0,5,0,0" Click="Button_Click_Settings">
+				<Button Tag="Home" x:Name="ButtonSettings7" Width="50" Height="40" Margin="0,5,0,0"  Click="Button_Click_Settings" >
 					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-						<Image Source="file:///C:\Users\Mouad Ezzouine\source\repos\HSED 2.0\HSED 2.0\Images\Icons\zuhause.png"/>
+						<Image Source="Images\Icons\zuhause.png"></Image>
 						<TextBlock Margin="10,5,0,0" x:Name="SettingsText7" IsVisible="False" Foreground="White">Home</TextBlock>
 					</StackPanel>
 				</Button>
 
-				<Button Tag="Testrufe" x:Name="ButtonSettings3" Width="50" Height="40" Margin="0,5,0,0" Click="Button_Click_Settings">
+				<Button Tag="Testrufe" x:Name="ButtonSettings3" Width="50" Height="40" Margin="0,5,0,0" Click="Button_Click_Settings" >
 					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-						<Image Source="file:///C:\Users\Mouad Ezzouine\source\repos\HSED 2.0\HSED 2.0\Images\Icons\aufzug.png"/>
+						<Image Source="Images\Icons\aufzug.png"></Image>
 						<TextBlock Margin="10,5,0,0" x:Name="SettingsText3" IsVisible="False" Foreground="White">Testrufe</TextBlock>
 					</StackPanel>
 				</Button>
 
-				<Button Tag="Codes" x:Name="ButtonSettings4" Width="50" Height="40" Margin="0,5,0,0" Click="Button_Click_Settings">
+				<Button Tag="Codes" x:Name="ButtonSettings4" Width="50" Height="40" Margin="0,5,0,0" Click="Button_Click_Settings" >
 					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-						<Image Source="file:///C:\Users\Mouad Ezzouine\source\repos\HSED 2.0\HSED 2.0\Images\Icons\stift.png"/>
+						<Image Source="Images\Icons\stift.png"></Image>
 						<TextBlock Margin="10,5,0,0" x:Name="SettingsText4" IsVisible="False" Foreground="White">Codes</TextBlock>
 					</StackPanel>
 				</Button>
 
-				<Button Tag="Ansicht" x:Name="ButtonSettings5" Width="50" Height="40" Margin="0,5,0,0" Click="Button_Click_Settings">
+				<Button Tag="Ansicht" x:Name="ButtonSettings5" Width="50" Height="40" Margin="0,5,0,0" Click="Button_Click_Settings" >
 					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-						<Image Source="file:///C:\Users\Mouad Ezzouine\source\repos\HSED 2.0\HSED 2.0\Images\Icons\aussicht.png"/>
+						<Image Source="Images\Icons\aussicht.png"></Image>
 						<TextBlock Margin="10,5,0,0" x:Name="SettingsText5" IsVisible="False" Foreground="White">Ansicht</TextBlock>
 					</StackPanel>
 				</Button>
 
-				<Button Tag="SelfDia" x:Name="ButtonSettings6" Width="50" Height="40" Margin="0,5,0,0" Click="Button_Click_Settings">
+				<Button Tag="SelfDia" x:Name="ButtonSettings6" Width="50" Height="40" Margin="0,5,0,0" Click="Button_Click_Settings" >
 					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-						<Image Source="file:///C:\Users\Mouad Ezzouine\source\repos\HSED 2.0\HSED 2.0\Images\Icons\analysieren.png"/>
+						<Image Source="Images\Icons\analysieren.png"></Image>
 						<TextBlock Margin="10,5,0,0" x:Name="SettingsText6" IsVisible="False" Foreground="White">Self-Dia</TextBlock>
 					</StackPanel>
 				</Button>
 
-				<Button Tag="Settings" x:Name="ButtonSettings2" Width="50" Height="40" Margin="0,130,0,0" Click="Button_Click_Settings">
+				<Button Tag="Settings" x:Name="ButtonSettings2" Width="50" Height="40" Margin="0,130,0,0"  Click="Button_Click_Settings" >
 					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-						<Image Source="file:///C:/Users/Mouad%20Ezzouine/source/repos/HSED%202.0/HSED%202.0/Images/Icons/die-einstellungen.png"/>
+						<Image Source="Images/Icons/die-einstellungen.png"></Image>
 						<TextBlock Margin="10,5,0,0" x:Name="SettingsText2" IsVisible="False" Foreground="White">Settings</TextBlock>
 					</StackPanel>
 				</Button>
+
 			</StackPanel>
 		</Border>
-
 		<!-- Neuer Refresh-Button in der unteren rechten Ecke -->
 		<Button CornerRadius="90" x:Name="RefreshButton" Width="50" Height="50" Canvas.Left="740" Canvas.Top="400" Click="">
 			<Button.Content>
