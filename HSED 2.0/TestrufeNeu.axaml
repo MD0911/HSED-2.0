@@ -427,7 +427,7 @@
 		<!-- Neuer Refresh-Button in der unteren rechten Ecke -->
 		<Button CornerRadius="90" x:Name="RefreshButton" Width="50" Height="50" Canvas.Left="740" Canvas.Top="400" Click="">
 			<Button.Content>
-				<Image Source="file:///C:/Users/Mouad%20Ezzouine/source/repos/HSED%202.0/HSED%202.0/Images/Icons/refresh.png" Stretch="Uniform"/>
+				<Image Source="Images/Icons/refresh.png" Stretch="Uniform"/>
 			</Button.Content>
 		</Button>
 		<Button CornerRadius="90" Tag="OFahren" x:Name="OEtage" Width="50" Height="50" Canvas.Left="740" Canvas.Top="85" Click="Button_Click_OMU">
