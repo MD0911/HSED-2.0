@@ -46,7 +46,7 @@ namespace HSED_2._0
         {
             InitializeComponent();
             // Fensterposition setzen
-            this.Position = new PixelPoint(100, 100);
+            this.Position = new PixelPoint(0, 0);
             Instance = this;
             ViewModel = MainWindow.MainViewModelInstance;
             DataContext = ViewModel;
@@ -730,18 +730,18 @@ namespace HSED_2._0
                     switch (buttonTag)
                     {
                         case "Settings":
-                            new Settings().Show();
+                          //  new Settings().Show();
                             break;
                         case "Testrufe":
-                            var newWindowTestrufe = new TestrufeNeu();
-                            newWindowTestrufe.Show();
-                            this.Close();
+                          //  var newWindowTestrufe = new TestrufeNeu();
+                          //  newWindowTestrufe.Show();
+                          //  this.Close();
                             break;
                         case "Codes":
                             new Code().Show();
                             break;
                         case "SelfDia":
-                            new LiveViewAnimationSimulation().Show();
+                           // new LiveViewAnimationSimulation().Show();
                             break;
                         case "Ansicht":
                             TerminalManager.terminalActive = true;

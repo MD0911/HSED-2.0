@@ -14,7 +14,7 @@ namespace HSED_2_0
         {
             InitializeComponent();
             // Fensterposition über die Property 'Position' setzen
-            this.Position = new Avalonia.PixelPoint(100, 100);
+            this.Position = new Avalonia.PixelPoint(0, 0);
             terminalManager.Start();
             Instance = this;
         }

@@ -14,6 +14,9 @@ using HSED_2_0;
 using HSED_2._0;
 using Avalonia.Controls.ApplicationLifetimes;
 using Material.Styles.Controls;
+using Avalonia.Controls.Platform;
+using Microsoft.Extensions.Configuration;
+
 
 public class SerialPortManager
 {
@@ -32,9 +35,19 @@ public class SerialPortManager
 
     private static Window _connectionErrorDialog = null;
 
+   
+
     private SerialPortManager()
     {
-        _serialPort = new SerialPort("COM3", 38400, Parity.None, 8, StopBits.One)
+        var config = new Microsoft.Extensions.Configuration.ConfigurationBuilder()
+                   .SetBasePath(AppContext.BaseDirectory)
+                   .AddJsonFile("config.json", optional: false, reloadOnChange: true)
+                   .Build();
+        string serialPort = config["SerialSettings:SerialPort"];
+        int serialBaudrate = int.Parse(config["SerialSettings:SerialBaudrate"]);
+
+
+        _serialPort = new SerialPort(serialPort, serialBaudrate, Parity.None, 8, StopBits.One)
         {
             ReadTimeout = 100,
             NewLine = "\r\n"

@@ -37,7 +37,7 @@ namespace HSED_2._0
         public MainWindow()
         {
             InitializeComponent();
-            this.Position = new PixelPoint(100, 100);
+            this.Position = new PixelPoint(0, 0);
             Instance = this;
             ViewModel = new MainViewModel();
             DataContext = ViewModel;
@@ -486,8 +486,8 @@ namespace HSED_2._0
                     switch (buttonTag)
                     {
                         case "Settings":
-                            var newWindowSettings = new Settings();
-                            newWindowSettings.Show();
+                          //  var newWindowSettings = new Settings();
+                          //  newWindowSettings.Show();
                             break;
                         case "Testrufe":
                             var newWindowTestrufe = new TestrufeNeu();
@@ -499,8 +499,8 @@ namespace HSED_2._0
                             newWindowCode.Show();
                             break;
                         case "SelfDia":
-                            var newWindowDia = new LiveViewAnimationSimulation();
-                            newWindowDia.Show();
+                         //   var newWindowDia = new LiveViewAnimationSimulation();
+                         //   newWindowDia.Show();
                             this.Close();
                             break;
                         case "Ansicht":
