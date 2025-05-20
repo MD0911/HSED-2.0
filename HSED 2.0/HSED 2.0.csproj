@@ -149,12 +149,12 @@
     <AvaloniaXaml Include="Animation\forBuild\Fahrkorb\Fahrkorb.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </AvaloniaXaml>
-    <AvaloniaXaml Include="Images\Icons\die-einstellungen.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </AvaloniaXaml>
-    <AvaloniaXaml Include="Images\Icons\refresh.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </AvaloniaXaml>
+    <AvaloniaResource Include="Images\Icons\die-einstellungen.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </AvaloniaResource>
+    <AvaloniaResource Include="Images\Icons\refresh.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </AvaloniaResource>
     <Content Include="Animation\forBuild\SchachtHinten.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -541,33 +541,33 @@
   </ItemGroup>
 
   <ItemGroup>
-    <AvaloniaXaml Include="Images\Icons\analysieren.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </AvaloniaXaml>
-    <AvaloniaXaml Include="Images\Icons\aufzug.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </AvaloniaXaml>
-    <AvaloniaXaml Include="Images\Icons\aussicht.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </AvaloniaXaml>
-    <AvaloniaXaml Include="Images\Icons\enter-taste.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </AvaloniaXaml>
-    <AvaloniaXaml Include="Images\Icons\menu-offnen.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </AvaloniaXaml>
-    <AvaloniaXaml Include="Images\Icons\pfeil-Hoch.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </AvaloniaXaml>
-    <AvaloniaXaml Include="Images\Icons\pfeil-runter.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </AvaloniaXaml>
-    <AvaloniaXaml Include="Images\Icons\stift.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </AvaloniaXaml>
-    <AvaloniaXaml Include="Images\Icons\zuhause.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </AvaloniaXaml>
+    <AvaloniaResource Include="Images\Icons\analysieren.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </AvaloniaResource>
+    <AvaloniaResource Include="Images\Icons\aufzug.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </AvaloniaResource>
+    <AvaloniaResource Include="Images\Icons\aussicht.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </AvaloniaResource>
+    <AvaloniaResource Include="Images\Icons\enter-taste.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </AvaloniaResource>
+    <AvaloniaResource Include="Images\Icons\menu-offnen.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </AvaloniaResource>
+    <AvaloniaResource Include="Images\Icons\pfeil-Hoch.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </AvaloniaResource>
+    <AvaloniaResource Include="Images\Icons\pfeil-runter.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </AvaloniaResource>
+    <AvaloniaResource Include="Images\Icons\stift.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </AvaloniaResource>
+    <AvaloniaResource Include="Images\Icons\zuhause.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </AvaloniaResource>
   </ItemGroup>
 
   <ItemGroup>

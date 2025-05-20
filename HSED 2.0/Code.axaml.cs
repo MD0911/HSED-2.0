@@ -18,6 +18,8 @@ namespace HSED_2._0
         public Code()
         {
             InitializeComponent();
+            this.Position = new Avalonia.PixelPoint(0, 0);
+            
         }
 
         private void Button_Click_Numpad(object? sender, RoutedEventArgs e)
@@ -96,6 +98,12 @@ namespace HSED_2._0
                     Input.Text = "Kommando";
                 }
             }
+        }
+
+        private void Button_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+        {
+            TerminalManager.terminalActive = false;
+            this.Close();
         }
 
     }

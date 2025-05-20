@@ -501,7 +501,7 @@ namespace HSED_2._0
                         case "SelfDia":
                          //   var newWindowDia = new LiveViewAnimationSimulation();
                          //   newWindowDia.Show();
-                            this.Close();
+                         //   this.Close();
                             break;
                         case "Ansicht":
                             TerminalManager.terminalActive = true;
