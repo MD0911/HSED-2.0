@@ -14,6 +14,7 @@ namespace HSED_2_0
         {
             InitializeComponent();
             // Fensterposition über die Property 'Position' setzen
+            SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x01, 0x03, 0x00, 0x1B });
             this.Position = new Avalonia.PixelPoint(0, 0);
             terminalManager.Start();
             Instance = this;

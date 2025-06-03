@@ -1,116 +1,221 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="HSED_2._0.Code"
-        Width="800" Height="480"
+        Width="800"
+        Height="480"
         Background="rgba(0, 0, 0, 0.46)"
-        Title="HSED_2._0"
-		SystemDecorations="None"
-		WindowStartupLocation="Manual"
+        Title="HSED_2.0"
+        SystemDecorations="None"
+        WindowStartupLocation="Manual"
         CanResize="False">
 
 	<Canvas Margin="280, 80, 0, 0" Name="Numpad" IsVisible="True">
 
-		<Border Background="#222222" Width="290" Height="280" CornerRadius="20" Canvas.Left="" Canvas.Top="">
-			<Border.Effect>
-				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
-			</Border.Effect>
-			</Border>
-		<!-- Anzeige für den Input -->
-		<Border Background="#303030" Width="250" Height="40" Canvas.Top="20" Canvas.Left="20">
-			<Border.Effect>
-				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
-			</Border.Effect>
-			<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-				<TextBlock Name="Input" HorizontalAlignment="Center" Margin="0" Foreground="White" Text="Kommando" FontSize="20"/>
+		<!-- Hintergrund-Border ohne Schatten -->
+		<Border Background="#222222"
+				Width="290"
+				Height="280"
+				CornerRadius="20"
+				Canvas.Left="0"
+				Canvas.Top="0" />
+
+		<!-- Anzeige für den Input, ohne Schatten -->
+		<Border Background="#303030"
+				Width="250"
+				Height="40"
+				Canvas.Top="20"
+				Canvas.Left="20">
+			<StackPanel HorizontalAlignment="Center"
+						VerticalAlignment="Center">
+				<TextBlock Name="Input"
+						   HorizontalAlignment="Center"
+						   Margin="0"
+						   Foreground="White"
+						   Text="Kommando"
+						   FontSize="20"/>
 			</StackPanel>
 		</Border>
 
-		<!-- Block 1: Buttons 1, 2, 3 -->
-		<Button Tag="1" Click="Button_Click_Numpad" Background="#303030" Width="63.33" Height="40" Canvas.Top="70" Canvas.Left="20">
-			<Button.Effect>
-				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
-			</Button.Effect>
-			<TextBlock Text="1" Foreground="White" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+		<!-- Block 1: Buttons 1, 2, 3 (mit exakt 63.33 × 40) -->
+		<Button Tag="1"
+				Click="Button_Click_Numpad"
+				Background="#303030"
+				Width="63.33"
+				Height="40"
+				Canvas.Top="70"
+				Canvas.Left="20">
+			<TextBlock Text="1"
+					   Foreground="White"
+					   FontSize="20"
+					   HorizontalAlignment="Center"
+					   VerticalAlignment="Center"/>
 		</Button>
-		<Button Tag="2" Click="Button_Click_Numpad" Background="#303030" Width="63.33" Height="40" Canvas.Top="70" Canvas.Left="113.33">
-			<Button.Effect>
-				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
-			</Button.Effect>
-			<TextBlock Text="2" Foreground="White" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+		<Button Tag="2"
+				Click="Button_Click_Numpad"
+				Background="#303030"
+				Width="63.33"
+				Height="40"
+				Canvas.Top="70"
+				Canvas.Left="113.33">
+			<TextBlock Text="2"
+					   Foreground="White"
+					   FontSize="20"
+					   HorizontalAlignment="Center"
+					   VerticalAlignment="Center"/>
 		</Button>
-		<Button Tag="3" Click="Button_Click_Numpad" Background="#303030" Width="63.33" Height="40" Canvas.Top="70" Canvas.Left="206.66">
-			<Button.Effect>
-				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
-			</Button.Effect>
-			<TextBlock Text="3" Foreground="White" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+		<Button Tag="3"
+				Click="Button_Click_Numpad"
+				Background="#303030"
+				Width="63.33"
+				Height="40"
+				Canvas.Top="70"
+				Canvas.Left="206.66">
+			<TextBlock Text="3"
+					   Foreground="White"
+					   FontSize="20"
+					   HorizontalAlignment="Center"
+					   VerticalAlignment="Center"/>
 		</Button>
 
 		<!-- Block 2: Buttons 4, 5, 6 -->
-		<Button Tag="4" Click="Button_Click_Numpad" Background="#303030" Width="63.33" Height="40" Canvas.Top="120" Canvas.Left="20">
-			<Button.Effect>
-				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
-			</Button.Effect>
-			<TextBlock Text="4" Foreground="White" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+		<Button Tag="4"
+				Click="Button_Click_Numpad"
+				Background="#303030"
+				Width="63.33"
+				Height="40"
+				Canvas.Top="120"
+				Canvas.Left="20">
+			<TextBlock Text="4"
+					   Foreground="White"
+					   FontSize="20"
+					   HorizontalAlignment="Center"
+					   VerticalAlignment="Center"/>
 		</Button>
-		<Button Tag="5" Click="Button_Click_Numpad" Background="#303030" Width="63.33" Height="40" Canvas.Top="120" Canvas.Left="113.33">
-			<Button.Effect>
-				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
-			</Button.Effect>
-			<TextBlock Text="5" Foreground="White" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+		<Button Tag="5"
+				Click="Button_Click_Numpad"
+				Background="#303030"
+				Width="63.33"
+				Height="40"
+				Canvas.Top="120"
+				Canvas.Left="113.33">
+			<TextBlock Text="5"
+					   Foreground="White"
+					   FontSize="20"
+					   HorizontalAlignment="Center"
+					   VerticalAlignment="Center"/>
 		</Button>
-		<Button Tag="6" Click="Button_Click_Numpad" Background="#303030" Width="63.33" Height="40" Canvas.Top="120" Canvas.Left="206.66">
-			<Button.Effect>
-				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
-			</Button.Effect>
-			<TextBlock Text="6" Foreground="White" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+		<Button Tag="6"
+				Click="Button_Click_Numpad"
+				Background="#303030"
+				Width="63.33"
+				Height="40"
+				Canvas.Top="120"
+				Canvas.Left="206.66">
+			<TextBlock Text="6"
+					   Foreground="White"
+					   FontSize="20"
+					   HorizontalAlignment="Center"
+					   VerticalAlignment="Center"/>
 		</Button>
 
 		<!-- Block 3: Buttons 7, 8, 9 -->
-		<Button Tag="7" Click="Button_Click_Numpad" Background="#303030" Width="63.33" Height="40" Canvas.Top="170" Canvas.Left="20">
-			<Button.Effect>
-				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
-			</Button.Effect>
-			<TextBlock Text="7" Foreground="White" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+		<Button Tag="7"
+				Click="Button_Click_Numpad"
+				Background="#303030"
+				Width="63.33"
+				Height="40"
+				Canvas.Top="170"
+				Canvas.Left="20">
+			<TextBlock Text="7"
+					   Foreground="White"
+					   FontSize="20"
+					   HorizontalAlignment="Center"
+					   VerticalAlignment="Center"/>
 		</Button>
-		<Button Tag="8" Click="Button_Click_Numpad" Background="#303030" Width="63.33" Height="40" Canvas.Top="170" Canvas.Left="113.33">
-			<Button.Effect>
-				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
-			</Button.Effect>
-			<TextBlock Text="8" Foreground="White" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+		<Button Tag="8"
+				Click="Button_Click_Numpad"
+				Background="#303030"
+				Width="63.33"
+				Height="40"
+				Canvas.Top="170"
+				Canvas.Left="113.33">
+			<TextBlock Text="8"
+					   Foreground="White"
+					   FontSize="20"
+					   HorizontalAlignment="Center"
+					   VerticalAlignment="Center"/>
 		</Button>
-		<Button Tag="9" Click="Button_Click_Numpad" Background="#303030" Width="63.33" Height="40" Canvas.Top="170" Canvas.Left="206.66">
-			<Button.Effect>
-				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
-			</Button.Effect>
-			<TextBlock Text="9" Foreground="White" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+		<Button Tag="9"
+				Click="Button_Click_Numpad"
+				Background="#303030"
+				Width="63.33"
+				Height="40"
+				Canvas.Top="170"
+				Canvas.Left="206.66">
+			<TextBlock Text="9"
+					   Foreground="White"
+					   FontSize="20"
+					   HorizontalAlignment="Center"
+					   VerticalAlignment="Center"/>
 		</Button>
 
-		<!-- Block 4: Funktionstasten -->
-		<Button Tag="ESC" Click="Button_Click_Action" Background="#303030" Width="63.33" Height="40" Canvas.Top="220" Canvas.Left="20">
-			<Button.Effect>
-				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
-			</Button.Effect>
-			<TextBlock Text="ESC" Foreground="White" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+		<!-- Block 4: Funktionstasten ESC, 0, E -->
+		<Button Tag="ESC"
+				Click="Button_Click_Action"
+				Background="#303030"
+				Width="63.33"
+				Height="40"
+				Canvas.Top="220"
+				Canvas.Left="20">
+			<TextBlock Text="ESC"
+					   Foreground="White"
+					   FontSize="20"
+					   HorizontalAlignment="Center"
+					   VerticalAlignment="Center"/>
 		</Button>
-		<Button Tag="0" Click="Button_Click_Numpad" Background="#303030" Width="63.33" Height="40" Canvas.Top="220" Canvas.Left="114.33">
-			<Button.Effect>
-				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
-			</Button.Effect>
-			<TextBlock Text="0" Foreground="White" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+		<Button Tag="0"
+				Click="Button_Click_Numpad"
+				Background="#303030"
+				Width="63.33"
+				Height="40"
+				Canvas.Top="220"
+				Canvas.Left="113.33">
+			<TextBlock Text="0"
+					   Foreground="White"
+					   FontSize="20"
+					   HorizontalAlignment="Center"
+					   VerticalAlignment="Center"/>
 		</Button>
-		<Button Tag="E" Click="Button_Click_Action" Background="#303030" Width="63.33" Height="40" Canvas.Top="220" Canvas.Left="206.66">
-			<Button.Effect>
-				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
-			</Button.Effect>
-			<Image Width="25" Source="Images\Icons\enter-taste.png"/>
+		<Button Tag="E"
+				Click="Button_Click_Action"
+				Background="#303030"
+				Width="63.33"
+				Height="40"
+				Canvas.Top="220"
+				Canvas.Left="206.66">
+			<Image Width="25"
+				   Source="Images/Icons/enter-taste.png"
+				   VerticalAlignment="Center"
+				   HorizontalAlignment="Center"/>
 		</Button>
 
-		<!-- Close-Button oben rechts, wie im ersten Fenster -->
+		<!-- Close-Button oben rechts, wie im ersten Fenster (ohne Schatten) -->
 		<Canvas>
-			<Button Canvas.Left="260" Canvas.Top="-40" Width="30" Height="30" CornerRadius="90" Background="Red" Click="Button_Click">
-				<TextBlock Text="X" Foreground="White" FontSize="15" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+			<Button Canvas.Left="260"
+					Canvas.Top="-40"
+					Width="30"
+					Height="30"
+					CornerRadius="90"
+					Background="Red"
+					Click="Button_Click">
+				<TextBlock Text="X"
+						   Foreground="White"
+						   FontSize="15"
+						   FontWeight="Bold"
+						   HorizontalAlignment="Center"
+						   VerticalAlignment="Center"/>
 			</Button>
 		</Canvas>
-	</Canvas>
 
+	</Canvas>
 </Window>

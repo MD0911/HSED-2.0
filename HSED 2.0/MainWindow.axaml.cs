@@ -33,52 +33,179 @@ namespace HSED_2._0
         public int Pos_Cal = HseCom.SendHse(10101010);
         // Beispiel: Floor-Anzahl (möglicherweise dynamisch über HseCom.SendHse(1001) ermittelt)
         public int gesamteFloors = HseCom.SendHse(1001);
+        // Statisches Feld, um einmalig gerendertes SVG-Bitmap zu cachen:
+        public static Bitmap SharedSvgBitmap { get; private set; }
+        public static Bitmap SharedSvgBitmapAlternative { get; private set; }
+        private TestrufeNeu _cachedTestrufeWindow;
+        private bool _isLogicInitialized = false;
+        private DispatcherTimer _updateTimer;
+
+
+
 
         public MainWindow()
         {
             InitializeComponent();
-            this.Position = new PixelPoint(0, 0);
             Instance = this;
+
+            // 1) ViewModel instanziieren und DataContext setzen
             ViewModel = new MainViewModel();
             DataContext = ViewModel;
 
-            // HSE-Verbindung initialisieren
+            // 2) Hintergrund-Polling für Testrufe-Daten starten (läuft im Hintergrund und füllt ViewModel)
+            TestrufeService.StartBackgroundUpdate();
+
+            // 3) Sobald das Fenster geöffnet wird, starten wir die teuren Initialisierungen
+            this.Opened += MainWindow_Opened;
+
+            // 4) TestrufeNeu einmal vorkonstruieren und sofort verstecken
+            _cachedTestrufeWindow = new TestrufeNeu();
+            _cachedTestrufeWindow.Hide();
+
+            
+
+            // 5) Fensterposition setzen (wie vorher)
+            this.Position = new PixelPoint(0, 0);
+        }
+
+        private void InitializeLogic()
+        {
+            // 1) HSE-Verbindung initialisieren
             HseConnect();
             MonetoringCall();
 
-            // LievViewManager initialisieren und Schacht vorbereiten
+            // 2) LievViewManager initialisieren und SVG einmalig rendern
             _lievViewManager = new LievViewManager();
             _lievViewManager.PrepareSchacht();
 
-            // Gesamt-SVG erzeugen (kombiniert: hinterer Schacht, Fahrkorb, vorderer Schacht)
-
-
-            // Rendern des SVG in ein Bitmap (Größe ggf. anpassen)
-            // Verwende die vom LievViewManager berechnete Gesamt-Höhe als Render-Höhe:
             int renderWidth = 300;
             int renderHeight = (int)Math.Round(_lievViewManager.TotalHeight);
-            Bitmap renderedBitmap = RenderSvgToBitmap(_lievViewManager.ComposedSvg, renderWidth, renderHeight);
-            SvgImageControl.Source = renderedBitmap;
+            SharedSvgBitmap = RenderSvgToBitmap(_lievViewManager.ComposedSvg, renderWidth, renderHeight);
+            SharedSvgBitmapAlternative = RenderSvgToBitmap(_lievViewManager.ComposedSvgAlternative, renderWidth, renderHeight);
+            SvgImageControl.Source = SharedSvgBitmap;
+            SvgImageControlAlternative.Source = SharedSvgBitmapAlternative;
 
-            renderedBitmap = RenderSvgToBitmap(_lievViewManager.ComposedSvgAlternative, renderWidth, renderHeight);
-            SvgImageControlAlternative.Source = renderedBitmap;
+            // 3) Monitoring‐Manager einmalig starten
+            _monetoringManager = new MonetoringManager();
+            _monetoringManager.Start();
+
+            _isLogicInitialized = true;
+        }
 
 
+        private void ResumeLogic()
+        {
+            // 1) MonitoringManager weitermachen (falls ihr ihn wirklich pausieren wolltet;
+            //    andernfalls könnte hier auch gar nichts stehen, wenn er nicht „pausierbar“ ist)
+            _monetoringManager?.Start();
 
-            // Starte weitere Timer zur Aktualisierung der Anzeige
-            StartFloorTimer();
-            StartTempTimer();
-            StartLastTimer();
-            StartFahrtTimer();
-            StartZustandTimer();
-            StartSkTimer();
-            StartBStundenTimer();
-            StartKorbTimer();
-            StartFahrkorbAnimationTimer();
+            // 2) Den EINEN DispatcherTimer anlegen/fortsetzen, der alle Display‐Aufrufe bündelt
+            if (_updateTimer == null)
+            {
+                _updateTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(100) };
+                _updateTimer.Tick += (s, ev) =>
+                {
+                    DisplayFloor();
+                    DisplayTemp();
+                    DisplayLast();
+                    DisplayFahrtZahler();
+                    DisplayZustand();
+                    DisplaySk();
+                    DisplayBStunden();
+                    DisplayFahrkorbMM();
+                    DisplayFahrkorbAnimation();
+                };
+            }
+            _updateTimer.Start();
 
+            // 3) Periodisches HSE-Polling neu anwerfen
             _cancellationTokenSource = new CancellationTokenSource();
             StartPeriodicUpdateO(TimeSpan.FromSeconds(10), _cancellationTokenSource.Token);
         }
+
+
+        public void PauseLogic()
+        {
+            // 1) DispatcherTimer anhalten
+            _updateTimer?.Stop();
+
+            // 2) MonitoringManager pausieren
+            _monetoringManager?.Stop();
+
+            // 3) Polling beenden
+            _cancellationTokenSource?.Cancel();
+        }
+
+
+        private void MainWindow_Opened(object sender, EventArgs e)
+        {
+            // Beim ersten Öffnen des Fensters die Logik starten und das Event wieder abmelden:
+            this.Opened -= MainWindow_Opened;
+            StartLogic();
+        }
+
+        public void StopLogic()
+        {
+            // 1) Den einzigen DispatcherTimer beenden
+            _updateTimer?.Stop();
+
+            // 2) Monitorings-Manager beenden (falls aktiv)
+            _monetoringManager?.Stop();
+
+            // 3) Periodisches Update (HSE-Polling) abbrechen
+            _cancellationTokenSource?.Cancel();
+            _heartbeatCancellationTokenSource?.Cancel();
+        }
+
+
+
+
+        /// <summary>
+        /// Führt alle bisher im Konstruktor enthaltenen, teuren Initialisierungen aus:
+        ///  - HSE-Verbindung & Monitoring starten
+        ///  - SVG einmalig rendern und als Shared-Bitmap cachen
+        ///  - Timer und Hintergrund-Aufgaben starten
+        /// </summary>
+        /// <summary>
+        /// Führt alle teuren Initialisierungen durch, die vorher im Konstruktor standen:
+        ///  - HSE-Verbindung, Monitoring starten
+        ///  - SVG-Rendering einmalig cachen
+        ///  - Timer und Hintergrundaufgaben starten
+        /// </summary>
+        public void StartLogic()
+        {
+            if (!_isLogicInitialized)
+            {
+                // Noch nie initialisiert → die ganz schweren Aufrufe
+                InitializeLogic();
+            }
+
+            // Logik (Timer & Polling) fortsetzen oder starten
+            ResumeLogic();
+        }
+        
+
+
+        private void StartUpdateTimer()
+        {
+            _updateTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(100) };
+            _updateTimer.Tick += (s, e) =>
+            {
+                StartFloorTimer();
+                StartTempTimer();
+                StartLastTimer();
+                StartFahrtTimer();
+                StartZustandTimer();
+                StartSkTimer();
+                StartBStundenTimer();
+                StartKorbTimer();
+                StartFahrkorbAnimationTimer();
+                // … alles in einem Rutsch
+            };
+            _updateTimer.Start();
+        }
+
+
 
 
         public static void MonetoringCall()
@@ -436,6 +563,7 @@ namespace HSED_2._0
                 string buttonTag = button.Tag?.ToString();
                 if (buttonTag == "Menu")
                 {
+                    // … hier bleibt deine ursprüngliche Menu‐Logik unverändert …
                     if (!NavBarStatus)
                     {
                         NavBar.Width += 100;
@@ -486,22 +614,23 @@ namespace HSED_2._0
                     switch (buttonTag)
                     {
                         case "Settings":
-                          //  var newWindowSettings = new Settings();
-                          //  newWindowSettings.Show();
+                            // ggf. bestehende Logik beibehalten
                             break;
                         case "Testrufe":
-                            var newWindowTestrufe = new TestrufeNeu();
-                            newWindowTestrufe.Show();
-                            this.Close();
+                            // 1) MainWindow-Logik komplett anhalten
+                            
+
+                            // 2) Testrufe-Fenster in den Vordergrund holen
+                            _cachedTestrufeWindow.Show();
+                            _cachedTestrufeWindow.Activate();
+                            StopLogic();
                             break;
                         case "Codes":
                             var newWindowCode = new Code();
                             newWindowCode.Show();
                             break;
                         case "SelfDia":
-                         //   var newWindowDia = new LiveViewAnimationSimulation();
-                         //   newWindowDia.Show();
-                         //   this.Close();
+                            // wenn benötigt, ein anderes Fenster öffnen
                             break;
                         case "Ansicht":
                             TerminalManager.terminalActive = true;
@@ -512,6 +641,7 @@ namespace HSED_2._0
                 }
             }
         }
+
 
         private void SwitchTime(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
         {

@@ -1,110 +1,85 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Interactivity;
-using System;
-using System.Diagnostics;
-using System.Collections.Generic;
+using Avalonia.Threading;
 using HSED_2_0;
-using System.Threading;
-using Avalonia.Rendering;
+using System;
 using System.Threading.Tasks;
 
 namespace HSED_2._0
 {
     public partial class Code : Window
     {
-        bool NavBarStatus = false;
-        private CancellationTokenSource _cancellationTokenSource;
-
         public Code()
         {
             InitializeComponent();
+            // Setze Fensterposition wie gewünscht
             this.Position = new Avalonia.PixelPoint(0, 0);
-            
         }
 
+        // Digit-Buttons (0–9): Nur Textfeld aktualisieren und sofortiges Rendern anstoßen
         private void Button_Click_Numpad(object? sender, RoutedEventArgs e)
         {
-            // Wenn der bisherige Text "Kommando" ist, wird er geleert.
+            // Wenn das Feld noch "Kommando" zeigt, leeren
             if (Input.Text == "Kommando")
-            {
                 Input.Text = "";
+
+            if (sender is Button button && button.Tag is string tag && int.TryParse(tag, out _))
+            {
+                // Tag ist z.B. "0" bis "9" → direkt an Text anhängen
+                Input.Text += tag;
             }
 
-            if (sender is Button button)
-            {
-                string buttonTag = button.Tag?.ToString();
-                // Je nach Tag wird eine entsprechende Ziffer an den Input angehängt.
-                switch (buttonTag)
-                {
-                    case "0":
-                        Input.Text += "0";
-                        break;
-                    case "1":
-                        Input.Text += "1";
-                        break;
-                    case "2":
-                        Input.Text += "2";
-                        break;
-                    case "3":
-                        Input.Text += "3";
-                        break;
-                    case "4":
-                        Input.Text += "4";
-                        break;
-                    case "5":
-                        Input.Text += "5";
-                        break;
-                    case "6":
-                        Input.Text += "6";
-                        break;
-                    case "7":
-                        Input.Text += "7";
-                        break;
-                    case "8":
-                        Input.Text += "8";
-                        break;
-                    case "9":
-                        Input.Text += "9";
-                        break;
-                }
-            }
+            // Avalonia sofort neu rendern lassen, damit man den eingegebenen Buchstaben 
+            // ohne Verzögerung sieht.
+            Dispatcher.UIThread.InvokeAsync(() => { }, DispatcherPriority.Render);
         }
 
-        private async void Button_Click_Action(object? sender, RoutedEventArgs e)
+        // Action-Buttons: ESC und E
+        private void Button_Click_Action(object? sender, RoutedEventArgs e)
         {
-            if (sender is Button button)
+            if (sender is Button button && button.Tag is string tag)
             {
-                string buttonTag = button.Tag?.ToString();
-
-                if (buttonTag == "ESC")
+                if (tag == "ESC")
                 {
+                    // Eingabe zurücksetzen und sofort rendern
                     Input.Text = "Kommando";
+                    Dispatcher.UIThread.InvokeAsync(() => { }, DispatcherPriority.Render);
                 }
-                if (buttonTag == "E")
+                else if (tag == "E")
                 {
+                    // Eingabetext zwischenspeichern
                     string inputText = Input.Text;
-                    // Durchlaufe den Input-Text Zeichen für Zeichen und sende die Bytes direkt
-                    foreach (char c in inputText)
-                    {
-                        if (char.IsDigit(c))
-                        {
-                            int asciiDecimal = (int)c;
-                            byte asciiByte = (byte)asciiDecimal;
-                            SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x01, 0x03, 0x00, asciiByte });
-                            await Task.Delay(100);
-                        }
-                    }
-                    SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x01, 0x03, 0x00, 0x0D });
+
+                    // UI sofort zurücksetzen (ohne auf serielle Sendevorgänge zu warten)
                     Input.Text = "Kommando";
+                    Dispatcher.UIThread.InvokeAsync(() => { }, DispatcherPriority.Render);
+
+                    // Serielles Senden im Hintergrund (Task.Run), damit UI nicht blockiert
+                    Task.Run(async () =>
+                    {
+                        foreach (char c in inputText)
+                        {
+                            if (char.IsDigit(c))
+                            {
+                                byte asciiByte = (byte)c;
+                                SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x01, 0x03, 0x00, asciiByte });
+                                // Wenn das Gerät wirklich eine kleine Pause pro Zeichen braucht,
+                                // kann man hier z.B. 10 ms statt 100 ms verwenden. 
+                                await Task.Delay(10);
+                            }
+                        }
+                        // Terminator-Byte senden
+                        SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x01, 0x03, 0x00, 0x0D });
+                    });
                 }
             }
         }
 
-        private void Button_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+        // Close-Button oben rechts: Fenster schließen und Terminal-Flag zurücksetzen
+        private void Button_Click(object? sender, RoutedEventArgs e)
         {
             TerminalManager.terminalActive = false;
             this.Close();
         }
-
     }
 }

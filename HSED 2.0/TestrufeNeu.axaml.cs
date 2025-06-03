@@ -40,50 +40,189 @@ namespace HSED_2._0
 
         // Beispiel: Floor-Anzahl (möglicherweise dynamisch über HseCom.SendHse(1001) ermittelt)
         public int gesamteFloors = HseCom.SendHse(1001);
+        private DispatcherTimer _displayTimer;
+        private CancellationTokenSource? _testrufeCancellationTokenSource;
+        private MainWindow _cachedMainWindow;
+
+
 
 
         public TestrufeNeu()
         {
             InitializeComponent();
-            // Fensterposition setzen
-            this.Position = new PixelPoint(0, 0);
             Instance = this;
+
+            // 1) Sofort oben links positionieren
+            this.Position = new PixelPoint(0, 0);
+
             ViewModel = MainWindow.MainViewModelInstance;
             DataContext = ViewModel;
+
+            SvgImageControl.Source = MainWindow.SharedSvgBitmap;
+            SvgImageControlAlternative.Source = MainWindow.SharedSvgBitmapAlternative;
+        
+
+            this.Opened += TestrufeNeu_Opened;
+        }
+
+
+
+        private void TestrufeNeu_Opened(object sender, EventArgs e)
+        {
+            this.Opened -= TestrufeNeu_Opened;
+            StartLogic();
+        }
+
+
+        private void StartDisplayTimer()
+        {
+            _displayTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(50) };
+            _displayTimer.Tick += (s, ev) =>
+            {
+                // Beispiel: Falls keine Bindings existieren, Textblöcke manuell füllen
+                Etage.Text = ViewModel.CurrentFloor.ToString();
+                // Weitere manuelle Updates, falls nötig…
+            };
+            _displayTimer.Start();
+        }
+
+        private async void StartTestrufePolling(TimeSpan interval, CancellationToken token)
+        {
+            while (!token.IsCancellationRequested)
+            {
+                try
+                {
+                    // Beispiel: SK-Status abfragen
+                    int GanzeSK = HseCom.SendHse(1003);
+                    int[] SK = HseCom.IntToArray(GanzeSK);
+                    ViewModel.CurrentSK1 = SK[0];
+                    ViewModel.CurrentSK2 = SK[1];
+                    ViewModel.CurrentSK3 = SK[2];
+                    ViewModel.CurrentSK4 = SK[3];
+
+                    // Floor abfragen
+                    int currentFloor = HseCom.SendHse(1002);
+                    ViewModel.CurrentFloor = currentFloor;
+
+                    // Zustand abfragen
+                    int AZustand = HseCom.SendHse(1005);
+                    ViewModel.CurrentZustand = AZustand;
+
+                    // Türen abfragen
+                    ViewModel.CurrentStateTueur1 = HseCom.SendHse(1006);
+                    ViewModel.CurrentStateTueur2 = HseCom.SendHse(1016);
+
+                    // … beliebige weitere HSE-Abfragen für Testrufe …
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"TestrufePolling-Fehler: {ex}");
+                }
+
+                try
+                {
+                    await Task.Delay(interval, token);
+                }
+                catch (TaskCanceledException)
+                {
+                    break;
+                }
+            }
+        }
+
+
+        public void StartLogic()
+        {
+            // 1) HSE-Verbindung initialisieren
             MainWindow.Instance.HseConnect();
             InitializeProgressbar();
-            MonetoringCall();
+            MonetoringCall(); // falls nötig
 
-            // LievViewManager initialisieren und Schacht vorbereiten
-            _lievViewManager = new LievViewManager();
-            _lievViewManager.PrepareSchacht();
+            // 2) MonitoringManager für Testrufe neu starten
+            _monetoringManager = new MonetoringManager();
+            _monetoringManager.Start();
 
-            // Gesamt-SVG erzeugen (kombiniert: hinterer Schacht, Fahrkorb, vorderer Schacht)
+            // 3) Periodisches HSE-Polling starten (eigenes CancellationTokenSource)
+            _testrufeCancellationTokenSource = new CancellationTokenSource();
+            StartTestrufePolling(TimeSpan.FromSeconds(5), _testrufeCancellationTokenSource.Token);
 
+            SvgImageControl.Source = MainWindow.SharedSvgBitmap;
+            SvgImageControlAlternative.Source = MainWindow.SharedSvgBitmapAlternative;
 
-            // Rendern des SVG in ein Bitmap (Größe ggf. anpassen)
-            int renderWidth = 300;
-            int renderHeight = (int)Math.Round(_lievViewManager.TotalHeight);
-            Bitmap renderedBitmap = RenderSvgToBitmap(_lievViewManager.ComposedSvg, renderWidth, renderHeight);
-            SvgImageControl.Source = renderedBitmap;
+            // 4) EINEN DispatcherTimer für alle Display-Methoden
+            _updateTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(100) };
+            _updateTimer.Tick += (s, ev) =>
+            {
+                // HIER NICHT mehr StartFloorTimer(), StartSKTimer() etc. aufrufen,
+                // sondern die reinen Display-Methoden in einem Rutsch:
+                StartFloorTimer();
+                StartSKTimer();
+                StartZustandTimer();
+                StartTuerenTimer();
+                GenerateFloorButtons();
+                StartFahrkorbAnimationTimer();
+                StartKorbTimer();
+            };
+            _updateTimer.Start();
 
-            renderedBitmap = RenderSvgToBitmap(_lievViewManager.ComposedSvgAlternative, renderWidth, renderHeight);
-            SvgImageControlAlternative.Source = renderedBitmap;
-
-            //_cancellationTokenSource = new CancellationTokenSource();
-            //StartPeriodicUpdateO(TimeSpan.FromSeconds(1), _cancellationTokenSource.Token);
-            //StartPeriodicUpdate(TimeSpan.FromSeconds(30), _cancellationTokenSource.Token);
-            //StartPeriodicUpdateBlink(TimeSpan.FromSeconds(6), _cancellationTokenSource.Token);
-
-            // Dynamisch die Etagenbuttons erzeugen
-            StartFloorTimer();
-            StartSKTimer();
-            StartZustandTimer();
-            StartTuerenTimer();
-            GenerateFloorButtons();
-            StartFahrkorbAnimationTimer();
-            StartKorbTimer();
+            // 5) Optional: EINEN zweiten Timer, um manuelle Textfelder (z.B. Etage.Text) aus dem ViewModel zu füllen
+            _displayTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(50) };
+            _displayTimer.Tick += (s, ev) =>
+            {
+                Etage.Text = ViewModel.CurrentFloor.ToString();
+                // Falls weitere Felder per Code aktualisiert werden müssen, hier ergänzen …
+            };
+            _displayTimer.Start();
         }
+
+
+
+        private DispatcherTimer _updateTimer;
+        private void StartUpdateTimer()
+        {
+            _updateTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(100) };
+            _updateTimer.Tick += (s, e) =>
+            {
+                StartFloorTimer();
+                StartSKTimer();
+                StartZustandTimer();
+                StartTuerenTimer();
+                GenerateFloorButtons();
+                StartFahrkorbAnimationTimer();
+                StartKorbTimer();
+                // … alles in einem Rutsch
+            };
+            _updateTimer.Start();
+        }
+
+
+        public void StopLogic()
+        {
+            // 1) Den einen DispatcherTimer für Anzeige-Updates stoppen
+            _updateTimer?.Stop();
+
+            // 2) Den optionalen Display-Timer stoppen
+            _displayTimer?.Stop();
+
+            // 3) MonitoringManager beenden
+            _monetoringManager?.Stop();
+
+            // 4) Periodisches HSE-Polling abbrechen
+            _testrufeCancellationTokenSource?.Cancel();
+        }
+
+
+
+
+
+        protected override void OnClosed(EventArgs e)
+        {
+            // Testrufe pausieren – falls der Nutzer per „X“ schließt
+            StopLogic();
+            base.OnClosed(e);
+        }
+
+
 
         private void InitializeProgressbar()
         {
@@ -748,8 +887,16 @@ namespace HSED_2._0
                             new Terminal().Show();
                             break;
                         case "Home":
-                            new MainWindow().Show();
-                            this.Close();
+                            // 1) Testrufe-Logik anhalten
+                            StopLogic(); // ruft nur _updateTimer.Stop(), _monetoringManager.Stop(), _testrufeCancellationTokenSource.Cancel()
+
+                            // 2) MainWindow in den Vordergrund holen
+                            var main = MainWindow.Instance;
+                            main.Show();
+                            main.Activate();
+
+                            // 3) MainWindow-Logik (nur Resume) starten – kein schweres Rendering mehr
+                            main.StartLogic();
                             break;
                     }
                 }
