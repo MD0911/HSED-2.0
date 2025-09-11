@@ -1,0 +1,259 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="HSED_2._0.MainVertical"
+        Width="800" Height="480"
+		Background="#222222"
+        Title="HSED_2._0"
+		CanResize="False"
+		SystemDecorations="None"
+        WindowStartupLocation="Manual">
+
+
+	<Canvas>
+
+
+
+		<!-- Etgae -->
+		<Border CornerRadius="10" Background="#303030" Width="250" Height="180" Canvas.Top="25" Canvas.Left="525">
+
+			<Border.Effect>
+				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"></DropShadowEffect>
+			</Border.Effect>
+
+			<!-- Verwende ein Grid oder StackPanel, um mehrere Elemente zu gruppieren -->
+			<Grid>
+
+				<Border CornerRadius="10" Background="#303030" Width="250" Height="180" Canvas.Top="25" Canvas.Left="525">
+					<Border.Effect>
+						<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"></DropShadowEffect>
+					</Border.Effect>
+
+					<StackPanel HorizontalAlignment="Center">
+						<TextBlock Margin="10" Foreground="White" HorizontalAlignment="Center" FontSize="20">Etage</TextBlock>
+						<TextBlock Name="Etage" HorizontalAlignment="Center" Margin="0,10" Text="" Foreground="White" FontSize="50"></TextBlock>
+
+						<!-- Fortschrittsanzeige für die Etage -->
+						<ProgressBar Name="EtageProgressBar" Width="200" Height="20" Minimum="0" Maximum="" Value="" Foreground="#90ff22" Background="Gray"/>
+					</StackPanel>
+				</Border>
+
+			</Grid>
+		</Border>
+
+
+
+
+
+
+		<!-- S-Kreis -->
+		<Border CornerRadius="10" Background="#303030" Width="170" Height="80" Canvas.Top="25" Canvas.Left="100">
+			<Border.Effect>
+				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5" ></DropShadowEffect>
+			</Border.Effect>
+
+			<StackPanel>
+				<TextBlock HorizontalAlignment="Center" Margin="10" Foreground="White" FontSize="15">S-Kreis</TextBlock>
+
+
+				<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="5">
+					<Border Name="SK1" Background="Red" Width="20" Height="30" BorderBrush="Gray" BorderThickness="1.5"></Border>
+					<Border Name="SK2" Background="Red" Width="20" Height="30" BorderBrush="Gray" BorderThickness="1.5"></Border>
+					<Border Name="SK3" Background="Red" Width="20" Height="30" BorderBrush="Gray" BorderThickness="1.5"></Border>
+					<Border Name="SK4" Background="Red" Width="20" Height="30" BorderBrush="Gray" BorderThickness="1.5"></Border>
+				</StackPanel>
+
+			</StackPanel>
+
+		</Border>
+		<!-- B-Stunden -->
+		<Button CornerRadius="10" Background="#303030" Width="170" Height="80" Canvas.Top="130" Canvas.Left="100" Click="SwitchTime">
+
+
+			<StackPanel HorizontalAlignment="Center">
+				<TextBlock Margin="10" Foreground="White" FontSize="15">Betriebszeit</TextBlock>
+				<TextBlock Name="BStunden" HorizontalAlignment="Center" Margin="0" Foreground="White" Text="" FontSize="20"></TextBlock>
+			</StackPanel>
+		</Button>
+		<!-- Last -->
+		<Border CornerRadius="10" Background="#303030" Width="170" Height="80" Canvas.Top="230" Canvas.Left="100">
+			<Border.Effect>
+				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5" ></DropShadowEffect>
+			</Border.Effect>
+
+			<StackPanel HorizontalAlignment="Center">
+				<TextBlock Margin="10" Foreground="White" FontSize="15">Last</TextBlock>
+				<TextBlock Name="Last" HorizontalAlignment="Center" Margin="0" Foreground="White" Text="" FontSize="20"></TextBlock>
+			</StackPanel>
+		</Border>
+		<!-- A-Zustand -->
+		<Border CornerRadius="10" Background="#303030" Width="170" Height="80" Canvas.Top="340" Canvas.Left="100">
+			<Border.Effect>
+				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5" ></DropShadowEffect>
+			</Border.Effect>
+
+			<StackPanel HorizontalAlignment="Center">
+				<TextBlock Margin="10" Foreground="White" FontSize="15">Zustand</TextBlock>
+				<TextBlock Name="Zustand" HorizontalAlignment="Center"  Margin="0" Foreground="White" Text="" FontSize="20"></TextBlock>
+			</StackPanel>
+		</Border>
+
+		<!-- Temperatur -->
+		<Border CornerRadius="10" Background="#303030" Width="250" Height="45" Canvas.Top="230" Canvas.Left="525">
+			<Border.Effect>
+				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5" ></DropShadowEffect>
+			</Border.Effect>
+
+			<StackPanel  VerticalAlignment="Center">
+				<TextBlock HorizontalAlignment="Left" Margin="10" Foreground="White" FontSize="15" >Temp.</TextBlock>
+				<TextBlock Name="Temp" Margin="30,-28" HorizontalAlignment="Right" Foreground="White" FontSize="15" Text="40"></TextBlock>
+			</StackPanel>
+		</Border>
+		<!-- A-Nummer -->
+		<Border CornerRadius="10" Background="#303030" Width="250" Height="45" Canvas.Top="300" Canvas.Left="525">
+			<Border.Effect>
+				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5" ></DropShadowEffect>
+			</Border.Effect>
+
+			<StackPanel  VerticalAlignment="Center">
+				<TextBlock HorizontalAlignment="Left" Margin="10" Foreground="White" FontSize="15" >A-Nummer</TextBlock>
+				<TextBlock Margin="30,-28" HorizontalAlignment="Right" Foreground="White" FontSize="15" Text="">1234</TextBlock>
+
+			</StackPanel>
+		</Border>
+		<!-- Fehler -->
+		<Border CornerRadius="10" Background="#303030" Width="250" Height="45" Canvas.Top="375" Canvas.Left="525">
+			<Border.Effect>
+				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5" ></DropShadowEffect>
+			</Border.Effect>
+
+			<StackPanel  VerticalAlignment="Center">
+				<TextBlock  HorizontalAlignment="Left" Margin="10" Foreground="White" FontSize="15" >Fahrtenzähler</TextBlock>
+				<TextBlock Name="FahrtZahler" Margin="30,-28" HorizontalAlignment="Right" Foreground="White" FontSize="15" Text="12"></TextBlock>
+			</StackPanel>
+		</Border>
+
+		<!-- Live-View -->
+		<Border CornerRadius="10"
+        Background="#303030"
+        Width="200" Height="395"
+        Canvas.Top="25" Canvas.Left="300"
+        ClipToBounds="True">
+			<Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+				<!--<Border Width="100" Height="100" Background="White"></Border>-->
+
+				<Canvas Name="PositionControl" Height="300" Width="300">
+					<Canvas.RenderTransform>
+						<TransformGroup>
+							<ScaleTransform ScaleX="0.5" ScaleY="0.5"/>
+							<TranslateTransform X="0" Y=""/>
+						</TransformGroup>
+					</Canvas.RenderTransform>
+					<Image x:Name="SvgImageControlAlternative">
+						<Image.RenderTransform>
+							<TransformGroup>
+								<!-- Erstes Element: ScaleTransform -->
+								<ScaleTransform ScaleX="1" ScaleY="1"/>
+								<!-- Zweites Element: TranslateTransform -->
+								<TranslateTransform X="0" Y="0"/>
+							</TransformGroup>
+						</Image.RenderTransform>
+					</Image>
+				</Canvas>
+				<Image Margin="10,0,0,0" Width="150" Source="Animation\forBuild\Fahrkorb\Fahrkorb.png"></Image>
+				<Canvas Name="PositionControl2" Height="300" Width="300">
+					<Canvas.RenderTransform>
+						<TransformGroup>
+							<ScaleTransform ScaleX="0.5" ScaleY="0.5"/>
+							<TranslateTransform X="0" Y=""/>
+						</TransformGroup>
+					</Canvas.RenderTransform>
+					<Image x:Name="SvgImageControl">
+						<Image.RenderTransform>
+							<TransformGroup>
+								<!-- Erstes Element: ScaleTransform -->
+								<ScaleTransform ScaleX="1" ScaleY="1"/>
+								<!-- Zweites Element: TranslateTransform -->
+								<TranslateTransform X="0" Y="0"/>
+							</TransformGroup>
+						</Image.RenderTransform>
+					</Image>
+				</Canvas>
+				<Border Background="Black" Width="100" Height="25" VerticalAlignment="Bottom" HorizontalAlignment="Right">
+					<TextBlock Name="korbPosition" Text="Fahrkorb" FontFamily="Arial" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+					<Border.Effect>
+						<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5"/>
+					</Border.Effect>
+				</Border>
+			</Grid>
+		</Border>
+
+
+
+		<!-- NavBar -->
+
+		<Border x:Name="Overlap" Background="Black" Width="800" Height="480" Opacity="100" IsVisible="False"></Border>
+
+		<Border x:Name="NavBar" Background="Black" Width="60" Height="480">
+			<Border.Effect>
+				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5" ></DropShadowEffect>
+			</Border.Effect>
+
+			<StackPanel x:Name="StackPanelNavBar" HorizontalAlignment="Center" Margin="0,25,0,0">
+				<Button Tag="Menu" x:Name="ButtonSettings" Width="50" Height="40" Click="Button_Click_Settings" >
+					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+						<Image Source="Images\Icons\menu-offnen.png"></Image>
+						<TextBlock Margin="10,5,0,0" x:Name="SettingsText" IsVisible="False" Foreground="White">Menue</TextBlock>
+					</StackPanel>
+				</Button>
+
+				<Button Tag="Home" x:Name="ButtonSettings7" Width="50" Height="40" Margin="0,5,0,0"  Click="Button_Click_Settings" >
+					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+						<Image Source="Images\Icons\zuhause.png"></Image>
+						<TextBlock Margin="10,5,0,0" x:Name="SettingsText7" IsVisible="False" Foreground="White">Home</TextBlock>
+					</StackPanel>
+				</Button>
+
+				<Button Tag="Testrufe" x:Name="ButtonSettings3" Width="50" Height="40" Margin="0,5,0,0" Click="Button_Click_Settings" >
+					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+						<Image Source="Images\Icons\aufzug.png"></Image>
+						<TextBlock Margin="10,5,0,0" x:Name="SettingsText3" IsVisible="False" Foreground="White">Testrufe</TextBlock>
+					</StackPanel>
+				</Button>
+
+				<Button Tag="Codes" x:Name="ButtonSettings4" Width="50" Height="40" Margin="0,5,0,0" Click="Button_Click_Settings" >
+					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+						<Image Source="Images\Icons\stift.png"></Image>
+						<TextBlock Margin="10,5,0,0" x:Name="SettingsText4" IsVisible="False" Foreground="White">Codes</TextBlock>
+					</StackPanel>
+				</Button>
+
+				<Button Tag="Ansicht" x:Name="ButtonSettings5" Width="50" Height="40" Margin="0,5,0,0" Click="Button_Click_Settings" >
+					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+						<Image Source="Images\Icons\aussicht.png"></Image>
+						<TextBlock Margin="10,5,0,0" x:Name="SettingsText5" IsVisible="False" Foreground="White">Ansicht</TextBlock>
+					</StackPanel>
+				</Button>
+
+				<Button Tag="SelfDia" x:Name="ButtonSettings6" Width="50" Height="40" Margin="0,5,0,0" Click="Button_Click_Settings" >
+					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+						<Image Source="Images\Icons\analysieren.png"></Image>
+						<TextBlock Margin="10,5,0,0" x:Name="SettingsText6" IsVisible="False" Foreground="White">Self-Dia</TextBlock>
+					</StackPanel>
+				</Button>
+
+				<Button Tag="Settings" x:Name="ButtonSettings2" Width="50" Height="40" Margin="0,130,0,0"  Click="Button_Click_Settings" >
+					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+						<Image Source="Images/Icons/die-einstellungen.png"></Image>
+						<TextBlock Margin="10,5,0,0" x:Name="SettingsText2" IsVisible="False" Foreground="White">Settings</TextBlock>
+					</StackPanel>
+				</Button>
+
+			</StackPanel>
+		</Border>
+	</Canvas>
+
+
+
+
+
+</Window>

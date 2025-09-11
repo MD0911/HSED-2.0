@@ -11,6 +11,39 @@
 	<SelfContained>true</SelfContained>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Animation\1 Auf.png" />
+    <None Remove="Animation\1 ZU.png" />
+    <None Remove="Animation\1-auf.gif" />
+    <None Remove="Animation\1-Auf.png" />
+    <None Remove="Animation\1-zu.gif" />
+    <None Remove="Animation\1-zu.png" />
+    <None Remove="Animation\1.png" />
+    <None Remove="Animation\1Auf.png" />
+    <None Remove="Animation\1GAuf.png" />
+    <None Remove="Animation\1Gzu.png" />
+    <None Remove="Animation\1Zu.png" />
+    <None Remove="Animation\2 Auf.png" />
+    <None Remove="Animation\2 Zu .png" />
+    <None Remove="Animation\2-auf.gif" />
+    <None Remove="Animation\2-Auf.png" />
+    <None Remove="Animation\2-zu.gif" />
+    <None Remove="Animation\2-Zu.png" />
+    <None Remove="Animation\2.png" />
+    <None Remove="Animation\2Auf.png" />
+    <None Remove="Animation\2GAuf.png" />
+    <None Remove="Animation\2GZu.png" />
+    <None Remove="Animation\2Zu.png" />
+    <None Remove="Animation\3 Auf.png" />
+    <None Remove="Animation\3 Zu.png" />
+    <None Remove="Animation\3-auf.gif" />
+    <None Remove="Animation\3-Auf.png" />
+    <None Remove="Animation\3-zu.gif" />
+    <None Remove="Animation\3-Zu.png" />
+    <None Remove="Animation\3.png" />
+    <None Remove="Animation\3Auf.png" />
+    <None Remove="Animation\3GAuf.png" />
+    <None Remove="Animation\3GZu.png" />
+    <None Remove="Animation\3Zu.png" />
     <None Remove="Animation\forBuild\Fahrkorb\Fahrkorb.png" />
     <None Remove="Animation\forBuild\SchachtHinten.svg" />
     <None Remove="Animation\forBuild\SchachtVorne.svg" />
@@ -149,6 +182,51 @@
     <AvaloniaXaml Include="Animation\forBuild\Fahrkorb\Fahrkorb.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </AvaloniaXaml>
+    <Content Include="Animation\1Auf.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Animation\1GAuf.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Animation\1Gzu.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Animation\1Zu.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Animation\2Auf.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Animation\2GAuf.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Animation\2GZu.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Animation\2Zu.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Animation\3Auf.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Animation\3GAuf.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Animation\3GZu.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Animation\3Zu.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <AvaloniaResource Include="Animation\1.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </AvaloniaResource>
+    <AvaloniaResource Include="Animation\2.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </AvaloniaResource>
+    <AvaloniaResource Include="Animation\3.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </AvaloniaResource>
     <AvaloniaResource Include="Images\Icons\die-einstellungen.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </AvaloniaResource>
@@ -521,8 +599,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="AnimatedImage.Avalonia" Version="2.0.0" />
     <PackageReference Include="Avalonia" Version="11.1.0" />
     <PackageReference Include="Avalonia.Desktop" Version="11.1.0" />
+    <PackageReference Include="Avalonia.Labs.Gif" Version="11.3.0" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="11.1.0" />
     <PackageReference Include="Avalonia.Fonts.Inter" Version="11.1.0" />
     <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->

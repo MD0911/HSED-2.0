@@ -231,6 +231,97 @@ namespace HSED_2_0.ViewModels
 
 
 
+        private int _innenruftasterquittungEtage;
+        public int InnenruftasterquittungEtage
+        {
+            get => _innenruftasterquittungEtage;
+            set
+            {
+                if (_innenruftasterquittungEtage != value)
+                {
+                    _innenruftasterquittungEtage = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private int _innenruftasterquittungZustand;
+        public int InnenruftasterquittungZustand
+        {
+            get => _innenruftasterquittungZustand;
+            set
+            {
+                if (_innenruftasterquittungZustand != value)
+                {
+                    _innenruftasterquittungZustand = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+
+        private int _aufAruftasterquittungEtage;
+        public int AufAruftasterquittungEtage
+        {
+            get => _aufAruftasterquittungEtage;
+            set
+            {
+                if (_aufAruftasterquittungEtage != value)
+                {
+                    _aufAruftasterquittungEtage = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private int _aufAruftasterquittungZustand;
+        public int AufAruftasterquittungZustand
+        {
+            get => _aufAruftasterquittungZustand;
+            set
+            {
+                if (_aufAruftasterquittungZustand != value)
+                {
+                    _aufAruftasterquittungZustand = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+
+        private int _abAruftasterquittungEtage;
+        public int AbAruftasterquittungEtage
+        {
+            get => _abAruftasterquittungEtage;
+            set
+            {
+                if (_abAruftasterquittungEtage != value)
+                {
+                    _abAruftasterquittungEtage = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private int _abAruftasterquittungZustand;
+        public int AbAruftasterquittungZustand
+        {
+            get => _abAruftasterquittungZustand;
+            set
+            {
+                if (_abAruftasterquittungZustand != value)
+                {
+                    _abAruftasterquittungZustand = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+
+
+
+
+
         // Weitere Properties (z. B. A-Zustand) können hier ergänzt werden.
 
         public event PropertyChangedEventHandler PropertyChanged;

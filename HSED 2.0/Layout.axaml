@@ -1,6 +1,6 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        x:Class="HSED_2._0.MainWindow"
+        x:Class="HSED_2._0.Layout"
         Width="800" Height="480"
 		Background="#111827"
         Title="HSED_2._0"
@@ -22,7 +22,7 @@
 
 			<StackPanel VerticalAlignment="Bottom">
 				<!-- Titel -->
-
+		
 
 				<!-- Tabelle -->
 				<Grid Margin="8,0,8,8">
@@ -55,50 +55,39 @@
 					<!-- Tür 1 -->
 					<TextBlock Grid.Row="1" Grid.Column="0" Text="Tür 1" Foreground="White" FontSize="12"
 							   FontWeight="Bold" HorizontalAlignment="Left" Margin="6,0,6,0" VerticalAlignment="Center"/>
-					<Border  x:Name="T1_Auf" Grid.Row="1" Grid.Column="1" CornerRadius="5" Width="25" Height="15"
-							 Background="#22c55e" BorderThickness="2" BorderBrush="#9ca3af"
-							 HorizontalAlignment="Center" VerticalAlignment="Center"/>
-					<Border  x:Name="T1_Zu" Grid.Row="1" Grid.Column="2" CornerRadius="" Width="15" Height=""
-							 Background="#9ca3af" BorderThickness="2" BorderBrush="#9ca3af"
-							 HorizontalAlignment="Center" VerticalAlignment="Center"/>
-					<Border  x:Name="T1_Rev" Grid.Row="1" Grid.Column="3" CornerRadius="5" Width="25" Height="15"
-							 Background="#9ca3af" BorderThickness="2" BorderBrush="#9ca3af"
-							 HorizontalAlignment="Center" VerticalAlignment="Center"/>
-					<Border  x:Name="T1_Ls"  Grid.Row="1" Grid.Column="4" CornerRadius="5" Width="25" Height="15"
-							 Background="#9ca3af" BorderThickness="2" BorderBrush="#9ca3af"
-							 HorizontalAlignment="Center" VerticalAlignment="Center"/>
+					<Border  x:Name="T1_Auf" Grid.Row="1" Grid.Column="1" CornerRadius="6" Width="24" Height="12"
+							 Background="#22c55e" BorderThickness="2" BorderBrush="#9ca3af" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+					<!-- Bindestrich wie im Bild -->
+					<TextBlock Grid.Row="1" Grid.Column="2" Text="–" Foreground="#d1d5db" FontSize="14"
+							   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+					<Border  x:Name="T1_Rev" Grid.Row="1" Grid.Column="3" CornerRadius="6" Width="24" Height="12"
+							 Background="#9ca3af" BorderThickness="2" BorderBrush="#9ca3af" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+					<Border  x:Name="T1_Ls"  Grid.Row="1" Grid.Column="4" CornerRadius="6" Width="24" Height="12"
+							 Background="#9ca3af" BorderThickness="2" BorderBrush="#9ca3af" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
 					<!-- Tür 2 -->
 					<TextBlock Grid.Row="2" Grid.Column="0" Text="Tür 2" Foreground="White" FontSize="12"
 							   FontWeight="Bold" HorizontalAlignment="Left" Margin="6,0,6,0" VerticalAlignment="Center"/>
-					<Border  x:Name="T2_Auf" Grid.Row="2" Grid.Column="1" CornerRadius="5" Width="25" Height="15"
-							 Background="#22c55e" BorderThickness="2" BorderBrush="#9ca3af"
-							 HorizontalAlignment="Center" VerticalAlignment="Center"/>
-					<Border  x:Name="T2_Zu"  Grid.Row="2" Grid.Column="2" CornerRadius="5" Width="25" Height="15"
-							 Background="#22c55e" BorderThickness="2" BorderBrush="#9ca3af"
-							 HorizontalAlignment="Center" VerticalAlignment="Center"/>
-					<Border  x:Name="T2_Rev" Grid.Row="2" Grid.Column="3" CornerRadius="5" Width="25" Height="15"
-							 Background="#9ca3af" BorderThickness="2" BorderBrush="#9ca3af"
-							 HorizontalAlignment="Center" VerticalAlignment="Center"/>
-					<Border  x:Name="T2_Ls"  Grid.Row="2" Grid.Column="4" CornerRadius="5" Width="25" Height="15"
-							 Background="#9ca3af" BorderThickness="2" BorderBrush="#9ca3af"
-							 HorizontalAlignment="Center" VerticalAlignment="Center"/>
+					<Border  x:Name="T2_Auf" Grid.Row="2" Grid.Column="1" CornerRadius="6" Width="24" Height="12"
+							 Background="#22c55e" BorderThickness="2" BorderBrush="#9ca3af" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+					<Border  x:Name="T2_Zu"  Grid.Row="2" Grid.Column="2" CornerRadius="6" Width="24" Height="12"
+							 Background="#22c55e" BorderThickness="2" BorderBrush="#9ca3af" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+					<Border  x:Name="T2_Rev" Grid.Row="2" Grid.Column="3" CornerRadius="6" Width="24" Height="12"
+							 Background="#9ca3af" BorderThickness="2" BorderBrush="#9ca3af" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+					<Border  x:Name="T2_Ls"  Grid.Row="2" Grid.Column="4" CornerRadius="6" Width="24" Height="12"
+							 Background="#9ca3af" BorderThickness="2" BorderBrush="#9ca3af" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
 					<!-- Tür 3 -->
 					<TextBlock Grid.Row="3" Grid.Column="0" Text="Tür 3" Foreground="White" FontSize="12"
 							   FontWeight="Bold" HorizontalAlignment="Left" Margin="6,0,6,0" VerticalAlignment="Center"/>
-					<Border  x:Name="T3_Auf" Grid.Row="3" Grid.Column="1" CornerRadius="5" Width="25" Height="15"
-							 Background="#22c55e" BorderThickness="2" BorderBrush="#9ca3af"
-							 HorizontalAlignment="Center" VerticalAlignment="Center"/>
-					<Border  x:Name="T3_Zu"  Grid.Row="3" Grid.Column="2" CornerRadius="5" Width="25" Height="15"
-							 Background="#9ca3af" BorderThickness="2" BorderBrush="#9ca3af"
-							 HorizontalAlignment="Center" VerticalAlignment="Center"/>
-					<Border  x:Name="T3_Rev" Grid.Row="3" Grid.Column="3" CornerRadius="5" Width="25" Height="15"
-							 Background="#9ca3af" BorderThickness="2" BorderBrush="#9ca3af"
-							 HorizontalAlignment="Center" VerticalAlignment="Center"/>
-					<Border  x:Name="T3_Ls"  Grid.Row="3" Grid.Column="4" CornerRadius="5" Width="25" Height="15"
-							 Background="#22c55e" BorderThickness="2" BorderBrush="#9ca3af"
-							 HorizontalAlignment="Center" VerticalAlignment="Center"/>
+					<Border  x:Name="T3_Auf" Grid.Row="3" Grid.Column="1" CornerRadius="6" Width="24" Height="12"
+							 Background="#22c55e" BorderThickness="2" BorderBrush="#9ca3af" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+					<Border  x:Name="T3_Zu"  Grid.Row="3" Grid.Column="2" CornerRadius="6" Width="24" Height="12"
+							 Background="#9ca3af" BorderThickness="2" BorderBrush="#9ca3af" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+					<Border  x:Name="T3_Rev" Grid.Row="3" Grid.Column="3" CornerRadius="6" Width="24" Height="12"
+							 Background="#9ca3af" BorderThickness="2" BorderBrush="#9ca3af" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+					<Border  x:Name="T3_Ls"  Grid.Row="3" Grid.Column="4" CornerRadius="6" Width="24" Height="12"
+							 Background="#22c55e" BorderThickness="2" BorderBrush="#9ca3af" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 				</Grid>
 			</StackPanel>
 
@@ -216,11 +205,11 @@
 
 				<Grid Margin="0,2">
 					<Grid.ColumnDefinitions>
-						<ColumnDefinition Width="150" />
+						<ColumnDefinition Width="100" />
 						<ColumnDefinition Width="*" />
 					</Grid.ColumnDefinitions>
-					<TextBlock Grid.Column="0" Text="Fabriknr.:" Foreground="White" FontSize="17" HorizontalAlignment="Left" FontFeatures="tnum, lnum" />
-					<TextBlock Grid.Column="1" Name="FabrikNummer" Text="lese..." Foreground="White" FontSize="17" HorizontalAlignment="Right" FontFeatures="tnum, lnum" />
+					<TextBlock Grid.Column="0" Text="Fabriknr.:" Foreground="White" FontSize="17"  HorizontalAlignment="Left" />
+					<TextBlock Grid.Column="1" Name="FabrikNummer" Text="12345" Foreground="White"  HorizontalAlignment="Right" />
 				</Grid>
 
 				<Grid Margin="0,2">
@@ -228,8 +217,8 @@
 						<ColumnDefinition Width="*" />
 						<ColumnDefinition Width="*" />
 					</Grid.ColumnDefinitions>
-					<TextBlock Grid.Column="0" Text="Datum:" Foreground="White" FontSize="17" HorizontalAlignment="Left" FontFeatures="tnum, lnum" />
-					<TextBlock Grid.Column="1" Name="Datum" Text="lese..." Foreground="White" FontSize="17" HorizontalAlignment="Right" FontFeatures="tnum, lnum" />
+					<TextBlock Grid.Column="0" Text="Datum:" Foreground="White" FontSize="17" HorizontalAlignment="Left" />
+					<TextBlock Grid.Column="1" Name="Datum" Text="lese..." Foreground="White" FontSize="17" HorizontalAlignment="Right" />
 				</Grid>
 
 				<Grid Margin="0,2">
@@ -237,8 +226,8 @@
 						<ColumnDefinition Width="*" />
 						<ColumnDefinition Width="*" />
 					</Grid.ColumnDefinitions>
-					<TextBlock Grid.Column="0" Text="Uhrzeit:" Foreground="White" FontSize="17" HorizontalAlignment="Left" FontFeatures="tnum, lnum" />
-					<TextBlock Grid.Column="1" Name="Uhr" Text="lese..." Foreground="White" FontSize="17" HorizontalAlignment="Right" FontFeatures="tnum, lnum" />
+					<TextBlock Grid.Column="0" Text="Uhrzeit:" Foreground="White" FontSize="17" HorizontalAlignment="Left" />
+					<TextBlock Grid.Column="1" Name="Uhr" Text="lese..." Foreground="White" FontSize="17" HorizontalAlignment="Right" />
 				</Grid>
 
 				<Grid Margin="0,2">
@@ -246,8 +235,8 @@
 						<ColumnDefinition Width="*" />
 						<ColumnDefinition Width="*" />
 					</Grid.ColumnDefinitions>
-					<TextBlock Grid.Column="0" Text="Fahrten:" Foreground="White" FontSize="17" HorizontalAlignment="Left" FontFeatures="tnum, lnum" />
-					<TextBlock Grid.Column="1" Name="FahrtZahler" Text="lese..." Foreground="White" FontSize="17" HorizontalAlignment="Right" FontFeatures="tnum, lnum" />
+					<TextBlock Grid.Column="0" Text="Fahrten:" Foreground="White" FontSize="17" HorizontalAlignment="Left" />
+					<TextBlock Grid.Column="1" Name="FahrtZahler" Text="lese..." Foreground="White" FontSize="17" HorizontalAlignment="Right" />
 				</Grid>
 
 				<Grid Margin="0,2">
@@ -255,8 +244,8 @@
 						<ColumnDefinition Width="*" />
 						<ColumnDefinition Width="*" />
 					</Grid.ColumnDefinitions>
-					<TextBlock Grid.Column="0" Text="Stunden:" Foreground="White" FontSize="17" HorizontalAlignment="Left" FontFeatures="tnum, lnum" />
-					<TextBlock Grid.Column="1" Name="BStunden" Text="lese..." Foreground="White" FontSize="17" HorizontalAlignment="Right" FontFeatures="tnum, lnum" />
+					<TextBlock Grid.Column="0" Text="Stunden:" Foreground="White" FontSize="17" HorizontalAlignment="Left" />
+					<TextBlock Grid.Column="1" Name="BStunden" Text="lese..." Foreground="White" FontSize="17" HorizontalAlignment="Right" />
 				</Grid>
 
 				<Grid Margin="0,2">
@@ -264,8 +253,8 @@
 						<ColumnDefinition Width="*" />
 						<ColumnDefinition Width="*" />
 					</Grid.ColumnDefinitions>
-					<TextBlock Grid.Column="0" Text="Position:" Foreground="White" FontSize="17" HorizontalAlignment="Left" FontFeatures="tnum, lnum" />
-					<TextBlock Grid.Column="1" Name="Hoehe" Text="lese..." Foreground="White" FontSize="17" HorizontalAlignment="Right" FontFeatures="tnum, lnum" />
+					<TextBlock Grid.Column="0" Text="Position:" Foreground="White" FontSize="17" HorizontalAlignment="Left" />
+					<TextBlock Grid.Column="1" Name="Hoehe" Text="lese..." Foreground="White" FontSize="17" HorizontalAlignment="Right" />
 				</Grid>
 
 				<Grid Margin="0,2">
@@ -273,8 +262,8 @@
 						<ColumnDefinition Width="*" />
 						<ColumnDefinition Width="*" />
 					</Grid.ColumnDefinitions>
-					<TextBlock Grid.Column="0" Text="Geschwind.:" Foreground="White" FontSize="17" HorizontalAlignment="Left" FontFeatures="tnum, lnum" />
-					<TextBlock Grid.Column="1" Name="Geschwindigkeit" Text="lese..." Foreground="White" FontSize="17" HorizontalAlignment="Right" FontFeatures="tnum, lnum" />
+					<TextBlock Grid.Column="0" Text="Geschwind.:" Foreground="White" FontSize="17"  HorizontalAlignment="Left" />
+					<TextBlock Grid.Column="1" Name="Geschwindigkeit" Text="lese..." Foreground="White" FontSize="17" HorizontalAlignment="Right" />
 				</Grid>
 
 				<Grid Margin="0,2">
@@ -282,8 +271,8 @@
 						<ColumnDefinition Width="*" />
 						<ColumnDefinition Width="*" />
 					</Grid.ColumnDefinitions>
-					<TextBlock Grid.Column="0" Text="Bündig:" Foreground="White" FontSize="17" HorizontalAlignment="Left" FontFeatures="tnum, lnum" />
-					<TextBlock Grid.Column="1" Name="Buendig" Text="lese..." Foreground="White" FontSize="17" HorizontalAlignment="Right" FontFeatures="tnum, lnum" />
+					<TextBlock Grid.Column="0" Text="Bündig:" Foreground="White" FontSize="17" HorizontalAlignment="Left" />
+					<TextBlock Grid.Column="1" Name="Buendig" Text="lese..." Foreground="White" FontSize="17" HorizontalAlignment="Right" />
 				</Grid>
 
 				<Grid Margin="0,2">
@@ -291,8 +280,8 @@
 						<ColumnDefinition Width="*" />
 						<ColumnDefinition Width="*" />
 					</Grid.ColumnDefinitions>
-					<TextBlock Grid.Column="0" Text="Temp.:" Foreground="White" FontSize="17" HorizontalAlignment="Left" FontFeatures="tnum, lnum" />
-					<TextBlock Grid.Column="1" Name="Temp" Text="lese..." Foreground="White" FontSize="17" HorizontalAlignment="Right" FontFeatures="tnum, lnum" />
+					<TextBlock Grid.Column="0" Text="Temp.:" Foreground="White" FontSize="17" HorizontalAlignment="Left" />
+					<TextBlock Grid.Column="1" Name="Temp" Text="lese..." Foreground="White" FontSize="17" HorizontalAlignment="Right" />
 				</Grid>
 
 				<Grid Margin="0,2">
@@ -300,12 +289,13 @@
 						<ColumnDefinition Width="*" />
 						<ColumnDefinition Width="*" />
 					</Grid.ColumnDefinitions>
-					<TextBlock Grid.Column="0" Text="Gewicht:" Foreground="White" FontSize="17" HorizontalAlignment="Left" FontFeatures="tnum, lnum" />
-					<TextBlock Grid.Column="1" Name="Last" Text="lese..." Foreground="White" FontSize="17" HorizontalAlignment="Right" FontFeatures="tnum, lnum" />
+					<TextBlock Grid.Column="0" Text="Gewicht:" Foreground="White" FontSize="17" HorizontalAlignment="Left" />
+					<TextBlock Grid.Column="1" Name="Last" Text="lese..." Foreground="White" FontSize="17" HorizontalAlignment="Right" />
 				</Grid>
 			</StackPanel>
-		</Border>
 
+
+		</Border>
 
 
 		<!-- A-Zustand -->
@@ -326,141 +316,89 @@
 		</Border>
 
 		<!-- Live-View -->
-		<Border x:Name="LiveViewBorder"
-				CornerRadius="10"
-				Background="#1f2937"
-				Width="220" Height="700"
-				Canvas.Top="-220" Canvas.Left="320"
-				ClipToBounds="True">
+		<Border CornerRadius="10"
+        Background="#1f2937"
+        Width="220" Height="700"
+        Canvas.Top="-220" Canvas.Left="320"
+        ClipToBounds="True">
+
 			<Border.RenderTransform>
 				<RotateTransform Angle="90" />
 			</Border.RenderTransform>
 			<Border.Effect>
-				<DropShadowEffect OffsetX="0" OffsetY="0" BlurRadius="20" Color="Black" Opacity="0.5" />
+				<DropShadowEffect OffsetX="0" OffsetY="0" BlurRadius="20" Color="Black" Opacity="0.5" ></DropShadowEffect>
 			</Border.Effect>
 
-			<!-- Root mit zwei Ebenen: Inhalt (scrollt) + UI (fix) -->
-			<Grid>
-
-				<!-- Ebene 1: scrollbarer Inhalt -->
-				<Grid x:Name="LiveViewRoot" HorizontalAlignment="Center" VerticalAlignment="Center">
-					<Grid.RenderTransform>
+			<Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+				<!--<Border Width="100" Height="100" Background="White"></Border>-->
+				<Canvas Name="PositionControl" Height="300" Width="300">
+					<Canvas.RenderTransform>
 						<TransformGroup>
-							<TranslateTransform X="0" Y="0"/>
+							<ScaleTransform ScaleX="0.5" ScaleY="0.5"/>
+							<TranslateTransform X="0" Y=""/>
 						</TransformGroup>
-					</Grid.RenderTransform>
-
-					<!-- Schacht-Teil 1 -->
-					<Canvas Name="PositionControl" Height="300" Width="300">
-						<Canvas.RenderTransform>
-							<TransformGroup>
-								<ScaleTransform ScaleX="0.5" ScaleY="0.5"/>
-								<TranslateTransform X="0" Y=""/>
-							</TransformGroup>
-						</Canvas.RenderTransform>
-						<Image x:Name="SvgImageControlAlternative">
-							<Image.RenderTransform>
-								<TransformGroup>
-									<ScaleTransform ScaleX="1" ScaleY="1"/>
-									<TranslateTransform X="0" Y="0"/>
-								</TransformGroup>
-							</Image.RenderTransform>
-						</Image>
-					</Canvas>
-
-					<!-- Fahrkorb -->
-					<Image x:Name="FahrkorbImage"
-						   Margin="10,0,0,0"
-						   Width="150"
-						   Source="Animation\forBuild\Fahrkorb\Fahrkorb.png">
+					</Canvas.RenderTransform>
+					<Image x:Name="SvgImageControlAlternative">
 						<Image.RenderTransform>
 							<TransformGroup>
+								<!-- Erstes Element: ScaleTransform -->
 								<ScaleTransform ScaleX="1" ScaleY="1"/>
+								<!-- Zweites Element: TranslateTransform -->
 								<TranslateTransform X="0" Y="0"/>
 							</TransformGroup>
 						</Image.RenderTransform>
 					</Image>
-
-					<!-- Schacht-Teil 2 -->
-					<Canvas Name="PositionControl2" Height="300" Width="300">
-						<Canvas.RenderTransform>
+				</Canvas>
+				<Image Margin="10,0,0,0" Width="150" Source="Animation\forBuild\Fahrkorb\Fahrkorb.png"></Image>
+				<Canvas Name="PositionControl2" Height="300" Width="300">
+					<Canvas.RenderTransform>
+						<TransformGroup>
+							<ScaleTransform ScaleX="0.5" ScaleY="0.5"/>
+							<TranslateTransform X="0" Y=""/>
+						</TransformGroup>
+					</Canvas.RenderTransform>
+					<Image x:Name="SvgImageControl">
+						<Image.RenderTransform>
 							<TransformGroup>
-								<ScaleTransform ScaleX="0.5" ScaleY="0.5"/>
-								<TranslateTransform X="0" Y=""/>
+								<!-- Erstes Element: ScaleTransform -->
+								<ScaleTransform ScaleX="1" ScaleY="1"/>
+								<!-- Zweites Element: TranslateTransform -->
+								<TranslateTransform X="0" Y="0"/>
 							</TransformGroup>
-						</Canvas.RenderTransform>
-						<Image x:Name="SvgImageControl">
-							<Image.RenderTransform>
-								<TransformGroup>
-									<ScaleTransform ScaleX="1" ScaleY="1"/>
-									<TranslateTransform X="0" Y="0"/>
-								</TransformGroup>
-							</Image.RenderTransform>
-						</Image>
-					</Canvas>
-
-					<!-- Overlay für Etagen-Buttons (scrollt mit dem Schacht) -->
-					<Canvas x:Name="FloorButtonsOverlay" Width="220"
-							IsHitTestVisible="True"
-							Background="Transparent"/>
-
-
-
-				</Grid>
-				<!-- Ebene 2: feste UI (scrollt NICHT mit) -->
-				<Grid>
-					<!-- Hintergrund-Border -->
-					<Border Width="220"
-							Height="50"
-							Background="#1f2937"
-							VerticalAlignment="Top" />
-
-					<!-- Up-Button links oben -->
-					<Button Width="28"
-							Height="28"
-							HorizontalAlignment="Left"
-							VerticalAlignment="Top"
-							Margin="6"
-							Click="ScrollUp_Click">▲</Button>
-
-					<!-- Down-Button rechts oben -->
-					<Button Width="28"
-							Height="28"
-							HorizontalAlignment="Right"
-							VerticalAlignment="Top"
-							Margin="6"
-							Click="ScrollDown_Click">▼</Button>
-
-				
-				</Grid>
-
-
+						</Image.RenderTransform>
+					</Image>
+				</Canvas>
+				<Border Background="#111827" Width="100" Height="25" VerticalAlignment="Bottom" HorizontalAlignment="Right">
+					<TextBlock Name="korbPosition" Text="Fahrkorb" FontFamily="Arial" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+					<Border.Effect>
+						<DropShadowEffect OffsetX="0" OffsetY="0" BlurRadius="20" Color="Black" Opacity="0.5"/>
+					</Border.Effect>
+				</Border>
+				<!--<TextBlock Name="LiveEtage" HorizontalAlignment="Center" Foreground="#22c55e" FontWeight="Bold" FontSize="45">
+				</TextBlock>-->
 			</Grid>
 		</Border>
 
-
-
-
 		<!-- Etage -->
-		<Button Margin="710,70,0,0" Width="70" Height="120" Click="Button_Click_AutoFollow" >
-		<Border CornerRadius="0"  Background="White" Width="120" Height="70" Canvas.Top="95" Canvas.Left="685" BorderThickness="5" BorderBrush="#9ca3af">
-			<Border.Effect>
-				<DropShadowEffect OffsetX="0" OffsetY="0" BlurRadius="20" Color="Black" Opacity="0.5" ></DropShadowEffect>
-			</Border.Effect>
-			<Border.RenderTransform>
-				<RotateTransform Angle="90" />
-			</Border.RenderTransform>
+		<Button Margin="710,70,0,0" Width="70" Height="120">
+			<Border CornerRadius="0"  Background="White" Width="120" Height="70" Canvas.Top="95" Canvas.Left="685" BorderThickness="5" BorderBrush="#9ca3af">
+				<Border.Effect>
+					<DropShadowEffect OffsetX="0" OffsetY="0" BlurRadius="20" Color="Black" Opacity="0.5" ></DropShadowEffect>
+				</Border.Effect>
+				<Border.RenderTransform>
+					<RotateTransform Angle="90" />
+				</Border.RenderTransform>
 
-			<StackPanel VerticalAlignment="Center">
+				<StackPanel VerticalAlignment="Center">
 
 
-				<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="5">
-					<TextBlock Name="Etage" HorizontalAlignment="Center"  Margin="0" FontWeight="Black" Foreground="Black" Text="-" FontSize="50"></TextBlock>
+					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="5">
+						<TextBlock Name="Etage" HorizontalAlignment="Center"  Margin="0" FontWeight="Black" Foreground="Black" Text="-" FontSize="50"></TextBlock>
+					</StackPanel>
+
 				</StackPanel>
 
-			</StackPanel>
-
-		</Border>
+			</Border>
 		</Button>
 
 		<!-- NavBar -->

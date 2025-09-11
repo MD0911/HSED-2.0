@@ -281,6 +281,21 @@ namespace HSED_2_0
             });
         }
 
+        private static void setDoorState3(byte[] zustand)
+        {
+            Debug.WriteLine(zustand);
+            int newDoorState = BitConverter.ToInt16(new byte[] { zustand[5], zustand[4] }, 0);
+            Debug.WriteLine("DoorState: " + newDoorState);
+            // Aktualisiere das ViewModel im UI-Thread:
+            Dispatcher.UIThread.Post(() =>
+            {
+                if (MainWindow.Instance?.ViewModel != null)
+                {
+                    MainWindow.Instance.ViewModel.CurrentStateTueur3 = newDoorState;
+                }
+            });
+        }
+
         private static void setFahrkorb(byte[] zustand)
         {
             int newFahrkorb = BitConverter.ToInt32(new byte[] { zustand[4], zustand[5], zustand[6], zustand[7] }, 0);
@@ -370,6 +385,93 @@ namespace HSED_2_0
             });
         }
 
+        public static void innenruftasterquittung(byte[] zustand)
+        {
+            int Etage = zustand[2];
+            int zustandQuit = zustand[4];
+
+            if(zustandQuit == 0)
+            {
+                Debug.WriteLine("Innenruftasterquittung Etage: " + Etage + " beendet");
+                int zustandQuittung = 1;
+            }
+            else
+            {
+                Debug.WriteLine("Innenruftasterquittung Etage: " + Etage + " gestartet");
+                int zustandQuittung = 0;
+            }
+
+
+            // Aktualisiere das ViewModel im UI-Thread:
+              Dispatcher.UIThread.Post(() =>
+              {
+                  if (MainWindow.Instance?.ViewModel != null)
+                  {
+                      MainWindow.Instance.ViewModel.InnenruftasterquittungEtage = Etage;
+                      MainWindow.Instance.ViewModel.InnenruftasterquittungZustand = zustandQuit;
+                  }
+              });
+
+        }
+
+        public static void aufAussentasterquittung(byte[] zustand)
+        {
+            int Etage = zustand[2];
+            int zustandQuit = zustand[4];
+
+            if (zustandQuit == 0)
+            {
+                Debug.WriteLine("Innenruftasterquittung Etage: " + Etage + " beendet");
+                int zustandQuittung = 1;
+            }
+            else
+            {
+                Debug.WriteLine("Innenruftasterquittung Etage: " + Etage + " gestartet");
+                int zustandQuittung = 0;
+            }
+
+
+            // Aktualisiere das ViewModel im UI-Thread:
+            Dispatcher.UIThread.Post(() =>
+            {
+                if (MainWindow.Instance?.ViewModel != null)
+                {
+                    MainWindow.Instance.ViewModel.AufAruftasterquittungEtage = Etage;
+                    MainWindow.Instance.ViewModel.AufAruftasterquittungZustand = zustandQuit;
+                }
+            });
+
+        }
+
+        public static void abAussentasterquittung(byte[] zustand)
+        {
+            int Etage = zustand[2];
+            int zustandQuit = zustand[4];
+
+            if (zustandQuit == 0)
+            {
+                Debug.WriteLine("Innenruftasterquittung Etage: " + Etage + " beendet");
+                int zustandQuittung = 1;
+            }
+            else
+            {
+                Debug.WriteLine("Innenruftasterquittung Etage: " + Etage + " gestartet");
+                int zustandQuittung = 0;
+            }
+
+
+            // Aktualisiere das ViewModel im UI-Thread:
+            Dispatcher.UIThread.Post(() =>
+            {
+                if (MainWindow.Instance?.ViewModel != null)
+                {
+                    MainWindow.Instance.ViewModel.AbAruftasterquittungEtage = Etage;
+                    MainWindow.Instance.ViewModel.AbAruftasterquittungZustand = zustandQuit;
+                }
+            });
+
+        }
+
 
 
 
@@ -447,15 +549,42 @@ namespace HSED_2_0
             {
 
                 Debug.WriteLine("Tür3-Änderung erkannt.");
-                setDoorState1(response);
+                setDoorState3(response);
             }
 
             else if (response[0] == 0x63 && response[1] == 0x83)
             {
 
-                Debug.WriteLine("Fahrkorbposition-Änderung erkannt.");
+                Debug.WriteLine(DateTime.Now.ToString("HH:mm:ss:ffff") + "Fahrkorbposition-Änderung erkannt.");
                 setFahrkorb(response);
                 setFahrkorbAnimationPosition(response);
+            }
+
+            else if (response[0] == 0x21 && response[1] == 0x03)
+            {
+
+                Debug.WriteLine("Innenruftasterquittung erkannt.");
+                innenruftasterquittung(response);
+
+
+            }
+
+            else if (response[0] == 0x21 && response[1] == 0x04)
+            {
+
+                Debug.WriteLine("Aufwärts-Außenrufasterquittung erkannt.");
+                aufAussentasterquittung(response);
+
+
+            }
+
+            else if (response[0] == 0x21 && response[1] == 0x05)
+            {
+
+                Debug.WriteLine("Abwärts-Außenrufasterquittung erkannt.");
+                abAussentasterquittung(response);
+
+
             }
 
         }
