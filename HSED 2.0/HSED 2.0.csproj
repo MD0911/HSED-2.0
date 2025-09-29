@@ -1,658 +1,658 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
-    <ApplicationManifest>app.manifest</ApplicationManifest>
-    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
-    <DisableCompiledBindings>true</DisableCompiledBindings>
-    <RuntimeIdentifiers>win-x64;linux-arm64</RuntimeIdentifiers>
-	<SelfContained>true</SelfContained>
-  </PropertyGroup>
-  <ItemGroup>
-    <None Remove="Animation\1 Auf.png" />
-    <None Remove="Animation\1 ZU.png" />
-    <None Remove="Animation\1-auf.gif" />
-    <None Remove="Animation\1-Auf.png" />
-    <None Remove="Animation\1-zu.gif" />
-    <None Remove="Animation\1-zu.png" />
-    <None Remove="Animation\1.png" />
-    <None Remove="Animation\1Auf.png" />
-    <None Remove="Animation\1GAuf.png" />
-    <None Remove="Animation\1Gzu.png" />
-    <None Remove="Animation\1Zu.png" />
-    <None Remove="Animation\2 Auf.png" />
-    <None Remove="Animation\2 Zu .png" />
-    <None Remove="Animation\2-auf.gif" />
-    <None Remove="Animation\2-Auf.png" />
-    <None Remove="Animation\2-zu.gif" />
-    <None Remove="Animation\2-Zu.png" />
-    <None Remove="Animation\2.png" />
-    <None Remove="Animation\2Auf.png" />
-    <None Remove="Animation\2GAuf.png" />
-    <None Remove="Animation\2GZu.png" />
-    <None Remove="Animation\2Zu.png" />
-    <None Remove="Animation\3 Auf.png" />
-    <None Remove="Animation\3 Zu.png" />
-    <None Remove="Animation\3-auf.gif" />
-    <None Remove="Animation\3-Auf.png" />
-    <None Remove="Animation\3-zu.gif" />
-    <None Remove="Animation\3-Zu.png" />
-    <None Remove="Animation\3.png" />
-    <None Remove="Animation\3Auf.png" />
-    <None Remove="Animation\3GAuf.png" />
-    <None Remove="Animation\3GZu.png" />
-    <None Remove="Animation\3Zu.png" />
-    <None Remove="Animation\forBuild\Fahrkorb\Fahrkorb.png" />
-    <None Remove="Animation\forBuild\SchachtHinten.svg" />
-    <None Remove="Animation\forBuild\SchachtVorne.svg" />
-    <None Remove="bitmap\ASCII00.bmp" />
-    <None Remove="bitmap\ASCII01.bmp" />
-    <None Remove="bitmap\ASCII02.bmp" />
-    <None Remove="bitmap\ASCII03.bmp" />
-    <None Remove="bitmap\ASCII04.bmp" />
-    <None Remove="bitmap\ASCII05.bmp" />
-    <None Remove="bitmap\ASCII06.bmp" />
-    <None Remove="bitmap\ASCII07.bmp" />
-    <None Remove="bitmap\ASCII08.bmp" />
-    <None Remove="bitmap\ASCII09.bmp" />
-    <None Remove="bitmap\ASCII0A.bmp" />
-    <None Remove="bitmap\ASCII0B.bmp" />
-    <None Remove="bitmap\ASCII0C.bmp" />
-    <None Remove="bitmap\ASCII0D.bmp" />
-    <None Remove="bitmap\ASCII0E.bmp" />
-    <None Remove="bitmap\ASCII0F.bmp" />
-    <None Remove="bitmap\ASCII20.bmp" />
-    <None Remove="bitmap\ASCII21.bmp" />
-    <None Remove="bitmap\ASCII22.bmp" />
-    <None Remove="bitmap\ASCII23.bmp" />
-    <None Remove="bitmap\ASCII24.bmp" />
-    <None Remove="bitmap\ASCII25.bmp" />
-    <None Remove="bitmap\ASCII26.bmp" />
-    <None Remove="bitmap\ASCII27.bmp" />
-    <None Remove="bitmap\ASCII28.bmp" />
-    <None Remove="bitmap\ASCII29.bmp" />
-    <None Remove="bitmap\ASCII2A.bmp" />
-    <None Remove="bitmap\ASCII2B.bmp" />
-    <None Remove="bitmap\ASCII2C.bmp" />
-    <None Remove="bitmap\ASCII2D.bmp" />
-    <None Remove="bitmap\ASCII2E.bmp" />
-    <None Remove="bitmap\ASCII2F.bmp" />
-    <None Remove="bitmap\ASCII30.bmp" />
-    <None Remove="bitmap\ASCII31.bmp" />
-    <None Remove="bitmap\ASCII32.bmp" />
-    <None Remove="bitmap\ASCII33.bmp" />
-    <None Remove="bitmap\ASCII34.bmp" />
-    <None Remove="bitmap\ASCII35.bmp" />
-    <None Remove="bitmap\ASCII36.bmp" />
-    <None Remove="bitmap\ASCII37.bmp" />
-    <None Remove="bitmap\ASCII38.bmp" />
-    <None Remove="bitmap\ASCII39.bmp" />
-    <None Remove="bitmap\ASCII3A.bmp" />
-    <None Remove="bitmap\ASCII3B.bmp" />
-    <None Remove="bitmap\ASCII3C.bmp" />
-    <None Remove="bitmap\ASCII3D.bmp" />
-    <None Remove="bitmap\ASCII3E.bmp" />
-    <None Remove="bitmap\ASCII3F.bmp" />
-    <None Remove="bitmap\ASCII40.bmp" />
-    <None Remove="bitmap\ASCII41.bmp" />
-    <None Remove="bitmap\ASCII42.bmp" />
-    <None Remove="bitmap\ASCII43.bmp" />
-    <None Remove="bitmap\ASCII44.bmp" />
-    <None Remove="bitmap\ASCII45.bmp" />
-    <None Remove="bitmap\ASCII46.bmp" />
-    <None Remove="bitmap\ASCII47.bmp" />
-    <None Remove="bitmap\ASCII48.bmp" />
-    <None Remove="bitmap\ASCII49.bmp" />
-    <None Remove="bitmap\ASCII4A.bmp" />
-    <None Remove="bitmap\ASCII4B.bmp" />
-    <None Remove="bitmap\ASCII4C.bmp" />
-    <None Remove="bitmap\ASCII4D.bmp" />
-    <None Remove="bitmap\ASCII4E.bmp" />
-    <None Remove="bitmap\ASCII4F.bmp" />
-    <None Remove="bitmap\ASCII50.bmp" />
-    <None Remove="bitmap\ASCII51.bmp" />
-    <None Remove="bitmap\ASCII52.bmp" />
-    <None Remove="bitmap\ASCII53.bmp" />
-    <None Remove="bitmap\ASCII54.bmp" />
-    <None Remove="bitmap\ASCII55.bmp" />
-    <None Remove="bitmap\ASCII56.bmp" />
-    <None Remove="bitmap\ASCII57.bmp" />
-    <None Remove="bitmap\ASCII58.bmp" />
-    <None Remove="bitmap\ASCII59.bmp" />
-    <None Remove="bitmap\ASCII5A.bmp" />
-    <None Remove="bitmap\ASCII5B.bmp" />
-    <None Remove="bitmap\ASCII5C.bmp" />
-    <None Remove="bitmap\ASCII5D.bmp" />
-    <None Remove="bitmap\ASCII5E.bmp" />
-    <None Remove="bitmap\ASCII5F.bmp" />
-    <None Remove="bitmap\ASCII60.bmp" />
-    <None Remove="bitmap\ASCII61.bmp" />
-    <None Remove="bitmap\ASCII62.bmp" />
-    <None Remove="bitmap\ASCII63.bmp" />
-    <None Remove="bitmap\ASCII64.bmp" />
-    <None Remove="bitmap\ASCII65.bmp" />
-    <None Remove="bitmap\ASCII66.bmp" />
-    <None Remove="bitmap\ASCII67.bmp" />
-    <None Remove="bitmap\ASCII68.bmp" />
-    <None Remove="bitmap\ASCII69.bmp" />
-    <None Remove="bitmap\ASCII6A.bmp" />
-    <None Remove="bitmap\ASCII6B.bmp" />
-    <None Remove="bitmap\ASCII6C.bmp" />
-    <None Remove="bitmap\ASCII6D.bmp" />
-    <None Remove="bitmap\ASCII6E.bmp" />
-    <None Remove="bitmap\ASCII6F.bmp" />
-    <None Remove="bitmap\ASCII70.bmp" />
-    <None Remove="bitmap\ASCII71.bmp" />
-    <None Remove="bitmap\ASCII72.bmp" />
-    <None Remove="bitmap\ASCII73.bmp" />
-    <None Remove="bitmap\ASCII74.bmp" />
-    <None Remove="bitmap\ASCII75.bmp" />
-    <None Remove="bitmap\ASCII76.bmp" />
-    <None Remove="bitmap\ASCII77.bmp" />
-    <None Remove="bitmap\ASCII78.bmp" />
-    <None Remove="bitmap\ASCII79.bmp" />
-    <None Remove="bitmap\ASCII7A.bmp" />
-    <None Remove="bitmap\ASCII7B.bmp" />
-    <None Remove="bitmap\ASCII7C.bmp" />
-    <None Remove="bitmap\ASCII7D.bmp" />
-    <None Remove="bitmap\ASCII7E.bmp" />
-    <None Remove="bitmap\ASCII7F.bmp" />
-    <None Remove="bitmap\ASCIIE1.bmp" />
-    <None Remove="bitmap\ASCIIE2.bmp" />
-    <None Remove="bitmap\ASCIIE3.bmp" />
-    <None Remove="bitmap\ASCIIEF.bmp" />
-    <None Remove="bitmap\ASCIIF5.bmp" />
-    <None Remove="bitmap\ASCIIFF.bmp" />
-    <None Remove="Images\BackgroundGradient.png" />
-    <None Remove="Images\Icons\analysieren.png" />
-    <None Remove="Images\Icons\aufzug.png" />
-    <None Remove="Images\Icons\aussicht.png" />
-    <None Remove="Images\Icons\die-einstellungen.png" />
-    <None Remove="Images\Icons\enter-taste.png" />
-    <None Remove="Images\Icons\menu-offnen.png" />
-    <None Remove="Images\Icons\pfeil-Hoch.png" />
-    <None Remove="Images\Icons\pfeil-runter.png" />
-    <None Remove="Images\Icons\refresh.png" />
-    <None Remove="Images\Icons\stift.png" />
-    <None Remove="Images\Icons\zuhause.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AvaloniaXaml Include="Animation\forBuild\Fahrkorb\Fahrkorb.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </AvaloniaXaml>
-    <Content Include="Animation\1Auf.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Animation\1GAuf.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Animation\1Gzu.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Animation\1Zu.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Animation\2Auf.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Animation\2GAuf.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Animation\2GZu.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Animation\2Zu.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Animation\3Auf.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Animation\3GAuf.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Animation\3GZu.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Animation\3Zu.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <AvaloniaResource Include="Animation\1.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </AvaloniaResource>
-    <AvaloniaResource Include="Animation\2.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </AvaloniaResource>
-    <AvaloniaResource Include="Animation\3.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </AvaloniaResource>
-    <AvaloniaResource Include="Images\Icons\die-einstellungen.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </AvaloniaResource>
-    <AvaloniaResource Include="Images\Icons\refresh.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </AvaloniaResource>
-    <Content Include="Animation\forBuild\SchachtHinten.svg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Animation\forBuild\SchachtVorne.svg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII00.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII01.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII02.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII03.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII04.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII05.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII06.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII07.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII08.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII09.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII0A.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII0B.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII0C.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII0D.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII0E.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII0F.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII20.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII21.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII22.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII23.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII24.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII25.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII26.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII27.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII28.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII29.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII2A.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII2B.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII2C.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII2D.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII2E.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII2F.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII30.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII31.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII32.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII33.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII34.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII35.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII36.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII37.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII38.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII39.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII3A.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII3B.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII3C.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII3D.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII3E.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII3F.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII40.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII41.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII42.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII43.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII44.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII45.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII46.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII47.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII48.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII49.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII4A.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII4B.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII4C.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII4D.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII4E.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII4F.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII50.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII51.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII52.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII53.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII54.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII55.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII56.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII57.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII58.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII59.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII5A.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII5B.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII5C.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII5D.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII5E.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII5F.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII60.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII61.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII62.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII63.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII64.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII65.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII66.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII67.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII68.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII69.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII6A.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII6B.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII6C.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII6D.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII6E.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII6F.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII70.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII71.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII72.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII73.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII74.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII75.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII76.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII77.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII78.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII79.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII7A.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII7B.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII7C.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII7D.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII7E.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCII7F.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCIIE1.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCIIE2.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCIIE3.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCIIEF.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCIIF5.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="bitmap\ASCIIFF.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Images\BackgroundGradient.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net8.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+		<ApplicationManifest>app.manifest</ApplicationManifest>
+		<AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+		<DisableCompiledBindings>true</DisableCompiledBindings>
+		<RuntimeIdentifiers>win-x64;linux-arm64</RuntimeIdentifiers>
+		<SelfContained>true</SelfContained>
+	</PropertyGroup>
+	<ItemGroup>
+		<None Remove="Animation\1 Auf.png" />
+		<None Remove="Animation\1 ZU.png" />
+		<None Remove="Animation\1-auf.gif" />
+		<None Remove="Animation\1-Auf.png" />
+		<None Remove="Animation\1-zu.gif" />
+		<None Remove="Animation\1-zu.png" />
+		<None Remove="Animation\1.png" />
+		<None Remove="Animation\1Auf.png" />
+		<None Remove="Animation\1GAuf.png" />
+		<None Remove="Animation\1Gzu.png" />
+		<None Remove="Animation\1Zu.png" />
+		<None Remove="Animation\2 Auf.png" />
+		<None Remove="Animation\2 Zu .png" />
+		<None Remove="Animation\2-auf.gif" />
+		<None Remove="Animation\2-Auf.png" />
+		<None Remove="Animation\2-zu.gif" />
+		<None Remove="Animation\2-Zu.png" />
+		<None Remove="Animation\2.png" />
+		<None Remove="Animation\2Auf.png" />
+		<None Remove="Animation\2GAuf.png" />
+		<None Remove="Animation\2GZu.png" />
+		<None Remove="Animation\2Zu.png" />
+		<None Remove="Animation\3 Auf.png" />
+		<None Remove="Animation\3 Zu.png" />
+		<None Remove="Animation\3-auf.gif" />
+		<None Remove="Animation\3-Auf.png" />
+		<None Remove="Animation\3-zu.gif" />
+		<None Remove="Animation\3-Zu.png" />
+		<None Remove="Animation\3.png" />
+		<None Remove="Animation\3Auf.png" />
+		<None Remove="Animation\3GAuf.png" />
+		<None Remove="Animation\3GZu.png" />
+		<None Remove="Animation\3Zu.png" />
+		<None Remove="Animation\forBuild\Fahrkorb\Fahrkorb.png" />
+		<None Remove="Animation\forBuild\SchachtHinten.svg" />
+		<None Remove="Animation\forBuild\SchachtVorne.svg" />
+		<None Remove="bitmap\ASCII00.bmp" />
+		<None Remove="bitmap\ASCII01.bmp" />
+		<None Remove="bitmap\ASCII02.bmp" />
+		<None Remove="bitmap\ASCII03.bmp" />
+		<None Remove="bitmap\ASCII04.bmp" />
+		<None Remove="bitmap\ASCII05.bmp" />
+		<None Remove="bitmap\ASCII06.bmp" />
+		<None Remove="bitmap\ASCII07.bmp" />
+		<None Remove="bitmap\ASCII08.bmp" />
+		<None Remove="bitmap\ASCII09.bmp" />
+		<None Remove="bitmap\ASCII0A.bmp" />
+		<None Remove="bitmap\ASCII0B.bmp" />
+		<None Remove="bitmap\ASCII0C.bmp" />
+		<None Remove="bitmap\ASCII0D.bmp" />
+		<None Remove="bitmap\ASCII0E.bmp" />
+		<None Remove="bitmap\ASCII0F.bmp" />
+		<None Remove="bitmap\ASCII20.bmp" />
+		<None Remove="bitmap\ASCII21.bmp" />
+		<None Remove="bitmap\ASCII22.bmp" />
+		<None Remove="bitmap\ASCII23.bmp" />
+		<None Remove="bitmap\ASCII24.bmp" />
+		<None Remove="bitmap\ASCII25.bmp" />
+		<None Remove="bitmap\ASCII26.bmp" />
+		<None Remove="bitmap\ASCII27.bmp" />
+		<None Remove="bitmap\ASCII28.bmp" />
+		<None Remove="bitmap\ASCII29.bmp" />
+		<None Remove="bitmap\ASCII2A.bmp" />
+		<None Remove="bitmap\ASCII2B.bmp" />
+		<None Remove="bitmap\ASCII2C.bmp" />
+		<None Remove="bitmap\ASCII2D.bmp" />
+		<None Remove="bitmap\ASCII2E.bmp" />
+		<None Remove="bitmap\ASCII2F.bmp" />
+		<None Remove="bitmap\ASCII30.bmp" />
+		<None Remove="bitmap\ASCII31.bmp" />
+		<None Remove="bitmap\ASCII32.bmp" />
+		<None Remove="bitmap\ASCII33.bmp" />
+		<None Remove="bitmap\ASCII34.bmp" />
+		<None Remove="bitmap\ASCII35.bmp" />
+		<None Remove="bitmap\ASCII36.bmp" />
+		<None Remove="bitmap\ASCII37.bmp" />
+		<None Remove="bitmap\ASCII38.bmp" />
+		<None Remove="bitmap\ASCII39.bmp" />
+		<None Remove="bitmap\ASCII3A.bmp" />
+		<None Remove="bitmap\ASCII3B.bmp" />
+		<None Remove="bitmap\ASCII3C.bmp" />
+		<None Remove="bitmap\ASCII3D.bmp" />
+		<None Remove="bitmap\ASCII3E.bmp" />
+		<None Remove="bitmap\ASCII3F.bmp" />
+		<None Remove="bitmap\ASCII40.bmp" />
+		<None Remove="bitmap\ASCII41.bmp" />
+		<None Remove="bitmap\ASCII42.bmp" />
+		<None Remove="bitmap\ASCII43.bmp" />
+		<None Remove="bitmap\ASCII44.bmp" />
+		<None Remove="bitmap\ASCII45.bmp" />
+		<None Remove="bitmap\ASCII46.bmp" />
+		<None Remove="bitmap\ASCII47.bmp" />
+		<None Remove="bitmap\ASCII48.bmp" />
+		<None Remove="bitmap\ASCII49.bmp" />
+		<None Remove="bitmap\ASCII4A.bmp" />
+		<None Remove="bitmap\ASCII4B.bmp" />
+		<None Remove="bitmap\ASCII4C.bmp" />
+		<None Remove="bitmap\ASCII4D.bmp" />
+		<None Remove="bitmap\ASCII4E.bmp" />
+		<None Remove="bitmap\ASCII4F.bmp" />
+		<None Remove="bitmap\ASCII50.bmp" />
+		<None Remove="bitmap\ASCII51.bmp" />
+		<None Remove="bitmap\ASCII52.bmp" />
+		<None Remove="bitmap\ASCII53.bmp" />
+		<None Remove="bitmap\ASCII54.bmp" />
+		<None Remove="bitmap\ASCII55.bmp" />
+		<None Remove="bitmap\ASCII56.bmp" />
+		<None Remove="bitmap\ASCII57.bmp" />
+		<None Remove="bitmap\ASCII58.bmp" />
+		<None Remove="bitmap\ASCII59.bmp" />
+		<None Remove="bitmap\ASCII5A.bmp" />
+		<None Remove="bitmap\ASCII5B.bmp" />
+		<None Remove="bitmap\ASCII5C.bmp" />
+		<None Remove="bitmap\ASCII5D.bmp" />
+		<None Remove="bitmap\ASCII5E.bmp" />
+		<None Remove="bitmap\ASCII5F.bmp" />
+		<None Remove="bitmap\ASCII60.bmp" />
+		<None Remove="bitmap\ASCII61.bmp" />
+		<None Remove="bitmap\ASCII62.bmp" />
+		<None Remove="bitmap\ASCII63.bmp" />
+		<None Remove="bitmap\ASCII64.bmp" />
+		<None Remove="bitmap\ASCII65.bmp" />
+		<None Remove="bitmap\ASCII66.bmp" />
+		<None Remove="bitmap\ASCII67.bmp" />
+		<None Remove="bitmap\ASCII68.bmp" />
+		<None Remove="bitmap\ASCII69.bmp" />
+		<None Remove="bitmap\ASCII6A.bmp" />
+		<None Remove="bitmap\ASCII6B.bmp" />
+		<None Remove="bitmap\ASCII6C.bmp" />
+		<None Remove="bitmap\ASCII6D.bmp" />
+		<None Remove="bitmap\ASCII6E.bmp" />
+		<None Remove="bitmap\ASCII6F.bmp" />
+		<None Remove="bitmap\ASCII70.bmp" />
+		<None Remove="bitmap\ASCII71.bmp" />
+		<None Remove="bitmap\ASCII72.bmp" />
+		<None Remove="bitmap\ASCII73.bmp" />
+		<None Remove="bitmap\ASCII74.bmp" />
+		<None Remove="bitmap\ASCII75.bmp" />
+		<None Remove="bitmap\ASCII76.bmp" />
+		<None Remove="bitmap\ASCII77.bmp" />
+		<None Remove="bitmap\ASCII78.bmp" />
+		<None Remove="bitmap\ASCII79.bmp" />
+		<None Remove="bitmap\ASCII7A.bmp" />
+		<None Remove="bitmap\ASCII7B.bmp" />
+		<None Remove="bitmap\ASCII7C.bmp" />
+		<None Remove="bitmap\ASCII7D.bmp" />
+		<None Remove="bitmap\ASCII7E.bmp" />
+		<None Remove="bitmap\ASCII7F.bmp" />
+		<None Remove="bitmap\ASCIIE1.bmp" />
+		<None Remove="bitmap\ASCIIE2.bmp" />
+		<None Remove="bitmap\ASCIIE3.bmp" />
+		<None Remove="bitmap\ASCIIEF.bmp" />
+		<None Remove="bitmap\ASCIIF5.bmp" />
+		<None Remove="bitmap\ASCIIFF.bmp" />
+		<None Remove="Images\BackgroundGradient.png" />
+		<None Remove="Images\Icons\analysieren.png" />
+		<None Remove="Images\Icons\aufzug.png" />
+		<None Remove="Images\Icons\aussicht.png" />
+		<None Remove="Images\Icons\die-einstellungen.png" />
+		<None Remove="Images\Icons\enter-taste.png" />
+		<None Remove="Images\Icons\menu-offnen.png" />
+		<None Remove="Images\Icons\pfeil-Hoch.png" />
+		<None Remove="Images\Icons\pfeil-runter.png" />
+		<None Remove="Images\Icons\refresh.png" />
+		<None Remove="Images\Icons\stift.png" />
+		<None Remove="Images\Icons\zuhause.png" />
+	</ItemGroup>
+	<ItemGroup>
+		<AvaloniaXaml Include="Animation\forBuild\Fahrkorb\Fahrkorb.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</AvaloniaXaml>
+		<Content Include="Animation\1Auf.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Animation\1GAuf.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Animation\1Gzu.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Animation\1Zu.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Animation\2Auf.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Animation\2GAuf.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Animation\2GZu.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Animation\2Zu.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Animation\3Auf.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Animation\3GAuf.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Animation\3GZu.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Animation\3Zu.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<AvaloniaResource Include="Animation\1.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</AvaloniaResource>
+		<AvaloniaResource Include="Animation\2.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</AvaloniaResource>
+		<AvaloniaResource Include="Animation\3.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</AvaloniaResource>
+		<AvaloniaResource Include="Images\Icons\die-einstellungen.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</AvaloniaResource>
+		<AvaloniaResource Include="Images\Icons\refresh.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</AvaloniaResource>
+		<Content Include="Animation\forBuild\SchachtHinten.svg">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Animation\forBuild\SchachtVorne.svg">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII00.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII01.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII02.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII03.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII04.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII05.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII06.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII07.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII08.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII09.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII0A.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII0B.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII0C.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII0D.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII0E.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII0F.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII20.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII21.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII22.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII23.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII24.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII25.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII26.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII27.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII28.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII29.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII2A.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII2B.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII2C.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII2D.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII2E.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII2F.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII30.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII31.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII32.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII33.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII34.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII35.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII36.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII37.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII38.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII39.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII3A.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII3B.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII3C.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII3D.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII3E.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII3F.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII40.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII41.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII42.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII43.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII44.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII45.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII46.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII47.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII48.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII49.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII4A.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII4B.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII4C.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII4D.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII4E.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII4F.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII50.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII51.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII52.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII53.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII54.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII55.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII56.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII57.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII58.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII59.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII5A.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII5B.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII5C.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII5D.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII5E.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII5F.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII60.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII61.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII62.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII63.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII64.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII65.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII66.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII67.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII68.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII69.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII6A.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII6B.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII6C.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII6D.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII6E.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII6F.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII70.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII71.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII72.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII73.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII74.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII75.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII76.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII77.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII78.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII79.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII7A.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII7B.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII7C.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII7D.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII7E.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCII7F.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCIIE1.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCIIE2.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCIIE3.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCIIEF.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCIIF5.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="bitmap\ASCIIFF.bmp">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Images\BackgroundGradient.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="AnimatedImage.Avalonia" Version="2.0.0" />
-    <PackageReference Include="Avalonia" Version="11.1.0" />
-    <PackageReference Include="Avalonia.Desktop" Version="11.1.0" />
-    <PackageReference Include="Avalonia.Labs.Gif" Version="11.3.0" />
-    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.1.0" />
-    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.1.0" />
-    <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
-    <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.1.0" />
-    <PackageReference Include="HarfBuzzSharp" Version="8.3.0.1" />
-    <PackageReference Include="HarfBuzzSharp.NativeAssets.Linux" Version="8.3.0.1" />
-    <PackageReference Include="Material.Avalonia" Version="3.7.4" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.3" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.3" />
-    <PackageReference Include="SkiaSharp" Version="3.116.1" />
-    <PackageReference Include="SkiaSharp.HarfBuzz" Version="3.116.1" />
-    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="3.116.1" />
-    <PackageReference Include="Svg.Skia" Version="2.0.0.4" />
-    <PackageReference Include="System.IO.Ports" Version="8.0.0" />
-    <PackageReference Include="System.Resources.Extensions" Version="9.0.2" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="AnimatedImage.Avalonia" Version="2.0.0" />
+		<PackageReference Include="Avalonia" Version="11.1.0" />
+		<PackageReference Include="Avalonia.Desktop" Version="11.1.0" />
+		<PackageReference Include="Avalonia.Labs.Gif" Version="11.3.0" />
+		<PackageReference Include="Avalonia.Themes.Fluent" Version="11.1.0" />
+		<PackageReference Include="Avalonia.Fonts.Inter" Version="11.1.0" />
+		<!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
+		<PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.1.0" />
+		<PackageReference Include="HarfBuzzSharp" Version="8.3.0.1" />
+		<PackageReference Include="HarfBuzzSharp.NativeAssets.Linux" Version="8.3.0.1" />
+		<PackageReference Include="Material.Avalonia" Version="3.7.4" />
+		<PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.3" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.3" />
+		<PackageReference Include="SkiaSharp" Version="3.116.1" />
+		<PackageReference Include="SkiaSharp.HarfBuzz" Version="3.116.1" />
+		<PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="3.116.1" />
+		<PackageReference Include="Svg.Skia" Version="2.0.0.4" />
+		<PackageReference Include="System.IO.Ports" Version="8.0.0" />
+		<PackageReference Include="System.Resources.Extensions" Version="9.0.2" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <AvaloniaResource Include="Images\Icons\analysieren.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </AvaloniaResource>
-    <AvaloniaResource Include="Images\Icons\aufzug.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </AvaloniaResource>
-    <AvaloniaResource Include="Images\Icons\aussicht.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </AvaloniaResource>
-    <AvaloniaResource Include="Images\Icons\enter-taste.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </AvaloniaResource>
-    <AvaloniaResource Include="Images\Icons\menu-offnen.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </AvaloniaResource>
-    <AvaloniaResource Include="Images\Icons\pfeil-Hoch.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </AvaloniaResource>
-    <AvaloniaResource Include="Images\Icons\pfeil-runter.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </AvaloniaResource>
-    <AvaloniaResource Include="Images\Icons\stift.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </AvaloniaResource>
-    <AvaloniaResource Include="Images\Icons\zuhause.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </AvaloniaResource>
-  </ItemGroup>
+	<ItemGroup>
+		<AvaloniaResource Include="Images\Icons\analysieren.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</AvaloniaResource>
+		<AvaloniaResource Include="Images\Icons\aufzug.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</AvaloniaResource>
+		<AvaloniaResource Include="Images\Icons\aussicht.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</AvaloniaResource>
+		<AvaloniaResource Include="Images\Icons\enter-taste.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</AvaloniaResource>
+		<AvaloniaResource Include="Images\Icons\menu-offnen.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</AvaloniaResource>
+		<AvaloniaResource Include="Images\Icons\pfeil-Hoch.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</AvaloniaResource>
+		<AvaloniaResource Include="Images\Icons\pfeil-runter.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</AvaloniaResource>
+		<AvaloniaResource Include="Images\Icons\stift.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</AvaloniaResource>
+		<AvaloniaResource Include="Images\Icons\zuhause.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</AvaloniaResource>
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Update="config.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
+	<ItemGroup>
+		<None Update="config.json">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
 </Project>

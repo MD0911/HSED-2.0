@@ -96,6 +96,7 @@ namespace HSED_2_0
                         return 505;
                     int IcurrentFloor = currentfloor[10];
                     IcurrentFloor += bootFloor;
+                    Debug.WriteLine("Einzelabfrage Etage: " + IcurrentFloor);
                     return IcurrentFloor;
                 }
                 catch (Exception ex)

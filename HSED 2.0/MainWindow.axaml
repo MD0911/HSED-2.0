@@ -2,31 +2,36 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="HSED_2._0.MainWindow"
         Width="800" Height="480"
-		Background="#111827"
+        Background="#111827"
         Title="HSED_2._0"
-		CanResize="False"
-		SystemDecorations="None"
+        CanResize="False"
+        SystemDecorations="None"
         WindowStartupLocation="Manual">
+
+	<Window.Styles>
+		<!-- Größere Touch Zone für Up/Down -->
+		<Style Selector="Button.touchTarget">
+			<Setter Property="Width" Value="56"/>
+			<Setter Property="Height" Value="56"/>
+			<Setter Property="Padding" Value="0"/>
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="HorizontalContentAlignment" Value="Center"/>
+			<Setter Property="VerticalContentAlignment" Value="Center"/>
+		</Style>
+	</Window.Styles>
 
 	<Canvas>
 
-
 		<!-- Tur -->
 		<Border CornerRadius="10" Background="#1f2937" Width="220" Height="120" Canvas.Top="300" Canvas.Left="97">
-			<Border.Effect>
-				<DropShadowEffect OffsetX="0" OffsetY="0" BlurRadius="20" Color="Black" Opacity="0.5" ></DropShadowEffect>
-			</Border.Effect>
+			<!-- Schatten entfernt -->
 			<Border.RenderTransform>
 				<RotateTransform Angle="90" />
 			</Border.RenderTransform>
 
 			<StackPanel VerticalAlignment="Bottom">
-				<!-- Titel -->
-
-
-				<!-- Tabelle -->
 				<Grid Margin="8,0,8,8">
-					<!-- 5 Spalten: Tür-Label + 4 Status -->
 					<Grid.ColumnDefinitions>
 						<ColumnDefinition Width="56"/>
 						<ColumnDefinition Width="*"/>
@@ -34,7 +39,6 @@
 						<ColumnDefinition Width="*"/>
 						<ColumnDefinition Width="*"/>
 					</Grid.ColumnDefinitions>
-					<!-- 4 Zeilen: Header + 3 Türzeilen -->
 					<Grid.RowDefinitions>
 						<RowDefinition Height="Auto"/>
 						<RowDefinition Height="26"/>
@@ -42,7 +46,6 @@
 						<RowDefinition Height="26"/>
 					</Grid.RowDefinitions>
 
-					<!-- Spalten-Kopf -->
 					<TextBlock Grid.Row="0" Grid.Column="1" Text="Auf" Foreground="#d1d5db" FontSize="12"
 							   FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,6"/>
 					<TextBlock Grid.Row="0" Grid.Column="2" Text="Zu"  Foreground="#d1d5db" FontSize="12"
@@ -101,39 +104,30 @@
 							 HorizontalAlignment="Center" VerticalAlignment="Center"/>
 				</Grid>
 			</StackPanel>
-
 		</Border>
 
-
-
-		<!-- S-Geber -->
+		<!-- S Geber -->
 		<Border CornerRadius="10" Background="#1f2937" Width="220" Height="60" Canvas.Top="330" Canvas.Left="0">
-			<Border.Effect>
-				<DropShadowEffect OffsetX="0" OffsetY="0" BlurRadius="20" Color="Black" Opacity="0.5" ></DropShadowEffect>
-			</Border.Effect>
+			<!-- Schatten entfernt -->
 			<Border.RenderTransform>
 				<RotateTransform Angle="90" />
 			</Border.RenderTransform>
 
 			<StackPanel VerticalAlignment="Center">
-
 				<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10">
 
-					<!-- Unten -->
 					<StackPanel Orientation="Vertical" HorizontalAlignment="Center" Spacing="2">
 						<TextBlock Text="Unten" FontSize="12" Foreground="White" HorizontalAlignment="Center"/>
 						<Border Name="SGU" CornerRadius="5" Background="#9ca3af"
 								Width="35" Height="15" BorderThickness="2" BorderBrush="#9ca3af"/>
 					</StackPanel>
 
-					<!-- Mitte -->
 					<StackPanel Orientation="Vertical" HorizontalAlignment="Center" Spacing="2">
 						<TextBlock Text="Mitte" FontSize="12" Foreground="White" HorizontalAlignment="Center"/>
 						<Border Name="SGM" CornerRadius="5" Background="#22c55e"
 								Width="35" Height="15" BorderThickness="2" BorderBrush="#9ca3af"/>
 					</StackPanel>
 
-					<!-- Oben -->
 					<StackPanel Orientation="Vertical" HorizontalAlignment="Center" Spacing="2">
 						<TextBlock Text="Oben" FontSize="12" Foreground="White" HorizontalAlignment="Center"/>
 						<Border Name="SGO" CornerRadius="5" Background="#22c55e"
@@ -141,54 +135,43 @@
 					</StackPanel>
 
 				</StackPanel>
-
 			</StackPanel>
-
-
 		</Border>
 
-		<!-- S-Kreis -->
+		<!-- S Kreis -->
 		<Border CornerRadius="10" Background="#1f2937" Width="220" Height="60" Canvas.Top="330" Canvas.Left="195">
-			<Border.Effect>
-				<DropShadowEffect OffsetX="0" OffsetY="0" BlurRadius="20" Color="Black" Opacity="0.5" ></DropShadowEffect>
-			</Border.Effect>
+			<!-- Schatten entfernt -->
 			<Border.RenderTransform>
 				<RotateTransform Angle="90" />
 			</Border.RenderTransform>
 
 			<StackPanel VerticalAlignment="Center">
-
 				<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10">
 
-					<!-- SKF -->
 					<StackPanel Orientation="Vertical" HorizontalAlignment="Center" Spacing="2">
 						<TextBlock Text="SKF" FontSize="12" Foreground="White" HorizontalAlignment="Center"/>
 						<Border Name="VFang" CornerRadius="5" Background="#22c55e"
 								Width="25" Height="15" BorderThickness="2" BorderBrush="#9ca3af"/>
 					</StackPanel>
 
-					<!-- SK1 -->
 					<StackPanel Orientation="Vertical" HorizontalAlignment="Center" Spacing="2">
 						<TextBlock Text="SK1" FontSize="12" Foreground="White" HorizontalAlignment="Center"/>
 						<Border Name="SK1" CornerRadius="5" Background="#22c55e"
 								Width="25" Height="15" BorderThickness="2" BorderBrush="#9ca3af"/>
 					</StackPanel>
 
-					<!-- SK2 -->
 					<StackPanel Orientation="Vertical" HorizontalAlignment="Center" Spacing="2">
 						<TextBlock Text="SK2" FontSize="12" Foreground="White" HorizontalAlignment="Center"/>
 						<Border Name="SK2" CornerRadius="5" Background="#22c55e"
 								Width="25" Height="15" BorderThickness="2" BorderBrush="#9ca3af"/>
 					</StackPanel>
 
-					<!-- SK3 -->
 					<StackPanel Orientation="Vertical" HorizontalAlignment="Center" Spacing="2">
 						<TextBlock Text="SK3" FontSize="12" Foreground="White" HorizontalAlignment="Center"/>
 						<Border Name="SK3" CornerRadius="5" Background="#9ca3af"
 								Width="25" Height="15" BorderThickness="2" BorderBrush="#9ca3af"/>
 					</StackPanel>
 
-					<!-- SK4 -->
 					<StackPanel Orientation="Vertical" HorizontalAlignment="Center" Spacing="2">
 						<TextBlock Text="SK4" FontSize="12" Foreground="White" HorizontalAlignment="Center"/>
 						<Border Name="SK4" CornerRadius="5" Background="#9ca3af"
@@ -196,24 +179,17 @@
 					</StackPanel>
 
 				</StackPanel>
-
 			</StackPanel>
-
-
 		</Border>
 
-
-		<!-- A-Daten -->
+		<!-- A Daten -->
 		<Border CornerRadius="10" Background="#1f2937" Width="220" Height="280" Canvas.Top="220" Canvas.Left="530">
-			<Border.Effect>
-				<DropShadowEffect OffsetX="0" OffsetY="0" BlurRadius="50" Color="Black" Opacity="1" />
-			</Border.Effect>
+			<!-- Schatten entfernt -->
 			<Border.RenderTransform>
 				<RotateTransform Angle="90" />
 			</Border.RenderTransform>
 
 			<StackPanel HorizontalAlignment="Left" Margin="10">
-
 				<Grid Margin="0,2">
 					<Grid.ColumnDefinitions>
 						<ColumnDefinition Width="150" />
@@ -306,26 +282,20 @@
 			</StackPanel>
 		</Border>
 
-
-
-		<!-- A-Zustand -->
+		<!-- A Zustand -->
 		<Border CornerRadius="10" Background="#1f2937" Width="220" Height="150" Canvas.Top="285" Canvas.Left="310">
-			<Border.Effect>
-				<DropShadowEffect OffsetX="0" OffsetY="0" BlurRadius="20" Color="Black" Opacity="0.5" ></DropShadowEffect>
-			</Border.Effect>
+			<!-- Schatten entfernt -->
 			<Border.RenderTransform>
 				<RotateTransform Angle="90" />
 			</Border.RenderTransform>
 
-
-
 			<StackPanel HorizontalAlignment="Center">
 				<TextBlock VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,5,0,5" Foreground="#9ca3af" FontSize="15">Zustand</TextBlock>
-				<TextBlock Name="Zustand" VerticalAlignment="Center" HorizontalAlignment="Center"  Margin="0" Foreground="White" Text="lese..." FontSize="20"></TextBlock>
+				<TextBlock Name="Zustand" VerticalAlignment="Center" HorizontalAlignment="Center"  Margin="0" Foreground="White" Text="lese..." FontSize="20"/>
 			</StackPanel>
 		</Border>
 
-		<!-- Live-View -->
+		<!-- Live View -->
 		<Border x:Name="LiveViewBorder"
 				CornerRadius="10"
 				Background="#1f2937"
@@ -335,13 +305,9 @@
 			<Border.RenderTransform>
 				<RotateTransform Angle="90" />
 			</Border.RenderTransform>
-			<Border.Effect>
-				<DropShadowEffect OffsetX="0" OffsetY="0" BlurRadius="20" Color="Black" Opacity="0.5" />
-			</Border.Effect>
+			<!-- Schatten entfernt -->
 
-			<!-- Root mit zwei Ebenen: Inhalt (scrollt) + UI (fix) -->
 			<Grid>
-
 				<!-- Ebene 1: scrollbarer Inhalt -->
 				<Grid x:Name="LiveViewRoot" HorizontalAlignment="Center" VerticalAlignment="Center">
 					<Grid.RenderTransform>
@@ -350,7 +316,7 @@
 						</TransformGroup>
 					</Grid.RenderTransform>
 
-					<!-- Schacht-Teil 1 -->
+					<!-- Schacht Teil 1 -->
 					<Canvas Name="PositionControl" Height="300" Width="300">
 						<Canvas.RenderTransform>
 							<TransformGroup>
@@ -358,7 +324,8 @@
 								<TranslateTransform X="0" Y=""/>
 							</TransformGroup>
 						</Canvas.RenderTransform>
-						<Image x:Name="SvgImageControlAlternative">
+						<Image x:Name="SvgImageControlAlternative"
+							   RenderOptions.BitmapInterpolationMode="LowQuality">
 							<Image.RenderTransform>
 								<TransformGroup>
 									<ScaleTransform ScaleX="1" ScaleY="1"/>
@@ -372,6 +339,7 @@
 					<Image x:Name="FahrkorbImage"
 						   Margin="10,0,0,0"
 						   Width="150"
+						   RenderOptions.BitmapInterpolationMode="LowQuality"
 						   Source="Animation\forBuild\Fahrkorb\Fahrkorb.png">
 						<Image.RenderTransform>
 							<TransformGroup>
@@ -381,7 +349,7 @@
 						</Image.RenderTransform>
 					</Image>
 
-					<!-- Schacht-Teil 2 -->
+					<!-- Schacht Teil 2 -->
 					<Canvas Name="PositionControl2" Height="300" Width="300">
 						<Canvas.RenderTransform>
 							<TransformGroup>
@@ -389,7 +357,8 @@
 								<TranslateTransform X="0" Y=""/>
 							</TransformGroup>
 						</Canvas.RenderTransform>
-						<Image x:Name="SvgImageControl">
+						<Image x:Name="SvgImageControl"
+							   RenderOptions.BitmapInterpolationMode="LowQuality">
 							<Image.RenderTransform>
 								<TransformGroup>
 									<ScaleTransform ScaleX="1" ScaleY="1"/>
@@ -399,83 +368,72 @@
 						</Image>
 					</Canvas>
 
-					<!-- Overlay für Etagen-Buttons (scrollt mit dem Schacht) -->
+					<!-- Overlay für Etagen Buttons (scrollt mit dem Schacht) -->
 					<Canvas x:Name="FloorButtonsOverlay" Width="220"
 							IsHitTestVisible="True"
 							Background="Transparent"/>
-
-
-
 				</Grid>
-				<!-- Ebene 2: feste UI (scrollt NICHT mit) -->
+
+				<!-- Ebene 2: feste UI -->
 				<Grid>
-					<!-- Hintergrund-Border -->
 					<Border Width="220"
 							Height="50"
 							Background="#1f2937"
 							VerticalAlignment="Top" />
 
-					<!-- Up-Button links oben -->
-					<Button Width="28"
-							Height="28"
+					<!-- Up Button mit großer Hitbox -->
+					<Button Classes="touchTarget"
 							HorizontalAlignment="Left"
 							VerticalAlignment="Top"
 							Margin="6"
-							Click="ScrollUp_Click">▲</Button>
+							Click="ScrollUp_Click">
+						<Border Width="28" Height="28" CornerRadius="6" Background="#2d3748">
+							<TextBlock Text="▲" FontSize="16"
+									   HorizontalAlignment="Center" VerticalAlignment="Center"
+									   Foreground="White"/>
+						</Border>
+					</Button>
 
-					<!-- Down-Button rechts oben -->
-					<Button Width="28"
-							Height="28"
+					<!-- Down Button mit großer Hitbox -->
+					<Button Classes="touchTarget"
 							HorizontalAlignment="Right"
 							VerticalAlignment="Top"
 							Margin="6"
-							Click="ScrollDown_Click">▼</Button>
-
-				
+							Click="ScrollDown_Click">
+						<Border Width="28" Height="28" CornerRadius="6" Background="#2d3748">
+							<TextBlock Text="▼" FontSize="16"
+									   HorizontalAlignment="Center" VerticalAlignment="Center"
+									   Foreground="White"/>
+						</Border>
+					</Button>
 				</Grid>
-
-
 			</Grid>
 		</Border>
 
-
-
-
 		<!-- Etage -->
-		<Button Margin="710,70,0,0" Width="70" Height="120" Click="Button_Click_AutoFollow" >
-		<Border CornerRadius="0"  Background="White" Width="120" Height="70" Canvas.Top="95" Canvas.Left="685" BorderThickness="5" BorderBrush="#9ca3af">
-			<Border.Effect>
-				<DropShadowEffect OffsetX="0" OffsetY="0" BlurRadius="20" Color="Black" Opacity="0.5" ></DropShadowEffect>
-			</Border.Effect>
-			<Border.RenderTransform>
-				<RotateTransform Angle="90" />
-			</Border.RenderTransform>
+		<Button Margin="710,70,0,0" Width="70" Height="120" Click="Button_Click_AutoFollow">
+			<Border CornerRadius="0"  Background="White" Width="120" Height="70" Canvas.Top="95" Canvas.Left="685" BorderThickness="5" BorderBrush="#9ca3af">
+				<!-- Schatten entfernt -->
+				<Border.RenderTransform>
+					<RotateTransform Angle="90" />
+				</Border.RenderTransform>
 
-			<StackPanel VerticalAlignment="Center">
-
-
-				<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="5">
-					<TextBlock Name="Etage" HorizontalAlignment="Center"  Margin="0" FontWeight="Black" Foreground="Black" Text="-" FontSize="50"></TextBlock>
+				<StackPanel VerticalAlignment="Center">
+					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="5">
+						<TextBlock Name="Etage" HorizontalAlignment="Center"  Margin="0" FontWeight="Black" Foreground="Black" Text="-" FontSize="50"/>
+					</StackPanel>
 				</StackPanel>
-
-			</StackPanel>
-
-		</Border>
+			</Border>
 		</Button>
 
 		<!-- NavBar -->
-
-		<Border x:Name="Overlap" Background="#1f2937" Width="800" Height="480" Opacity="100" IsVisible="False"></Border>
-
+		<Border x:Name="Overlap" Background="#1f2937" Width="800" Height="480" Opacity="1" IsVisible="False"/>
 		<Border x:Name="NavBar" Background="#1f2937" Width="60" Height="480">
-			<Border.Effect>
-				<DropShadowEffect BlurRadius="20" Color="#1f2937" Opacity="0.5" ></DropShadowEffect>
-			</Border.Effect>
-
+			<!-- Schatten entfernt -->
 			<StackPanel  x:Name="StackPanelNavBar" HorizontalAlignment="Center" Margin="0,25,0,0">
-				<Button Background="#1f2937" Tag="Menu" x:Name="ButtonSettings" Width="50" Height="40" Click="Button_Click_Settings" >
+				<Button Background="#1f2937" Tag="Menu" x:Name="ButtonSettings" Width="50" Height="40" Click="Button_Click_Settings">
 					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-						<Image Source="Images\Icons\menu-offnen.png">
+						<Image Source="Images\Icons\menu-offnen.png" RenderOptions.BitmapInterpolationMode="LowQuality">
 							<Image.RenderTransform>
 								<RotateTransform Angle="90"/>
 							</Image.RenderTransform>
@@ -484,9 +442,9 @@
 					</StackPanel>
 				</Button>
 
-				<Button Background="#1f2937" Tag="Home" x:Name="ButtonSettings7" Width="50" Height="40" Margin="0,5,0,0"  Click="Button_Click_Settings" >
+				<Button Background="#1f2937" Tag="Home" x:Name="ButtonSettings7" Width="50" Height="40" Margin="0,5,0,0"  Click="Button_Click_Settings">
 					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-						<Image Source="Images\Icons\zuhause.png">
+						<Image Source="Images\Icons\zuhause.png" RenderOptions.BitmapInterpolationMode="LowQuality">
 							<Image.RenderTransform>
 								<RotateTransform Angle="90"/>
 							</Image.RenderTransform>
@@ -495,9 +453,9 @@
 					</StackPanel>
 				</Button>
 
-				<Button Background="#1f2937" Tag="Testrufe" x:Name="ButtonSettings3" Width="50" Height="40" Margin="0,5,0,0" Click="Button_Click_Settings" >
+				<Button Background="#1f2937" Tag="Testrufe" x:Name="ButtonSettings3" Width="50" Height="40" Margin="0,5,0,0" Click="Button_Click_Settings">
 					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-						<Image Source="Images\Icons\aufzug.png">
+						<Image Source="Images\Icons\aufzug.png" RenderOptions.BitmapInterpolationMode="LowQuality">
 							<Image.RenderTransform>
 								<RotateTransform Angle="90"/>
 							</Image.RenderTransform>
@@ -506,9 +464,9 @@
 					</StackPanel>
 				</Button>
 
-				<Button Background="#1f2937" Tag="Codes" x:Name="ButtonSettings4" Width="50" Height="40" Margin="0,5,0,0" Click="Button_Click_Settings" >
+				<Button Background="#1f2937" Tag="Ansicht" x:Name="ButtonSettings4" Width="50" Height="40" Margin="0,5,0,0" Click="Button_Click_Settings">
 					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-						<Image Source="Images\Icons\stift.png">
+						<Image Source="Images\Icons\stift.png" RenderOptions.BitmapInterpolationMode="LowQuality">
 							<Image.RenderTransform>
 								<RotateTransform Angle="90"/>
 							</Image.RenderTransform>
@@ -517,27 +475,24 @@
 					</StackPanel>
 				</Button>
 
-
-
-				<Button Background="#1f2937" Tag="SelfDia" x:Name="ButtonSettings6" Width="50" Height="40" Margin="0,5,0,0" Click="Button_Click_Settings" >
+				<Button Background="#1f2937" Tag="SelfDia" x:Name="ButtonSettings6" Width="50" Height="40" Margin="0,5,0,0" Click="Button_Click_Settings">
 					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-						<Image Source="Images\Icons\analysieren.png">
+						<Image Source="Images\Icons\analysieren.png" RenderOptions.BitmapInterpolationMode="LowQuality">
 							<Image.RenderTransform>
 								<RotateTransform Angle="90"/>
 							</Image.RenderTransform>
 						</Image>
-						<TextBlock Margin="10,5,0,0" x:Name="SettingsText6" IsVisible="False" Foreground="White">Self-Dia</TextBlock>
+						<TextBlock Margin="10,5,0,0" x:Name="SettingsText6" IsVisible="False" Foreground="White">Self Dia</TextBlock>
 					</StackPanel>
 				</Button>
 
-				<Button Background="#1f2937" Tag="Settings" x:Name="ButtonSettings2" Width="50" Height="40" Margin="0,180,0,0"  Click="Button_Click_Settings" >
+				<Button Background="#1f2937" Tag="Settings" x:Name="ButtonSettings2" Width="50" Height="40" Margin="0,180,0,0"  Click="Button_Click_Settings">
 					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-						<Image  Source="Images/Icons/die-einstellungen.png">
+						<Image  Source="Images/Icons/die-einstellungen.png" RenderOptions.BitmapInterpolationMode="LowQuality">
 							<Image.RenderTransform>
 								<RotateTransform Angle="90"/>
 							</Image.RenderTransform>
 						</Image>
-
 						<TextBlock Margin="10,5,0,0" x:Name="SettingsText2" IsVisible="False" Foreground="White">Settings</TextBlock>
 					</StackPanel>
 				</Button>
@@ -546,9 +501,4 @@
 		</Border>
 
 	</Canvas>
-
-
-
-
-
 </Window>

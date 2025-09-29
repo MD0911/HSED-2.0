@@ -49,7 +49,7 @@ namespace HSED_2_0
                 while (!_cts.Token.IsCancellationRequested)
                 {
                     // Sende Monitoring-Befehl (z. B. 0x05,0x01) ohne auf Antwort zu warten.
-                   SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x05, 0x01, });
+                   SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x05, 0x01, 0x01});
                     try
                     {
                         await Task.Delay(1000, _cts.Token);
@@ -119,7 +119,8 @@ namespace HSED_2_0
           
 
             int rawFloor = currentFloorResponse[4];
-            Debug.WriteLine("Rohwert (rawFloor) an Offset 10: " + rawFloor);
+            Debug.WriteLine("Rohwert: " + rawFloor);
+            Debug.WriteLine("BootFloor: " + BootFloor);
             CurrentFloor = rawFloor + BootFloor;
             Debug.WriteLine($"setCurrentFloor: raw = {rawFloor}, BootFloor = {BootFloor}, CurrentFloor = {CurrentFloor}");
 

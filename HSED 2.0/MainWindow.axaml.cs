@@ -104,6 +104,19 @@ private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset na
         // Map: Etagen-Label (z.B. -1, 0, 1, 2, …) -> Innenruftaster-Button
         private readonly Dictionary<int, Button> _insideButtons = new();
 
+        // ==== HITBOX UND PICKING ====
+
+        // Hitbox vs. sichtbare Größe
+        private const double HitboxSize = 56.0;
+        private const double VisualInsideSize = 28.0;
+        private const double VisualArrowSize = 28.0;
+
+        // maximaler Abstand für Treffer Auswahl des nächsten Ziels
+        private const double HitDetectRadius = 32.0;
+
+        // Centers für Nearest Pick
+        private readonly Dictionary<int, (Button Btn, Avalonia.Point Center)> _insideCenters = new();
+        private readonly Dictionary<(int, ArrowDir), (Button Btn, Avalonia.Point Center)> _arrowCenters = new();
 
 
 
@@ -143,11 +156,11 @@ private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset na
 
         private void InitializeLogic()
         {
-            // 1) HSE & Monitoring
+            // 1) HSE und Monitoring
             HseConnect();
             MonetoringCall();
 
-            // 2) LiveView vorbereiten & SVG rendern
+            // 2) LiveView vorbereiten und SVG rendern
             _lievViewManager = new LievViewManager();
             _lievViewManager.PrepareSchacht();
 
@@ -169,11 +182,16 @@ private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset na
 
             Dispatcher.UIThread.Post(() =>
             {
-                SizeOverlayForShaft();            // Größe EINMAL festlegen
-                BuildOrUpdateFloorButtonsOverlay(); // Buttons setzen
-            }, DispatcherPriority.Loaded);
+                SizeOverlayForShaft();
+                // wichtig damit Pointer-Events auf dem Canvas ankommen
+                FloorButtonsOverlay.Background = Brushes.Transparent;
+                // zentrales Pointer-Handling
+                FloorButtonsOverlay.PointerPressed += FloorButtonsOverlay_PointerPressed;
 
+                BuildOrUpdateFloorButtonsOverlay();
+            }, DispatcherPriority.Loaded);
         }
+
 
 
 
@@ -515,30 +533,29 @@ private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset na
             int zustand = ViewModel.InnenruftasterquittungZustand; // 1 aktiv, 0 inaktiv
             if (index <= 0) return;
 
-            // Index in sichtbares Etagenlabel umrechnen
             int label = MonetoringManager.BootFloor + (index - 1);
 
-            // passenden Innenruftaster-Button links finden
             var btn = FindInsideButtonByLabel(label);
             if (btn is null) return;
 
-            // nur die Kontur setzen
-            var green = new SolidColorBrush(Color.Parse("#22c55e"));
-            var gray = new SolidColorBrush(Color.Parse("#d1d5db"));
-
-            btn.BorderBrush = (zustand == 1) ? green : gray;
-            btn.BorderThickness = (zustand == 1) ? new Thickness(3.0) : new Thickness(1.5);
-            // Hintergrund bleibt wie er ist
+            SetButtonOutline(btn, zustand == 1);
         }
+
 
         private static readonly SolidColorBrush BorderGreen = new(Color.Parse("#22c55e"));
         private static readonly SolidColorBrush BorderGray = new(Color.Parse("#d1d5db"));
 
         private void SetButtonOutline(Button btn, bool active)
         {
-            btn.BorderBrush = active ? BorderGreen : BorderGray;
-            btn.BorderThickness = active ? new Thickness(3.0) : new Thickness(1.5);
+            // Outline auf dem kleinen, sichtbaren Border (nicht auf der Hitbox)
+            if (btn?.Content is Border circle)
+            {
+                circle.BorderBrush = active ? BorderGreen : BorderGray;
+                circle.BorderThickness = active ? new Thickness(3.0) : new Thickness(1.5);
+            }
         }
+
+
 
         private Button? FindArrowButtonByLabel(int label, ArrowDir dir)
         {
@@ -556,27 +573,26 @@ private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset na
         public void DisplayAussenruftasterquittung()
         {
             // Aufwärts
-            int upIndex = ViewModel.AufAruftasterquittungEtage;     // 1 = unterste
-            int upState = ViewModel.AufAruftasterquittungZustand;   // 1 aktiv, 0 inaktiv
+            int upIndex = ViewModel.AufAruftasterquittungEtage;
+            int upState = ViewModel.AufAruftasterquittungZustand;
             if (upIndex > 0)
             {
                 int upLabel = MonetoringManager.BootFloor + (upIndex - 1);
                 var upBtn = FindArrowButtonByLabel(upLabel, ArrowDir.Up);
-                if (upBtn != null)
-                    SetButtonOutline(upBtn, upState == 1);
+                if (upBtn != null) SetButtonOutline(upBtn, upState == 1);
             }
 
             // Abwärts
-            int downIndex = ViewModel.AbAruftasterquittungEtage;      // 1 = unterste
-            int downState = ViewModel.AbAruftasterquittungZustand;    // 1 aktiv, 0 inaktiv
+            int downIndex = ViewModel.AbAruftasterquittungEtage;
+            int downState = ViewModel.AbAruftasterquittungZustand;
             if (downIndex > 0)
             {
                 int downLabel = MonetoringManager.BootFloor + (downIndex - 1);
                 var downBtn = FindArrowButtonByLabel(downLabel, ArrowDir.Down);
-                if (downBtn != null)
-                    SetButtonOutline(downBtn, downState == 1);
+                if (downBtn != null) SetButtonOutline(downBtn, downState == 1);
             }
         }
+
 
 
 
@@ -868,110 +884,138 @@ private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset na
 
         private void BuildOrUpdateFloorButtonsOverlay()
         {
-            if (_buildingOverlay) 
+            if (_buildingOverlay)
             {
                 _insideButtons.Clear();
-                return; // Reentrancy-Schutz
+                _insideCenters.Clear();
+                _arrowCenters.Clear();
+                return;
             }
-            
+
             _buildingOverlay = true;
             try
             {
                 if (SharedSvgBitmap == null) return;
 
-                int bootLabel = MonetoringManager.BootFloor; // unterste Etage (z.B. -1)
-                int count = HseCom.SendHse(1001);         // Anzahl Etagen
+                int bootLabel = MonetoringManager.BootFloor;
+                int count = HseCom.SendHse(1001);
                 if (count <= 0) return;
                 int topLabel = bootLabel + count - 1;
 
-                // Schacht-Rahmen (Overlay-Koordinaten)
                 var (shaftL, shaftR, shaftTop, shaftBot) = GetShaftFrameInOverlay();
 
-                // Layout/Größen — nur für X-Positionen, Overlay-Größe wird HIER NICHT geändert!
-                double gapToShaft = 6;
-                double insideW = 40, insideH = 28;                 // Innenruf links
-                double arrowW = 28, arrowH = 28, arrowGap = 8;   // Pfeile rechts
-
-                double xLeftInside = Math.Max(2, shaftL - gapToShaft - insideW);
-                double xRightPair = shaftR + gapToShaft;         // ▲ ▼ nebeneinander
-                double xRightSingle = shaftR + gapToShaft;         // nur ▲ oder ▼
-
-                // Neu zeichnen (keine inkrementellen Adds, um Versatz zu vermeiden)
+                // neu aufbauen
                 FloorButtonsOverlay.Children.Clear();
+                _insideButtons.Clear();
+                _insideCenters.Clear();
+                _arrowCenters.Clear();
 
                 for (int f = bootLabel; f <= topLabel; f++)
                 {
-                    int idxFromBottom = f - bootLabel; // 0..count-1
+                    int idxFromBottom = f - bootLabel;
 
+                    // vertikale mitte dieser etage (wie zuvor)
                     double yCenter = shaftBot - (idxFromBottom + 0.5) * FloorPitch + FloorAnchorOffsetPx;
 
-                    // ----------------------
-                    // Innenruf (links, rund)
-                    // ----------------------
+                    // ===== Innenruf (links) =====
+                    // sichtbares zentrum: vorherige logik + globaler horizontal-offset
+                    double insideVisualCenterX = (shaftL - GapToShaft) - (VisualInsideSize / 2.0) + HorizontalOffsetPx;
+
+                    // hitbox so platzieren, dass der kleine sichtbare kreis mittig bleibt
+                    double insideHitboxLeft = insideVisualCenterX - (HitboxSize / 2.0);
+                    double insideHitboxTop = yCenter - (HitboxSize / 2.0);
+
                     var insideBtn = new Button
                     {
-                        Width = InsideSize,
-                        Height = InsideSize,
-                        Content = f.ToString(),
-                        Tag = f,
-                        CornerRadius = new CornerRadius(InsideSize / 2),
-                        Background = new SolidColorBrush(Color.Parse("#e5e7eb")),
-                        Foreground = Brushes.Black,
+                        Width = HitboxSize,
+                        Height = HitboxSize,
                         Padding = new Thickness(0),
-                        HorizontalContentAlignment = Avalonia.Layout.HorizontalAlignment.Center,
-                        VerticalContentAlignment = Avalonia.Layout.VerticalAlignment.Center,
-                        FontSize = InsideFontSize
+                        Background = Brushes.Transparent,
+                        BorderThickness = new Thickness(0),
+                        Tag = f,
+                        IsHitTestVisible = false
                     };
-                    _insideButtons[f] = insideBtn; // f ist das Etagen-Label links am Schacht
-                    insideBtn.Click += Innenruf_Click;
 
-                    double xInside = Math.Max(2, shaftL - GapToShaft - InsideSize) + HorizontalOffsetPx;
-                    Canvas.SetLeft(insideBtn, xInside);
-                    Canvas.SetTop(insideBtn, yCenter - InsideSize / 2.0);
+                    var insideVisual = new Border
+                    {
+                        Width = VisualInsideSize,
+                        Height = VisualInsideSize,
+                        CornerRadius = new CornerRadius(VisualInsideSize / 2),
+                        Background = new SolidColorBrush(Color.Parse("#e5e7eb")),
+                        HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
+                        VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center,
+                        Child = new TextBlock
+                        {
+                            Text = f.ToString(),
+                            FontSize = InsideFontSize,
+                            Foreground = Brushes.Black,
+                            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
+                            VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
+                        }
+                    };
+
+                    insideBtn.Content = insideVisual;
+
+                    Canvas.SetLeft(insideBtn, insideHitboxLeft);
+                    Canvas.SetTop(insideBtn, insideHitboxTop);
                     FloorButtonsOverlay.Children.Add(insideBtn);
 
-                    // --------------------------
-                    // Außenrufe (rechts, STACK)
-                    // --------------------------
+                    _insideButtons[f] = insideBtn;
+                    _insideCenters[f] = (insideBtn, new Avalonia.Point(insideVisualCenterX, yCenter));
+
+                    // ===== Außenruf (rechts) =====
                     bool isBottom = (f == bootLabel);
                     bool isTop = (f == topLabel);
 
-                    double xRight = shaftR + GapToShaft + HorizontalOffsetPx;
+                    // sichtbares zentrum rechts + gleicher horizontal-offset
+                    double arrowVisualCenterX = (shaftR + GapToShaft) + (VisualArrowSize / 2.0) + HorizontalOffsetPx;
 
                     if (isBottom)
                     {
+                        // nur ▲
+                        double upHitboxLeft = arrowVisualCenterX - (HitboxSize / 2.0);
+                        double upHitboxTop = yCenter - (HitboxSize / 2.0);
+
                         var up = MakeArrowButton(f, ArrowDir.Up);
-                        Canvas.SetLeft(up, xRight);
-                        Canvas.SetTop(up, yCenter - ArrowSize / 2.0);
+                        Canvas.SetLeft(up, upHitboxLeft);
+                        Canvas.SetTop(up, upHitboxTop);
                         FloorButtonsOverlay.Children.Add(up);
+
+                        _arrowCenters[(f, ArrowDir.Up)] = (up, new Avalonia.Point(arrowVisualCenterX, yCenter));
                     }
                     else if (isTop)
                     {
+                        // nur ▼
+                        double downHitboxLeft = arrowVisualCenterX - (HitboxSize / 2.0);
+                        double downHitboxTop = yCenter - (HitboxSize / 2.0);
+
                         var down = MakeArrowButton(f, ArrowDir.Down);
-                        Canvas.SetLeft(down, xRight);
-                        Canvas.SetTop(down, yCenter - ArrowSize / 2.0);
+                        Canvas.SetLeft(down, downHitboxLeft);
+                        Canvas.SetTop(down, downHitboxTop);
                         FloorButtonsOverlay.Children.Add(down);
+
+                        _arrowCenters[(f, ArrowDir.Down)] = (down, new Avalonia.Point(arrowVisualCenterX, yCenter));
                     }
                     else
                     {
-                        double stackTotal = ArrowSize * 2 + ArrowStackGap;
-                        double yTopArrow = yCenter - (stackTotal / 2.0);
+                        // gestapelt: abstände der sichtbaren pfeile bleiben wie vorher
+                        double stackVisible = VisualArrowSize + ArrowStackGap;
+                        double upCenterY = yCenter - (stackVisible / 2.0);
+                        double downCenterY = yCenter + (stackVisible / 2.0);
 
                         var up = MakeArrowButton(f, ArrowDir.Up);
-                        var down = MakeArrowButton(f, ArrowDir.Down);
-
-                        Canvas.SetLeft(up, xRight);
-                        Canvas.SetTop(up, yTopArrow);
-
-                        Canvas.SetLeft(down, xRight);
-                        Canvas.SetTop(down, yTopArrow + ArrowSize + ArrowStackGap);
-
+                        Canvas.SetLeft(up, arrowVisualCenterX - (HitboxSize / 2.0));
+                        Canvas.SetTop(up, upCenterY - (HitboxSize / 2.0));
                         FloorButtonsOverlay.Children.Add(up);
+                        _arrowCenters[(f, ArrowDir.Up)] = (up, new Avalonia.Point(arrowVisualCenterX, upCenterY));
+
+                        var down = MakeArrowButton(f, ArrowDir.Down);
+                        Canvas.SetLeft(down, arrowVisualCenterX - (HitboxSize / 2.0));
+                        Canvas.SetTop(down, downCenterY - (HitboxSize / 2.0));
                         FloorButtonsOverlay.Children.Add(down);
+                        _arrowCenters[(f, ArrowDir.Down)] = (down, new Avalonia.Point(arrowVisualCenterX, downCenterY));
                     }
                 }
-
-
             }
             finally
             {
@@ -981,24 +1025,118 @@ private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset na
 
 
 
+        private void FloorButtonsOverlay_PointerPressed(object? sender, Avalonia.Input.PointerPressedEventArgs e)
+        {
+            var p = e.GetPosition(FloorButtonsOverlay);
+
+            Button? bestBtn = null;
+            double bestDist2 = double.MaxValue;
+            Action? invoke = null;
+
+            // Innenruf Kandidaten
+            foreach (var kv in _insideCenters)
+            {
+                int label = kv.Key;
+                var (btn, center) = kv.Value;
+
+                double dx = center.X - p.X;
+                double dy = center.Y - p.Y;
+                double d2 = dx * dx + dy * dy;
+
+                if (d2 < bestDist2)
+                {
+                    bestDist2 = d2;
+                    bestBtn = btn;
+                    invoke = () =>
+                    {
+                        // Direkt dein vorhandenes Sendeformat nutzen
+                        int zielLabel = label;
+                        int calculatedEtage = (1 + zielLabel) - MonetoringManager.BootFloor;
+                        if (calculatedEtage < 1) return;
+                        byte floor = (byte)calculatedEtage;
+                        SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x04, 0x01, 0x05, floor, 0x01, 0x00, 0x01, 0x01 });
+                    };
+                }
+            }
+
+            // Außenruf Kandidaten
+            foreach (var kv in _arrowCenters)
+            {
+                var key = kv.Key; // (int floor, ArrowDir dir)
+                var (btn, center) = kv.Value;
+
+                double dx = center.X - p.X;
+                double dy = center.Y - p.Y;
+                double d2 = dx * dx + dy * dy;
+
+                if (d2 < bestDist2)
+                {
+                    bestDist2 = d2;
+                    bestBtn = btn;
+                    invoke = () =>
+                    {
+                        int zielLabel = key.Item1;
+                        var dir = key.Item2;
+                        byte upDown = dir == ArrowDir.Up ? (byte)0x01 : (byte)0x02;
+
+                        int calculatedEtage = (1 + zielLabel) - MonetoringManager.BootFloor;
+                        if (calculatedEtage < 1) return;
+                        byte floor = (byte)calculatedEtage;
+
+                        SerialPortManager.Instance.SendWithoutResponse(new byte[]
+                        { 0x04, 0x01, 0x02, upDown, 0x01, floor, 0x01, 0x01 });
+                    };
+                }
+            }
+
+            // Schwelle damit nicht "irgendwas" auslöst
+            if (bestBtn != null && Math.Sqrt(bestDist2) <= HitDetectRadius)
+            {
+                invoke?.Invoke();
+                e.Handled = true;
+            }
+        }
+
+
+
+
+
         private Button MakeArrowButton(int floorLabel, ArrowDir dir)
         {
             var btn = new Button
             {
-                Width = ArrowSize,
-                Height = ArrowSize,
-                Content = dir == ArrowDir.Up ? "▲" : "▼",
-                Tag = (floorLabel, dir),
-                CornerRadius = new CornerRadius(ArrowSize / 2), // rund
-                Background = new SolidColorBrush(Color.Parse("#e5e7eb")),
-                Foreground = Brushes.Black,
+                Width = HitboxSize,
+                Height = HitboxSize,
                 Padding = new Thickness(0),
-                HorizontalContentAlignment = Avalonia.Layout.HorizontalAlignment.Center,
-                VerticalContentAlignment = Avalonia.Layout.VerticalAlignment.Center
+                Background = Brushes.Transparent,
+                BorderThickness = new Thickness(0),
+                Tag = (floorLabel, dir),
+                IsHitTestVisible = false // zentrales Picking über Overlay
             };
-            btn.Click += Arrow_Click;
+
+            var arrowVisual = new Border
+            {
+                Width = VisualArrowSize,
+                Height = VisualArrowSize,
+                CornerRadius = new CornerRadius(VisualArrowSize / 2),
+                Background = new SolidColorBrush(Color.Parse("#e5e7eb")),
+                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
+                VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center,
+                Child = new TextBlock
+                {
+                    Text = dir == ArrowDir.Up ? "▲" : "▼",
+                    FontSize = 16,
+                    Foreground = Brushes.Black,
+                    HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
+                    VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
+                }
+            };
+
+            btn.Content = arrowVisual;
             return btn;
         }
+
+
 
         private void Arrow_Click(object? sender, RoutedEventArgs e)
         {
