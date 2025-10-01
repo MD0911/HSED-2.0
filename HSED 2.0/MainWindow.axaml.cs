@@ -87,7 +87,6 @@ namespace HSED_2._0
 
 
         private const double FloorPitch = 95.0;          // bleibt
-        public static double FloorPitchPx => FloorPitch;
 private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset nach unten
 
         // --- Styling ---
