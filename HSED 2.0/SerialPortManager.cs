@@ -34,6 +34,10 @@ public class SerialPortManager
     // Statische Referenz für den Fehlerdialog
 
     private static Window _connectionErrorDialog = null;
+    private DispatcherTimer _reconnectTimer;
+    private int _remainingSeconds = 30;
+    private TextBlock _countdownText;
+    private TextBlock _hintText;
 
    
 
@@ -65,116 +69,224 @@ public class SerialPortManager
     /// </summary>
     private void ShowConnectionErrorDialog()
     {
-        // Falls der Dialog schon offen ist, nichts tun
-        if (_connectionErrorDialog != null)
-            return;
-
         Dispatcher.UIThread.Post(async () =>
         {
-            var errorDialog = new Window
+            if (_connectionErrorDialog == null)
             {
-                Title = "Verbindungsfehler",
-                Width = 300,
-                Height = 150,
-                WindowStartupLocation = WindowStartupLocation.CenterScreen,
-                CanResize = false,
-                SystemDecorations = SystemDecorations.None
-            };
-
-            var stackPanel = new StackPanel
-            {
-                Margin = new Thickness(10),
-                Spacing = 10,
-            };
-
-            stackPanel.Children.Add(new TextBlock
-            {
-                Text = "Keine Verbindung zur HSE.",
-                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center
-            });
-            stackPanel.Children.Add(new TextBlock
-            {
-                Text = "Bitte warten...",
-                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
-                FontStyle = Avalonia.Media.FontStyle.Italic
-            });
-            stackPanel.Children.Add(new TextBlock
-            {
-                Text = "Eine Verbindung wird alle 5 Sekunden",
-                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
-                FontStyle = Avalonia.Media.FontStyle.Italic
-            });
-            stackPanel.Children.Add(new TextBlock
-            {
-                Text = "automatisch versucht herzustellen.",
-                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
-                FontStyle = Avalonia.Media.FontStyle.Italic
-            });
-
-            // Button separat erstellen und das Click-Ereignis zuweisen
-            var reconnectButton = new Button
-            {
-                Content = "Manuell verbinden",
-                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center
-            };
-            reconnectButton.Click += (sender, e) => Open();
-            stackPanel.Children.Add(reconnectButton);
-
-            errorDialog.Content = stackPanel;
-
-            // Verhindere, dass der Benutzer das Fenster schließt (z. B. per Alt-F4),
-            // solange keine Verbindung besteht
-            errorDialog.Closing += (s, e) =>
-            {
-                if (_serialPort == null || !_serialPort.IsOpen)
+                var errorDialog = new Window
                 {
-                    e.Cancel = true;
+                    Title = "Verbindungsfehler",
+                    Width = 360,
+                    Height = 200,
+                    WindowStartupLocation = WindowStartupLocation.CenterScreen,
+                    CanResize = false,
+                    SystemDecorations = SystemDecorations.None,
+                    ShowInTaskbar = false,
+                    Topmost = true
+                };
+
+                var stackPanel = new StackPanel
+                {
+                    Margin = new Thickness(16),
+                    Spacing = 12,
+                };
+
+                stackPanel.Children.Add(new TextBlock
+                {
+                    Text = "Verbindung mit der HSE prüfen",
+                    HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
+                    FontSize = 16,
+                    FontWeight = Avalonia.Media.FontWeight.SemiBold
+                });
+
+                _hintText = new TextBlock
+                {
+                    Text = "Keine Verbindung verfügbar.",
+                    HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center
+                };
+                stackPanel.Children.Add(_hintText);
+
+                _countdownText = new TextBlock
+                {
+                    HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
+                    FontStyle = Avalonia.Media.FontStyle.Italic
+                };
+                stackPanel.Children.Add(_countdownText);
+
+                var reconnectButton = new Button
+                {
+                    Content = "Jetzt erneut versuchen",
+                    HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
+                    Padding = new Thickness(12, 6)
+                };
+                reconnectButton.Click += (sender, e) =>
+                {
+                    StopReconnectCountdown();
+                    AttemptReconnect();
+                };
+                stackPanel.Children.Add(reconnectButton);
+
+                errorDialog.Content = stackPanel;
+
+                errorDialog.Closing += (s, e) =>
+                {
+                    if (_serialPort == null || !_serialPort.IsOpen)
+                    {
+                        e.Cancel = true;
+                    }
+                };
+
+                _connectionErrorDialog = errorDialog;
+
+                var lifetime = Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime;
+                var owner = lifetime?.MainWindow;
+                if (owner != null && owner.IsVisible)
+                {
+                    await errorDialog.ShowDialog(owner);
                 }
-            };
-
-            _connectionErrorDialog = errorDialog;
-
-            var lifetime = Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime;
-            var owner = lifetime?.MainWindow;
-            if (owner != null && owner.IsVisible)
-            {
-                await errorDialog.ShowDialog(owner);
+                else
+                {
+                    errorDialog.Show();
+                }
             }
             else
             {
-                errorDialog.Show();
+                if (!_connectionErrorDialog.IsVisible)
+                {
+                    _connectionErrorDialog.Show();
+                }
+
+                _connectionErrorDialog.Activate();
+            }
+
+            RestartReconnectCountdown();
+        });
+    }
+
+    private void RestartReconnectCountdown()
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (_reconnectTimer == null)
+            {
+                _reconnectTimer = new DispatcherTimer
+                {
+                    Interval = TimeSpan.FromSeconds(1)
+                };
+                _reconnectTimer.Tick += OnReconnectTimerTick;
+            }
+
+            _remainingSeconds = 30;
+            UpdateCountdownText();
+
+            if (!_reconnectTimer.IsEnabled)
+            {
+                _reconnectTimer.Start();
             }
         });
+    }
+
+    private void StopReconnectCountdown()
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (_reconnectTimer != null && _reconnectTimer.IsEnabled)
+            {
+                _reconnectTimer.Stop();
+            }
+        });
+    }
+
+    private void OnReconnectTimerTick(object sender, EventArgs e)
+    {
+        if (_remainingSeconds > 0)
+        {
+            _remainingSeconds--;
+            UpdateCountdownText();
+        }
+
+        if (_remainingSeconds <= 0)
+        {
+            StopReconnectCountdown();
+            AttemptReconnect();
+        }
+    }
+
+    private void UpdateCountdownText()
+    {
+        if (_countdownText != null)
+        {
+            _countdownText.Text = $"Nächster Versuch in {_remainingSeconds:D2} Sekunden.";
+        }
+    }
+
+    private void UpdateHintText(string text)
+    {
+        if (_hintText != null)
+        {
+            _hintText.Text = text;
+        }
+    }
+
+    private bool _isAttemptingReconnect;
+
+    private void AttemptReconnect()
+    {
+        if (_isAttemptingReconnect)
+        {
+            return;
+        }
+
+        _isAttemptingReconnect = true;
+        UpdateHintText("Verbindung wird aufgebaut...");
+
+        try
+        {
+            Open();
+
+            if (_serialPort == null || !_serialPort.IsOpen)
+            {
+                UpdateHintText("Keine Verbindung verfügbar.");
+                RestartReconnectCountdown();
+            }
+        }
+        finally
+        {
+            _isAttemptingReconnect = false;
+        }
     }
 
 
     /// <summary>
     /// Schließt den Fehlerdialog, falls er offen ist.
     /// </summary>
-   private void CloseConnectionErrorDialog()
-{
-    if (_connectionErrorDialog != null)
+    private void CloseConnectionErrorDialog()
     {
-        Dispatcher.UIThread.Post(() =>
+        if (_connectionErrorDialog != null)
         {
-            try
+            Dispatcher.UIThread.Post(() =>
             {
-                if (_connectionErrorDialog.IsVisible)
+                try
                 {
-                    _connectionErrorDialog.Close();
+                    if (_connectionErrorDialog.IsVisible)
+                    {
+                        _connectionErrorDialog.Close();
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine("Fehler beim Schließen des Fehlerdialogs: " + ex.Message);
-            }
-            finally
-            {
-                _connectionErrorDialog = null;
-            }
-        });
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("Fehler beim Schließen des Fehlerdialogs: " + ex.Message);
+                }
+                finally
+                {
+                    StopReconnectCountdown();
+                    _hintText = null;
+                    _countdownText = null;
+                    _connectionErrorDialog = null;
+                }
+            });
+        }
     }
-}
 
 
     /// <summary>
@@ -198,9 +310,10 @@ public class SerialPortManager
         while (_telegramQueue.TryDequeue(out _)) { }
 
         // Prüfe, ob der Port offen ist, andernfalls zeige Fehlerdialog
-        if (!_serialPort.IsOpen)
+        if (_serialPort == null || !_serialPort.IsOpen)
         {
             ShowConnectionErrorDialog();
+            RestartReconnectCountdown();
             return;
         }
         else
@@ -238,6 +351,7 @@ public class SerialPortManager
                 {
                     Debug.WriteLine($"Fehler beim Öffnen der seriellen Schnittstelle: {ex.Message}");
                     ShowConnectionErrorDialog();
+                    RestartReconnectCountdown();
                 }
             }
             else
@@ -254,6 +368,14 @@ public class SerialPortManager
         {
             try
             {
+                if (_serialPort == null || !_serialPort.IsOpen)
+                {
+                    ShowConnectionErrorDialog();
+                    RestartReconnectCountdown();
+                    Thread.Sleep(500);
+                    continue;
+                }
+
                 int byteRead = _serialPort.ReadByte();
                 if (byteRead >= 0)
                 {
@@ -276,7 +398,7 @@ public class SerialPortManager
                             TerminalManager.AnalyzeResponse(telegram);
                             var tp = new TelegramProcessor();
                             tp.ProcessTelegram(telegram);
-                            
+
                         }
                         else if (buffer.Count > expectedLength)
                         {
@@ -289,9 +411,19 @@ public class SerialPortManager
             {
                 // Timeout ignorieren
             }
+            catch (InvalidOperationException ioEx)
+            {
+                Debug.WriteLine("Listener-Fehler (ungültiger Zustand): " + ioEx.Message);
+                ShowConnectionErrorDialog();
+                RestartReconnectCountdown();
+                Thread.Sleep(500);
+            }
             catch (Exception ex)
             {
                 Debug.WriteLine("Listener-Fehler: " + ex.Message);
+                ShowConnectionErrorDialog();
+                RestartReconnectCountdown();
+                Thread.Sleep(500);
             }
         }
     }
@@ -302,6 +434,13 @@ public class SerialPortManager
         {
             try
             {
+                if (_serialPort == null || !_serialPort.IsOpen)
+                {
+                    ShowConnectionErrorDialog();
+                    RestartReconnectCountdown();
+                    return null;
+                }
+
                 byte[] command = new byte[data.Length + 6];
                 command[0] = 0x95;
                 command[1] = 0x9A;
@@ -347,6 +486,7 @@ public class SerialPortManager
                 Debug.WriteLine($"Fehler: {ex.Message}");
                 Debug.WriteLine($"Stack Trace: {ex.StackTrace}");
                 ShowConnectionErrorDialog();
+                RestartReconnectCountdown();
                 return null;
             }
         }
