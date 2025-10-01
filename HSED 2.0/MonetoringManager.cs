@@ -317,78 +317,57 @@ namespace HSED_2_0
             // Lese den Fahrkorbwert aus dem Byte-Array (als Int32)
             int newFahrkorb = BitConverter.ToInt32(zustand, 4);
 
-            int floorCount = GesamtFloor;
+            // Gesamtzahl der Etagen und das Etagen-Inkremente-Array
+            int floorCount = GesamtFloor; // GesamtFloor sollte hier als int verfügbar sein
             int[] originalEtagen = LievViewManager.IngrementEtage;
-
-            if (floorCount <= 1 || originalEtagen == null || originalEtagen.Length < floorCount)
-            {
-                Dispatcher.UIThread.Post(() =>
-                {
-                    if (MainWindow.Instance?.ViewModel != null)
-                    {
-                        MainWindow.Instance.ViewModel.PositionY = 0f;
-                        LastKorbPosition = 0f;
-                    }
-                });
-                return;
-            }
 
             // Wert der obersten Etage (wird für die Normalisierung verwendet)
             int topFloorValue = originalEtagen[floorCount - 1];
 
             // Normalisiere die Etagenwerte und den Fahrkorbwert:
+            // Das Ergebnis: oberste Etage = 0, darunter negative Werte.
             float[] normalizedEtagen = new float[floorCount];
             for (int i = 0; i < floorCount; i++)
             {
                 normalizedEtagen[i] = originalEtagen[i] - topFloorValue;
             }
-
             float normalizedFahrkorb = newFahrkorb - topFloorValue;
 
-            float normalizedBottom = normalizedEtagen[0];
-            float normalizedTop = normalizedEtagen[floorCount - 1];
-            float normalizedRange = normalizedTop - normalizedBottom;
+            // UI-Schritt in Y-Einheiten (z. B. 95 pro Etage)
+            float yStep = 95f;
+            float YPosition = 0f;
 
-            if (Math.Abs(normalizedRange) < 0.001f)
+            // Clamping, falls der Fahrkorbwert außerhalb des bekannten Bereichs liegt:
+            if (normalizedFahrkorb <= normalizedEtagen[0])
             {
-                normalizedRange = 1f;
+                // Unterste Etage
+                YPosition = -((floorCount - 1) * yStep);
             }
-
-            float yStep = (float)MainWindow.FloorPitchPx;
-            float pixelSpan = (floorCount - 1) * yStep;
-
-            float[] uiPositions = new float[floorCount];
-            for (int i = 0; i < floorCount; i++)
+            else if (normalizedFahrkorb >= normalizedEtagen[floorCount - 1])
             {
-                float relative = (normalizedEtagen[i] - normalizedBottom) / normalizedRange;
-                uiPositions[i] = -pixelSpan + (relative * pixelSpan);
-            }
-
-            float YPosition;
-
-            if (normalizedFahrkorb <= normalizedBottom)
-            {
-                YPosition = uiPositions[0];
-            }
-            else if (normalizedFahrkorb >= normalizedTop)
-            {
-                YPosition = uiPositions[floorCount - 1];
+                // Oberste Etage
+                YPosition = 0f;
             }
             else
             {
-                YPosition = uiPositions[floorCount - 1];
-
+                // Finde das Intervall, in dem normalizedFahrkorb liegt.
                 for (int i = 0; i < floorCount - 1; i++)
                 {
                     if (normalizedFahrkorb >= normalizedEtagen[i] && normalizedFahrkorb <= normalizedEtagen[i + 1])
                     {
+                        // Berechne den Anteil innerhalb des Intervalls:
+                        // fraction = 0  -> genau an Etage i+1 (höher)
+                        // fraction = 1  -> genau an Etage i (niedriger)
                         float fraction = (normalizedFahrkorb - normalizedEtagen[i]) /
                                          (normalizedEtagen[i + 1] - normalizedEtagen[i]);
 
-                        float uiLower = uiPositions[i];
-                        float uiUpper = uiPositions[i + 1];
+                        // Berechne den UI-Wert der unteren Etage (i) in diesem Intervall:
+                        // UI(i) = -((floorCount - 1 - i) * yStep)
+                        float uiLower = -((floorCount - 1 - i) * yStep);
 
-                        YPosition = uiLower + fraction * (uiUpper - uiLower);
+                        // Da die Differenz zwischen zwei Etagen immer yStep (z. B. 95) beträgt,
+                        // erhalten wir die interpolierte Y-Position:
+                        YPosition = uiLower + fraction * yStep;
                         break;
                     }
                 }
