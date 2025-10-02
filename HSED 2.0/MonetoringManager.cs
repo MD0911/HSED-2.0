@@ -6,6 +6,7 @@ using System.Text;
 using Avalonia.Threading;
 using HSED_2_0.ViewModels;
 using HSED_2._0;
+using System.Security.Cryptography.X509Certificates;
 
 namespace HSED_2_0
 {
@@ -129,6 +130,7 @@ namespace HSED_2_0
             {
                 if (MainWindow.Instance?.ViewModel != null)
                 {
+                    MainWindow.Instance.ViewModel.RawCurrentFloor = rawFloor;
                     MainWindow.Instance.ViewModel.CurrentFloor = CurrentFloor;
                 }
             });
@@ -460,6 +462,8 @@ namespace HSED_2_0
                 int zustandQuittung = 0;
             }
 
+            
+
 
             // Aktualisiere das ViewModel im UI-Thread:
             Dispatcher.UIThread.Post(() =>
@@ -473,6 +477,37 @@ namespace HSED_2_0
 
         }
 
+        public static void speed(byte[] zustand)
+        {
+
+            int speed = BitConverter.ToInt16(new byte[] { zustand[4], zustand[5] }, 0);
+
+            // Aktualisiere das ViewModel im UI-Thread:
+            Dispatcher.UIThread.Post(() =>
+            {
+                if (MainWindow.Instance?.ViewModel != null)
+                {
+                    MainWindow.Instance.ViewModel.Speed = speed;
+                }
+            });
+        }
+
+        public static void signal(byte[] zustand)
+        {
+
+            int signal = zustand[4];
+
+
+
+            // Aktualisiere das ViewModel im UI-Thread:
+            Dispatcher.UIThread.Post(() =>
+            {
+                if (MainWindow.Instance?.ViewModel != null)
+                {
+                    MainWindow.Instance.ViewModel.Signal = signal;
+                }
+            });
+        }
 
 
 
@@ -584,6 +619,24 @@ namespace HSED_2_0
 
                 Debug.WriteLine("Abwärts-Außenrufasterquittung erkannt.");
                 abAussentasterquittung(response);
+
+
+            }
+
+            else if (response[0] == 0x63 && response[1] == 0x90)
+            {
+
+                Debug.WriteLine("Geschwin. Änderung erkannt.");
+                speed(response);
+
+
+            }
+
+            else if (response[0] == 0x26 && response[1] == 0x4F)
+            {
+
+                Debug.WriteLine("Signalgeber. Änderung erkannt.");
+                signal(response);
 
 
             }

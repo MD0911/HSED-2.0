@@ -317,6 +317,62 @@ namespace HSED_2_0.ViewModels
             }
         }
 
+        private int _speed;
+        public int Speed
+        {
+            get => _speed;
+            set
+            {
+                if (_speed != value)
+                {
+                    _speed = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private int _signal;
+        public int Signal
+        {
+            get => _signal;
+            set
+            {
+                if (_signal != value)
+                {
+                    _signal = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private bool _firstRide;
+        public bool FirstRide
+        {
+            get => _firstRide;
+            set
+            {
+                if (_firstRide != value)
+                {
+                    _firstRide = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private int _rawCurrentFloor;
+        public int RawCurrentFloor
+        {
+            get => _rawCurrentFloor;
+            set
+            {
+                if (_rawCurrentFloor != value)
+                {
+                    _rawCurrentFloor = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
 
 
 

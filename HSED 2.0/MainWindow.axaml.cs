@@ -118,7 +118,9 @@ private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset na
         private readonly Dictionary<int, (Button Btn, Avalonia.Point Center)> _insideCenters = new();
         private readonly Dictionary<(int, ArrowDir), (Button Btn, Avalonia.Point Center)> _arrowCenters = new();
 
-
+        public int[] LevelIncrement = new int[99];
+        public bool firstRide = true;
+        public int Fabriknummer;
 
 
         public MainWindow()
@@ -166,8 +168,16 @@ private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset na
 
             int renderWidth = 300;
             int renderHeight = (int)Math.Round(_lievViewManager.TotalHeight);
-            SharedSvgBitmap = RenderSvgToBitmap(_lievViewManager.ComposedSvg, renderWidth, renderHeight);
-            SharedSvgBitmapAlternative = RenderSvgToBitmap(_lievViewManager.ComposedSvgAlternative, renderWidth, renderHeight);
+            try
+            {
+                SharedSvgBitmap = RenderSvgToBitmap(_lievViewManager.ComposedSvg, renderWidth, renderHeight);
+                SharedSvgBitmapAlternative = RenderSvgToBitmap(_lievViewManager.ComposedSvgAlternative, renderWidth, renderHeight);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Fehler beim Rendern des SVG: " + ex.Message);
+                
+            }
             SvgImageControl.Source = SharedSvgBitmap;
             SvgImageControlAlternative.Source = SharedSvgBitmapAlternative;
 
@@ -335,6 +345,9 @@ private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset na
                     DisplayUhr();
                     DisplayInnenruftasterquittung();
                     DisplayAussenruftasterquittung();
+                    DisplaySpeed();
+                    DisplaySignal();
+                    DisplayDiff();
                 };
             }
             _updateTimer.Start();
@@ -394,6 +407,11 @@ private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset na
             _cancellationTokenSource?.Cancel();
         }
 
+        public void DisplayTest() 
+        { 
+            Debug.WriteLine("Test");
+        }
+
         public void StopLogic()
         {
             _updateTimer?.Stop();
@@ -441,6 +459,7 @@ private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset na
 
         private Bitmap RenderSvgToBitmap(string svgString, int width, int height)
         {
+
             var svg = new SKSvg();
             svg.FromSvg(svgString);
 
@@ -511,10 +530,14 @@ private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset na
 
         public void DisplayFahrkorbMM()
         {
+           
             int fahrkorb = ViewModel.CurrentFahrkorb / Pos_Cal;
             double fahrkorbMeter = fahrkorb / 1000.0;
             fahrkorbMeter = Math.Ceiling(fahrkorbMeter * 100) / 100;
+            fahrkorb = fahrkorb - 100000;
+            if (fahrkorb < 0) fahrkorb = 0;
             Hoehe.Text = fahrkorb.ToString() + "mm";
+            
         }
 
         private Button? FindInsideButtonByLabel(int label)
@@ -593,6 +616,40 @@ private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset na
             }
         }
 
+        public void DisplaySpeed()
+        {
+
+            Geschwindigkeit.Text = ViewModel.Speed.ToString();
+        }
+
+        public void DisplaySignal()
+        {
+            switch(ViewModel.Signal)
+            {
+                case 1:
+                   SGM.Background = new SolidColorBrush(Color.Parse("#22c55e"));
+                   SGO.Background = new SolidColorBrush(Color.Parse("#9ca3af"));
+                   SGU.Background = new SolidColorBrush(Color.Parse("#9ca3af"));
+                    break;
+                case 2:
+                    SGM.Background = new SolidColorBrush(Color.Parse("#9ca3af"));
+                    SGO.Background = new SolidColorBrush(Color.Parse("#22c55e"));
+                    SGU.Background = new SolidColorBrush(Color.Parse("#9ca3af"));
+                    break;
+                case 4:
+                    SGM.Background = new SolidColorBrush(Color.Parse("#9ca3af"));
+                    SGO.Background = new SolidColorBrush(Color.Parse("#9ca3af"));
+                    SGO.Background = new SolidColorBrush(Color.Parse("#22c55e"));
+                    break;
+                default:
+                    Debug.WriteLine("Signal Error: Signal = " + ViewModel.Signal);
+                    break;
+
+            }
+
+            
+        }
+
 
 
 
@@ -601,7 +658,11 @@ private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset na
         public void DisplayDatum() => Datum.Text = DateTime.Now.ToString("dd.MM.yyyy");
         public void DisplayUhr() => Uhr.Text = DateTime.Now.ToString("HH:mm:ss");
         public void DisplayTemp() => Temp.Text = ViewModel.CurrentTemp.ToString() + "°C";
-        public void DisplayFloor() => Etage.Text = ViewModel.CurrentFloor.ToString();
+        public void DisplayFloor() 
+        { 
+            Etage.Text = ViewModel.CurrentFloor.ToString();
+            
+        }
 
         public void DisplayFahrtZahler()
         {
@@ -609,6 +670,24 @@ private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset na
             Debug.WriteLine("Fahrten: " + FahrtZahler.Text);
         }
 
+        public void DisplayDiff()
+        {
+           
+            int currentFloor = MainViewModelInstance.RawCurrentFloor;
+            int posCalc = MainWindow.Instance.Pos_Cal;
+            int fahrkorb = MainViewModelInstance.CurrentFahrkorb / posCalc;
+            int zielBund = MainWindow.Instance.LevelIncrement[currentFloor] / posCalc;
+            int diff = fahrkorb - zielBund;
+            Debug.WriteLine("Diff: " + diff);
+            if (diff < 0 && diff > -100000 || diff > 0 && diff < 100000)
+            {
+                Buendig.Text = diff.ToString() + "mm";
+            }
+            else
+            {
+                Buendig.Text = "0mm";
+            }
+        }
         public void DisplayBStunden()
         {
             int h = ViewModel.CurrentBStunden / 3600;
@@ -782,17 +861,50 @@ private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset na
             Debug.WriteLine("Send all");
         }
 
+        public static void LevelPositionDefiner()
+        {
+            int gesamtFloor = HseCom.SendHse(1001);
+            for (int i = 0; i < gesamtFloor; i++)
+            {
+
+                int etage = i + 1;
+                byte ZielEtage = (byte)etage;
+                byte[] LevelsPos = HseCom.SendHseCommand(new byte[] { 0x03, 0x01, 0x24, 0x29, ZielEtage });
+                MainWindow.Instance.LevelIncrement[i]  = BitConverter.ToInt32(new byte[] { LevelsPos[10], LevelsPos[11], LevelsPos[12], LevelsPos[13] }, 0);
+            }
+
+            
+            /*
+                        Debug.WriteLine("Level Pos: " + BitConverter.ToString(LevelsPos));
+                        int Pos = BitConverter.ToInt32(new byte[] { LevelsPos[10], LevelsPos[11], LevelsPos[12], LevelsPos[13] }, 0);
+                        Debug.WriteLine("Level Pos Wert: " + Pos);
+            */
+        }
+
+        public static void FabrikNummerDefiner()
+        {
+            byte[] Fabriknummer = HseCom.SendHseCommand(new byte[] { 0x03, 0x01, 0x24, 0x02 });
+            MainWindow.Instance.Fabriknummer = BitConverter.ToInt32(new byte[] { Fabriknummer[10], Fabriknummer[11], Fabriknummer[12], Fabriknummer[13] }, 0);
+            Debug.WriteLine("Fabriknummer: " + MainWindow.Instance.Fabriknummer);
+        }
+
         public void HseConnect()
         {
+            Debug.WriteLine("HSECONNECT");
             MonetoringManager.startMonetoring();
             Debug.WriteLine("HSE-Verbindung wird hergestellt...");
             SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x05, 0x01, 0x01 });
             Debug.WriteLine("Monetoring gestartet.");
 
+
+            LevelPositionDefiner();
+            FabrikNummerDefiner();
+            FN.Text = MainWindow.Instance.Fabriknummer.ToString();
             ViewModel.CurrentZustand = HseCom.SendHse(1005);
             ViewModel.CurrentStateTueur1 = HseCom.SendHse(1006);
             ViewModel.CurrentStateTueur2 = HseCom.SendHse(1016);
             ViewModel.CurrentFahrtZahler = HseCom.SendHse(2145);
+
 
             var transformGroup = (TransformGroup)PositionControl.RenderTransform;
             var YTransform = (TranslateTransform)transformGroup.Children[1];

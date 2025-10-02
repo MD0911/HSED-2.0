@@ -124,13 +124,13 @@
 
 					<StackPanel Orientation="Vertical" HorizontalAlignment="Center" Spacing="2">
 						<TextBlock Text="Mitte" FontSize="12" Foreground="White" HorizontalAlignment="Center"/>
-						<Border Name="SGM" CornerRadius="5" Background="#22c55e"
+						<Border Name="SGM" CornerRadius="5" Background="#9ca3af"
 								Width="35" Height="15" BorderThickness="2" BorderBrush="#9ca3af"/>
 					</StackPanel>
 
 					<StackPanel Orientation="Vertical" HorizontalAlignment="Center" Spacing="2">
 						<TextBlock Text="Oben" FontSize="12" Foreground="White" HorizontalAlignment="Center"/>
-						<Border Name="SGO" CornerRadius="5" Background="#22c55e"
+						<Border Name="SGO" CornerRadius="5" Background="#9ca3af"
 								Width="35" Height="15" BorderThickness="2" BorderBrush="#9ca3af"/>
 					</StackPanel>
 
@@ -196,7 +196,7 @@
 						<ColumnDefinition Width="*" />
 					</Grid.ColumnDefinitions>
 					<TextBlock Grid.Column="0" Text="Fabriknr.:" Foreground="White" FontSize="17" HorizontalAlignment="Left" FontFeatures="tnum, lnum" />
-					<TextBlock Grid.Column="1" Name="FabrikNummer" Text="lese..." Foreground="White" FontSize="17" HorizontalAlignment="Right" FontFeatures="tnum, lnum" />
+					<TextBlock Grid.Column="1" Name="FN" Text="lese..." Foreground="White" FontSize="17" HorizontalAlignment="Right" FontFeatures="tnum, lnum" />
 				</Grid>
 
 				<Grid Margin="0,2">
