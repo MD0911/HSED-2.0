@@ -40,10 +40,10 @@ namespace HSED_2._0
                         vm.CurrentTemp = temp;
 
                         // Last
-                        byte[] last = HseCom.SendHseCommand(new byte[] { 0x03, 0x01, 0x64, 0x80 });
+                        byte[] last = HseCom.SendHseCommand(new byte[] { 0x03, 0x01, 0x64, 0x80, 0x00 });
                         if (last != null && last.Length >= 10)
                         {
-                            int LastValue = BitConverter.ToInt16(new byte[] { last[8], last[9] }, 0);
+                            int LastValue = BitConverter.ToInt16(new byte[] { last[10], last[11] }, 0);
                             vm.CurrentLast = LastValue;
                         }
 

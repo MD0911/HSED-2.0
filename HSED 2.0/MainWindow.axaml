@@ -56,51 +56,51 @@
 							   FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,6"/>
 
 					<!-- Tür 1 -->
-					<TextBlock Grid.Row="1" Grid.Column="0" Text="Tür 1" Foreground="White" FontSize="12"
+					<TextBlock Name="D1" Grid.Row="1" Grid.Column="0" Text="Tür 1" Foreground="DarkGray" FontSize="12"
 							   FontWeight="Bold" HorizontalAlignment="Left" Margin="6,0,6,0" VerticalAlignment="Center"/>
-					<Border  x:Name="T1_Auf" Grid.Row="1" Grid.Column="1" CornerRadius="5" Width="25" Height="15"
-							 Background="#22c55e" BorderThickness="2" BorderBrush="#9ca3af"
-							 HorizontalAlignment="Center" VerticalAlignment="Center"/>
-					<Border  x:Name="T1_Zu" Grid.Row="1" Grid.Column="2" CornerRadius="" Width="15" Height=""
+					<Border  Name="DOP1" Grid.Row="1" Grid.Column="1" CornerRadius="5" Width="25" Height="15"
 							 Background="#9ca3af" BorderThickness="2" BorderBrush="#9ca3af"
 							 HorizontalAlignment="Center" VerticalAlignment="Center"/>
-					<Border  x:Name="T1_Rev" Grid.Row="1" Grid.Column="3" CornerRadius="5" Width="25" Height="15"
+					<Border  Name="DCL1" Grid.Row="1" Grid.Column="2" CornerRadius="5" Width="25" Height="15"
 							 Background="#9ca3af" BorderThickness="2" BorderBrush="#9ca3af"
 							 HorizontalAlignment="Center" VerticalAlignment="Center"/>
-					<Border  x:Name="T1_Ls"  Grid.Row="1" Grid.Column="4" CornerRadius="5" Width="25" Height="15"
+					<Border  Name="DREV1" Grid.Row="1" Grid.Column="3" CornerRadius="5" Width="25" Height="15"
+							 Background="#9ca3af" BorderThickness="2" BorderBrush="#9ca3af"
+							 HorizontalAlignment="Center" VerticalAlignment="Center"/>
+					<Border  Name="DLS1"  Grid.Row="1" Grid.Column="4" CornerRadius="5" Width="25" Height="15"
 							 Background="#9ca3af" BorderThickness="2" BorderBrush="#9ca3af"
 							 HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
 					<!-- Tür 2 -->
-					<TextBlock Grid.Row="2" Grid.Column="0" Text="Tür 2" Foreground="White" FontSize="12"
+					<TextBlock Name="D2" Grid.Row="2" Grid.Column="0" Text="Tür 2" Foreground="DarkGray" FontSize="12"
 							   FontWeight="Bold" HorizontalAlignment="Left" Margin="6,0,6,0" VerticalAlignment="Center"/>
-					<Border  x:Name="T2_Auf" Grid.Row="2" Grid.Column="1" CornerRadius="5" Width="25" Height="15"
-							 Background="#22c55e" BorderThickness="2" BorderBrush="#9ca3af"
-							 HorizontalAlignment="Center" VerticalAlignment="Center"/>
-					<Border  x:Name="T2_Zu"  Grid.Row="2" Grid.Column="2" CornerRadius="5" Width="25" Height="15"
-							 Background="#22c55e" BorderThickness="2" BorderBrush="#9ca3af"
-							 HorizontalAlignment="Center" VerticalAlignment="Center"/>
-					<Border  x:Name="T2_Rev" Grid.Row="2" Grid.Column="3" CornerRadius="5" Width="25" Height="15"
+					<Border  Name="DOP2" Grid.Row="2" Grid.Column="1" CornerRadius="5" Width="25" Height="15"
 							 Background="#9ca3af" BorderThickness="2" BorderBrush="#9ca3af"
 							 HorizontalAlignment="Center" VerticalAlignment="Center"/>
-					<Border  x:Name="T2_Ls"  Grid.Row="2" Grid.Column="4" CornerRadius="5" Width="25" Height="15"
+					<Border  Name="DCL2"  Grid.Row="2" Grid.Column="2" CornerRadius="5" Width="25" Height="15"
+							 Background="#9ca3af" BorderThickness="2" BorderBrush="#9ca3af"
+							 HorizontalAlignment="Center" VerticalAlignment="Center"/>
+					<Border  Name="DREV2" Grid.Row="2" Grid.Column="3" CornerRadius="5" Width="25" Height="15"
+							 Background="#9ca3af" BorderThickness="2" BorderBrush="#9ca3af"
+							 HorizontalAlignment="Center" VerticalAlignment="Center"/>
+					<Border  Name="DLS2"  Grid.Row="2" Grid.Column="4" CornerRadius="5" Width="25" Height="15"
 							 Background="#9ca3af" BorderThickness="2" BorderBrush="#9ca3af"
 							 HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
 					<!-- Tür 3 -->
-					<TextBlock Grid.Row="3" Grid.Column="0" Text="Tür 3" Foreground="White" FontSize="12"
+					<TextBlock Name="D3" Grid.Row="3" Grid.Column="0" Text="Tür 3" Foreground="DarkGray" FontSize="12"
 							   FontWeight="Bold" HorizontalAlignment="Left" Margin="6,0,6,0" VerticalAlignment="Center"/>
-					<Border  x:Name="T3_Auf" Grid.Row="3" Grid.Column="1" CornerRadius="5" Width="25" Height="15"
-							 Background="#22c55e" BorderThickness="2" BorderBrush="#9ca3af"
-							 HorizontalAlignment="Center" VerticalAlignment="Center"/>
-					<Border  x:Name="T3_Zu"  Grid.Row="3" Grid.Column="2" CornerRadius="5" Width="25" Height="15"
+					<Border  Name="DOP3" Grid.Row="3" Grid.Column="1" CornerRadius="5" Width="25" Height="15"
 							 Background="#9ca3af" BorderThickness="2" BorderBrush="#9ca3af"
 							 HorizontalAlignment="Center" VerticalAlignment="Center"/>
-					<Border  x:Name="T3_Rev" Grid.Row="3" Grid.Column="3" CornerRadius="5" Width="25" Height="15"
+					<Border  Name="DCL3"  Grid.Row="3" Grid.Column="2" CornerRadius="5" Width="25" Height="15"
 							 Background="#9ca3af" BorderThickness="2" BorderBrush="#9ca3af"
 							 HorizontalAlignment="Center" VerticalAlignment="Center"/>
-					<Border  x:Name="T3_Ls"  Grid.Row="3" Grid.Column="4" CornerRadius="5" Width="25" Height="15"
-							 Background="#22c55e" BorderThickness="2" BorderBrush="#9ca3af"
+					<Border  Name="DREV3" Grid.Row="3" Grid.Column="3" CornerRadius="5" Width="25" Height="15"
+							 Background="#9ca3af" BorderThickness="2" BorderBrush="#9ca3af"
+							 HorizontalAlignment="Center" VerticalAlignment="Center"/>
+					<Border  Name="DLS3"  Grid.Row="3" Grid.Column="4" CornerRadius="5" Width="25" Height="15"
+							 Background="#9ca3af" BorderThickness="2" BorderBrush="#9ca3af"
 							 HorizontalAlignment="Center" VerticalAlignment="Center"/>
 				</Grid>
 			</StackPanel>
@@ -124,13 +124,13 @@
 
 					<StackPanel Orientation="Vertical" HorizontalAlignment="Center" Spacing="2">
 						<TextBlock Text="Mitte" FontSize="12" Foreground="White" HorizontalAlignment="Center"/>
-						<Border Name="SGM" CornerRadius="5" Background="#22c55e"
+						<Border Name="SGM" CornerRadius="5" Background="#9ca3af"
 								Width="35" Height="15" BorderThickness="2" BorderBrush="#9ca3af"/>
 					</StackPanel>
 
 					<StackPanel Orientation="Vertical" HorizontalAlignment="Center" Spacing="2">
 						<TextBlock Text="Oben" FontSize="12" Foreground="White" HorizontalAlignment="Center"/>
-						<Border Name="SGO" CornerRadius="5" Background="#22c55e"
+						<Border Name="SGO" CornerRadius="5" Background="#9ca3af"
 								Width="35" Height="15" BorderThickness="2" BorderBrush="#9ca3af"/>
 					</StackPanel>
 
@@ -150,19 +150,19 @@
 
 					<StackPanel Orientation="Vertical" HorizontalAlignment="Center" Spacing="2">
 						<TextBlock Text="SKF" FontSize="12" Foreground="White" HorizontalAlignment="Center"/>
-						<Border Name="VFang" CornerRadius="5" Background="#22c55e"
+						<Border Name="VFang" CornerRadius="5" Background="#9ca3af"
 								Width="25" Height="15" BorderThickness="2" BorderBrush="#9ca3af"/>
 					</StackPanel>
 
 					<StackPanel Orientation="Vertical" HorizontalAlignment="Center" Spacing="2">
 						<TextBlock Text="SK1" FontSize="12" Foreground="White" HorizontalAlignment="Center"/>
-						<Border Name="SK1" CornerRadius="5" Background="#22c55e"
+						<Border Name="SK1" CornerRadius="5" Background="#9ca3af"
 								Width="25" Height="15" BorderThickness="2" BorderBrush="#9ca3af"/>
 					</StackPanel>
 
 					<StackPanel Orientation="Vertical" HorizontalAlignment="Center" Spacing="2">
 						<TextBlock Text="SK2" FontSize="12" Foreground="White" HorizontalAlignment="Center"/>
-						<Border Name="SK2" CornerRadius="5" Background="#22c55e"
+						<Border Name="SK2" CornerRadius="5" Background="#9ca3af"
 								Width="25" Height="15" BorderThickness="2" BorderBrush="#9ca3af"/>
 					</StackPanel>
 
@@ -190,13 +190,13 @@
 			</Border.RenderTransform>
 
 			<StackPanel HorizontalAlignment="Left" Margin="10">
-				<Grid Margin="0,2">
+						<Grid Margin="0,2">
 					<Grid.ColumnDefinitions>
-						<ColumnDefinition Width="150" />
+						<ColumnDefinition Width="*" />
 						<ColumnDefinition Width="*" />
 					</Grid.ColumnDefinitions>
 					<TextBlock Grid.Column="0" Text="Fabriknr.:" Foreground="White" FontSize="17" HorizontalAlignment="Left" FontFeatures="tnum, lnum" />
-					<TextBlock Grid.Column="1" Name="FabrikNummer" Text="lese..." Foreground="White" FontSize="17" HorizontalAlignment="Right" FontFeatures="tnum, lnum" />
+					<TextBlock Grid.Column="1" Name="FN" Text="lese..." Foreground="White" FontSize="17" HorizontalAlignment="Right" FontFeatures="tnum, lnum" />
 				</Grid>
 
 				<Grid Margin="0,2">
@@ -264,7 +264,7 @@
 
 				<Grid Margin="0,2">
 					<Grid.ColumnDefinitions>
-						<ColumnDefinition Width="*" />
+						<ColumnDefinition Width="150" />
 						<ColumnDefinition Width="*" />
 					</Grid.ColumnDefinitions>
 					<TextBlock Grid.Column="0" Text="Temp.:" Foreground="White" FontSize="17" HorizontalAlignment="Left" FontFeatures="tnum, lnum" />

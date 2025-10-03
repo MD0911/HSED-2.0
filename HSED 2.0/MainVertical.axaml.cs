@@ -370,7 +370,7 @@ namespace HSED_2._0
             ViewModel.CurrentTemp = HseCom.SendHse(3001);
 
             byte[] last = HseCom.SendHseCommand(new byte[] { 0x03, 0x01, 0x64, 0x80 });
-            try { ViewModel.CurrentLast = BitConverter.ToInt16(new byte[] { last[8], last[9] }, 0); } catch { }
+          //  try { ViewModel.CurrentLast = BitConverter.ToInt16(new byte[] { last[8], last[9] }, 0); } catch { }
 
             byte[] SK = HseCom.SendHseCommand(new byte[] { 0x03, 0x01, 0x21, 0x02, 0x00, 0x05 });
             if (SK != null && SK.Length > 10)

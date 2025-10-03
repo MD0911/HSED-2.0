@@ -1,6 +1,6 @@
 {
   "SerialSettings": {
     "SerialPort": "COM3",
-    "SerialBaudrate": "38400"
+    "SerialBaudrate": "57600"
   }
 }

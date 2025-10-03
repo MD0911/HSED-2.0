@@ -118,7 +118,9 @@ private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset na
         private readonly Dictionary<int, (Button Btn, Avalonia.Point Center)> _insideCenters = new();
         private readonly Dictionary<(int, ArrowDir), (Button Btn, Avalonia.Point Center)> _arrowCenters = new();
 
-
+        public int[] LevelIncrement = new int[99];
+        public bool firstRide = true;
+        public int Fabriknummer;
 
 
         public MainWindow()
@@ -166,8 +168,10 @@ private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset na
 
             int renderWidth = 300;
             int renderHeight = (int)Math.Round(_lievViewManager.TotalHeight);
+
             SharedSvgBitmap = RenderSvgToBitmap(_lievViewManager.ComposedSvg, renderWidth, renderHeight);
             SharedSvgBitmapAlternative = RenderSvgToBitmap(_lievViewManager.ComposedSvgAlternative, renderWidth, renderHeight);
+            
             SvgImageControl.Source = SharedSvgBitmap;
             SvgImageControlAlternative.Source = SharedSvgBitmapAlternative;
 
@@ -335,6 +339,10 @@ private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset na
                     DisplayUhr();
                     DisplayInnenruftasterquittung();
                     DisplayAussenruftasterquittung();
+                    DisplaySpeed();
+                    DisplaySignal();
+                    DisplayDiff();
+                    DisplayDoorSwitch();
                 };
             }
             _updateTimer.Start();
@@ -394,6 +402,8 @@ private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset na
             _cancellationTokenSource?.Cancel();
         }
 
+    
+
         public void StopLogic()
         {
             _updateTimer?.Stop();
@@ -441,6 +451,7 @@ private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset na
 
         private Bitmap RenderSvgToBitmap(string svgString, int width, int height)
         {
+
             var svg = new SKSvg();
             svg.FromSvg(svgString);
 
@@ -485,6 +496,129 @@ private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset na
             AutoFollowIfNeeded();
         }
 
+        public void DisplayDoorSwitch()
+        {
+            if (ViewModel.LS1 == 1)
+            {
+                DLS1.Background = new SolidColorBrush(Color.Parse("#22c55e"));
+            }
+            else 
+            { 
+            DLS1.Background = new SolidColorBrush(Color.Parse("#9ca3af"));
+            }
+            if (ViewModel.LS2 == 1)
+            {
+                DLS2.Background = new SolidColorBrush(Color.Parse("#22c55e"));
+            }
+            else
+            {
+                DLS2.Background = new SolidColorBrush(Color.Parse("#9ca3af"));
+            }
+            if (ViewModel.LS3 == 1)
+            {
+                DLS3.Background = new SolidColorBrush(Color.Parse("#22c55e"));
+            }
+            else
+            {
+                DLS3.Background = new SolidColorBrush(Color.Parse("#9ca3af"));
+            }
+
+
+            if(ViewModel.DOP1)
+            {
+                DOP1.Background = new SolidColorBrush(Color.Parse("#22c55e"));
+            }
+            else
+            {
+                DOP1.Background = new SolidColorBrush(Color.Parse("#9ca3af"));
+            }
+
+            if (ViewModel.DOP2) 
+            {
+                DOP2.Background = new SolidColorBrush(Color.Parse("#22c55e"));
+            }
+            else
+            {
+                DOP2.Background = new SolidColorBrush(Color.Parse("#9ca3af"));
+            }
+            if (ViewModel.DOP3)
+            {
+                DOP3.Background = new SolidColorBrush(Color.Parse("#22c55e"));
+            }
+            else
+            {
+                DOP3.Background = new SolidColorBrush(Color.Parse("#9ca3af"));
+            }
+
+            if (ViewModel.DCL1)
+            {
+                DCL1.Background = new SolidColorBrush(Color.Parse("#22c55e"));
+            }
+            else
+            {
+                DCL1.Background = new SolidColorBrush(Color.Parse("#9ca3af"));
+
+            }
+
+            if (ViewModel.DCL2)
+            {
+                DCL2.Background = new SolidColorBrush(Color.Parse("#22c55e"));
+            }
+            else
+            {
+                DCL2.Background = new SolidColorBrush(Color.Parse("#9ca3af"));
+            }
+            if (ViewModel.DCL3)
+            {
+                DCL3.Background = new SolidColorBrush(Color.Parse("#22c55e"));
+            }
+            else
+            {
+                DCL3.Background = new SolidColorBrush(Color.Parse("#9ca3af"));
+            }
+
+
+            if (ViewModel.DREV1) 
+            {
+                DREV1.Background = new SolidColorBrush(Color.Parse("#22c55e"));
+            }
+            else
+            {
+                DREV1.Background = new SolidColorBrush(Color.Parse("#9ca3af"));
+            }
+            if (ViewModel.DREV2)
+            {
+                DREV2.Background = new SolidColorBrush(Color.Parse("#22c55e"));
+            }
+            else
+            {
+                DREV2.Background = new SolidColorBrush(Color.Parse("#9ca3af"));
+            }
+            if (ViewModel.DREV3)
+            {
+                DREV3.Background = new SolidColorBrush(Color.Parse("#22c55e"));
+            }
+            else
+            {
+                DREV3.Background = new SolidColorBrush(Color.Parse("#9ca3af"));
+            }
+
+        }
+
+        public void DisplaySKF()
+        {
+            if (ViewModel.SKF == 1)
+            {
+                VFang.Background = new SolidColorBrush(Color.Parse("#22c55e"));
+               
+            }
+            else
+            {
+                VFang.Background = new SolidColorBrush(Color.Parse("#9ca3af"));
+                
+            }
+        }
+
         private void AutoFollowIfNeeded()
         {
             if (!_autoFollow) return;
@@ -511,10 +645,14 @@ private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset na
 
         public void DisplayFahrkorbMM()
         {
+           
             int fahrkorb = ViewModel.CurrentFahrkorb / Pos_Cal;
             double fahrkorbMeter = fahrkorb / 1000.0;
             fahrkorbMeter = Math.Ceiling(fahrkorbMeter * 100) / 100;
+            fahrkorb = fahrkorb - 100000;
+            if (fahrkorb < 0) fahrkorb = 0;
             Hoehe.Text = fahrkorb.ToString() + "mm";
+            
         }
 
         private Button? FindInsideButtonByLabel(int label)
@@ -593,6 +731,43 @@ private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset na
             }
         }
 
+        public void DisplaySpeed()
+        {
+
+            Geschwindigkeit.Text = ViewModel.Speed.ToString() + "mm/s";
+        }
+
+        public void DisplaySignal()
+        {
+            if(ViewModel.SGO)
+            {
+                SGO.Background = new SolidColorBrush(Color.Parse("#22c55e"));
+            }
+            else
+            {
+                SGO.Background = new SolidColorBrush(Color.Parse("#9ca3af"));
+            }
+
+            if (ViewModel.SGU)
+            {
+                SGU.Background = new SolidColorBrush(Color.Parse("#22c55e"));
+            }
+            else
+            {
+                SGU.Background = new SolidColorBrush(Color.Parse("#9ca3af"));
+            }
+
+            if (ViewModel.SGU)
+            {
+                SGU.Background = new SolidColorBrush(Color.Parse("#22c55e"));
+            }
+            else
+            {
+                SGU.Background = new SolidColorBrush(Color.Parse("#9ca3af"));
+            }
+
+        }
+
 
 
 
@@ -609,6 +784,24 @@ private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset na
             Debug.WriteLine("Fahrten: " + FahrtZahler.Text);
         }
 
+        public void DisplayDiff()
+        {
+           
+            int currentFloor = MainViewModelInstance.RawCurrentFloor;
+            int posCalc = MainWindow.Instance.Pos_Cal;
+            int fahrkorb = MainViewModelInstance.CurrentFahrkorb / posCalc;
+            int zielBund = MainWindow.Instance.LevelIncrement[currentFloor] / posCalc;
+            int diff = fahrkorb - zielBund;
+            Debug.WriteLine("Diff: " + diff);
+            if (diff < 0 && diff > -100000 || diff > 0 && diff < 100000)
+            {
+                Buendig.Text = diff.ToString() + "mm";
+            }
+            else
+            {
+                Buendig.Text = "0mm";
+            }
+        }
         public void DisplayBStunden()
         {
             int h = ViewModel.CurrentBStunden / 3600;
@@ -639,7 +832,13 @@ private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset na
             }
         }
 
-        public void DisplayLast() => Last.Text = ViewModel.CurrentLast.ToString() + "Kg";
+        public void DisplayLast()
+        {
+          
+            
+                Last.Text = ViewModel.CurrentLast.ToString() + "Kg";
+            
+        }
 
         public void DisplaySk()
         {
@@ -782,17 +981,82 @@ private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset na
             Debug.WriteLine("Send all");
         }
 
+        public static void LevelPositionDefiner()
+        {
+            int gesamtFloor = HseCom.SendHse(1001);
+            for (int i = 0; i < gesamtFloor; i++)
+            {
+
+                int etage = i + 1;
+                byte ZielEtage = (byte)etage;
+                byte[] LevelsPos = HseCom.SendHseCommand(new byte[] { 0x03, 0x01, 0x24, 0x29, ZielEtage });
+                MainWindow.Instance.LevelIncrement[i]  = BitConverter.ToInt32(new byte[] { LevelsPos[10], LevelsPos[11], LevelsPos[12], LevelsPos[13] }, 0);
+            }
+
+            
+            /*
+                        Debug.WriteLine("Level Pos: " + BitConverter.ToString(LevelsPos));
+                        int Pos = BitConverter.ToInt32(new byte[] { LevelsPos[10], LevelsPos[11], LevelsPos[12], LevelsPos[13] }, 0);
+                        Debug.WriteLine("Level Pos Wert: " + Pos);
+            */
+        }
+
+        public static void FabrikNummerDefiner()
+        {
+            byte[] Fabriknummer = HseCom.SendHseCommand(new byte[] { 0x03, 0x01, 0x24, 0x02 });
+            MainWindow.Instance.Fabriknummer = BitConverter.ToInt32(new byte[] { Fabriknummer[10], Fabriknummer[11], Fabriknummer[12], Fabriknummer[13] }, 0);
+            Debug.WriteLine("Fabriknummer: " + MainWindow.Instance.Fabriknummer);
+        }
+
         public void HseConnect()
         {
+            Debug.WriteLine("HSECONNECT");
             MonetoringManager.startMonetoring();
             Debug.WriteLine("HSE-Verbindung wird hergestellt...");
             SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x05, 0x01, 0x01 });
             Debug.WriteLine("Monetoring gestartet.");
 
+
+            LevelPositionDefiner();
+            FabrikNummerDefiner();
+            FN.Text = MainWindow.Instance.Fabriknummer.ToString();
             ViewModel.CurrentZustand = HseCom.SendHse(1005);
             ViewModel.CurrentStateTueur1 = HseCom.SendHse(1006);
             ViewModel.CurrentStateTueur2 = HseCom.SendHse(1016);
             ViewModel.CurrentFahrtZahler = HseCom.SendHse(2145);
+
+            
+
+            byte[] totalDoor = HseCom.SendHseCommand(new byte[] { 0x03, 0x01, 0x20, 0x00 });
+            if (totalDoor[10] == 3)
+            {
+                D1.Foreground = new SolidColorBrush(Colors.White);
+                D2.Foreground = new SolidColorBrush(Colors.White);
+                D3.Foreground = new SolidColorBrush(Colors.White);
+            }
+            else 
+            {
+                D1.Foreground = new SolidColorBrush(Colors.White);
+                D2.Foreground = new SolidColorBrush(Colors.White);
+
+                DOP3.Height = 5;
+                DOP3.Width = 15;
+                DOP3.CornerRadius = new CornerRadius(0);
+
+                DCL3.Height = 5;
+                DCL3.Width = 15;
+                DCL3.CornerRadius = new CornerRadius(0);
+
+                DREV3.Height = 5;
+                DREV3.Width = 15;
+                DREV3.CornerRadius = new CornerRadius(0);
+
+                DLS3.Height = 5;
+                DLS3.Width = 15;
+                DLS3.CornerRadius = new CornerRadius(0);
+
+            }
+
 
             var transformGroup = (TransformGroup)PositionControl.RenderTransform;
             var YTransform = (TranslateTransform)transformGroup.Children[1];
@@ -800,13 +1064,13 @@ private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset na
             int temp = HseCom.SendHse(3001);
             ViewModel.CurrentTemp = temp;
 
-            byte[] last = HseCom.SendHseCommand(new byte[] { 0x03, 0x01, 0x64, 0x80 });
-            try
-            {
-                int Last = BitConverter.ToInt16(new byte[] { last[8], last[9] }, 0);
-                ViewModel.CurrentLast = Last;
-            }
-            catch (Exception ex) { Debug.WriteLine("Fehler beim Lesen des letzten Fehlers: " + ex.Message); }
+            byte[] last = HseCom.SendHseCommand(new byte[] { 0x03, 0x01, 0x64, 0x80, 0x00 });
+            Debug.WriteLine("Last: " + BitConverter.ToString(last));
+            
+                int ActualLast = BitConverter.ToInt16(new byte[] { last[10], last[11] }, 0);
+                Last.Text = ActualLast.ToString() + "Kg";
+                
+          
 
             byte[] SK = HseCom.SendHseCommand(new byte[] { 0x03, 0x01, 0x21, 0x02, 0x00, 0x05 });
             if (SK != null && SK.Length > 10)
@@ -1222,22 +1486,22 @@ private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset na
                 {
                     switch (buttonTag)
                     {
-                        case "Settings":
-                            break;
-                        case "Testrufe":
-                            _cachedTestrufeWindow.Show();
-                            _cachedTestrufeWindow.Activate();
-                            StopLogic();
-                            break;
-                        case "Codes":
-                            new Code().Show();
-                            break;
-                        case "SelfDia":
-                            var newWindowSelfDia = new MainVertical();
-                            newWindowSelfDia.Show();
-                            StopLogic();
-                            MainWindow.Instance.Close();
-                            break;
+                        /*  case "Settings":
+                              break;
+                          case "Testrufe":
+                              _cachedTestrufeWindow.Show();
+                              _cachedTestrufeWindow.Activate();
+                              StopLogic();
+                              break;
+                          case "Codes":
+                              new Code().Show();
+                              break;
+                          case "SelfDia":
+                              var newWindowSelfDia = new MainVertical();
+                              newWindowSelfDia.Show();
+                              StopLogic();
+                              MainWindow.Instance.Close();
+                              break;*/
                         case "Ansicht":
                             TerminalManager.terminalActive = true;
                             new Terminal().Show();

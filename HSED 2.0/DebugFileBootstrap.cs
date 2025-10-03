@@ -17,11 +17,15 @@ public static class DebugFileBootstrap
         var fs = new FileStream(logPath, FileMode.Create, FileAccess.Write, FileShare.Read);
         _fileListener = new TextWriterTraceListener(fs, "FileLogger");
 
-        // Hier nur Trace verwenden
         Trace.Listeners.Clear();
+
+        // Datei
         Trace.Listeners.Add(_fileListener);
 
-        // optional zusätzlich Konsole
+        // Debug/Output-Fenster
+        Trace.Listeners.Add(new DefaultTraceListener());
+
+        // optional Konsole
         Trace.Listeners.Add(new ConsoleTraceListener());
 
         Trace.AutoFlush = true;

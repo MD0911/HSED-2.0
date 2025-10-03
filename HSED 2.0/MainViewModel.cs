@@ -117,6 +117,48 @@ namespace HSED_2_0.ViewModels
             }
         }
 
+        private int _ls1;
+        public int LS1
+        {
+            get => _ls1;
+            set
+            {
+                if (_ls1 != value)
+                {
+                    _ls1 = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private int _ls2;
+        public int LS2
+        {
+            get => _ls2;
+            set
+            {
+                if (_ls2 != value)
+                {
+                    _ls2 = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private int _ls3;
+        public int LS3
+        {
+            get => _ls3;
+            set
+            {
+                if (_ls3 != value)
+                {
+                    _ls3 = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         private int _currentZustand;
         public int CurrentZustand
         {
@@ -312,6 +354,246 @@ namespace HSED_2_0.ViewModels
                 if (_abAruftasterquittungZustand != value)
                 {
                     _abAruftasterquittungZustand = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private int _speed;
+        public int Speed
+        {
+            get => _speed;
+            set
+            {
+                if (_speed != value)
+                {
+                    _speed = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private int _signal;
+        public int Signal
+        {
+            get => _signal;
+            set
+            {
+                if (_signal != value)
+                {
+                    _signal = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private bool _firstRide;
+        public bool FirstRide
+        {
+            get => _firstRide;
+            set
+            {
+                if (_firstRide != value)
+                {
+                    _firstRide = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+
+        private bool _dop1;
+        public bool DOP1
+        {
+            get => _dop1;
+            set
+            {
+                if (_dop1 != value)
+                {
+                    _dop1 = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private bool _dop2;
+        public bool DOP2
+        {
+            get => _dop2;
+            set
+            {
+                if (_dop2 != value)
+                {
+                    _dop2 = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private bool _dop3;
+        public bool DOP3
+        {
+            get => _dop3;
+            set
+            {
+                if (_dop3 != value)
+                {
+                    _dop3 = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private bool _dcl1;
+        public bool DCL1
+        {
+            get => _dcl1;
+            set
+            {
+                if (_dcl1 != value)
+                {
+                    _dcl1 = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private bool _dcl2;
+        public bool DCL2
+        {
+            get => _dcl2;
+            set
+            {
+                if (_dcl2 != value)
+                {
+                    _dcl2 = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private bool _dcl3;
+        public bool DCL3
+        {
+            get => _dcl3;
+            set
+            {
+                if (_dcl3 != value)
+                {
+                    _dcl3 = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private bool _drev1;
+        public bool DREV1
+        {
+            get => _drev1;
+            set
+            {
+                if (_drev1 != value)
+                {
+                    _drev1 = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private bool _drev2;
+        public bool DREV2
+        {
+            get => _drev2;
+            set
+            {
+                if (_drev2 != value)
+                {
+                    _drev2 = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private bool _drev3;
+        public bool DREV3
+        {
+            get => _drev3;
+            set
+            {
+                if (_drev3 != value)
+                {
+                    _drev3 = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+
+        private bool _sgm;
+        public bool SGM
+        {
+            get => _sgm;
+            set
+            {
+                if (_sgm != value)
+                {
+                    _sgm = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private bool _sgo;
+        public bool SGO
+        {
+            get => _sgo;
+            set
+            {
+                if (_sgo != value)
+                {
+                    _sgo = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private bool _sgu;
+        public bool SGU
+        {
+            get => _sgu;
+            set
+            {
+                if (_sgu != value)
+                {
+                    _sgu = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private int _skf;
+        public int SKF
+        {
+            get => _skf;
+            set
+            {
+                if (_skf != value)
+                {
+                    _skf = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private int _rawCurrentFloor;
+        public int RawCurrentFloor
+        {
+            get => _rawCurrentFloor;
+            set
+            {
+                if (_rawCurrentFloor != value)
+                {
+                    _rawCurrentFloor = value;
                     OnPropertyChanged();
                 }
             }

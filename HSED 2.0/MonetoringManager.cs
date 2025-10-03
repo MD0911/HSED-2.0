@@ -6,6 +6,7 @@ using System.Text;
 using Avalonia.Threading;
 using HSED_2_0.ViewModels;
 using HSED_2._0;
+using System.Security.Cryptography.X509Certificates;
 
 namespace HSED_2_0
 {
@@ -49,7 +50,7 @@ namespace HSED_2_0
                 while (!_cts.Token.IsCancellationRequested)
                 {
                     // Sende Monitoring-Befehl (z. B. 0x05,0x01) ohne auf Antwort zu warten.
-                   SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x05, 0x01, 0x01});
+                   SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x05, 0x01});
                     try
                     {
                         await Task.Delay(1000, _cts.Token);
@@ -129,6 +130,7 @@ namespace HSED_2_0
             {
                 if (MainWindow.Instance?.ViewModel != null)
                 {
+                    MainWindow.Instance.ViewModel.RawCurrentFloor = rawFloor;
                     MainWindow.Instance.ViewModel.CurrentFloor = CurrentFloor;
                 }
             });
@@ -460,6 +462,8 @@ namespace HSED_2_0
                 int zustandQuittung = 0;
             }
 
+            
+
 
             // Aktualisiere das ViewModel im UI-Thread:
             Dispatcher.UIThread.Post(() =>
@@ -473,6 +477,256 @@ namespace HSED_2_0
 
         }
 
+        public static void speed(byte[] zustand)
+        {
+
+            int speed = BitConverter.ToInt16(new byte[] { zustand[4], zustand[5] }, 0);
+
+            // Aktualisiere das ViewModel im UI-Thread:
+            Dispatcher.UIThread.Post(() =>
+            {
+                if (MainWindow.Instance?.ViewModel != null)
+                {
+                    MainWindow.Instance.ViewModel.Speed = speed;
+                }
+            });
+        }
+
+        public static void signal(byte[] zustand)
+        {
+
+            byte signal = zustand[4];
+            bool SGM;
+            bool SGO;
+            bool SGU;
+
+            if ((signal & 0x01) != 0)
+            {
+                 SGM = true;
+            }
+            else
+            {
+                 SGM = false;
+            }
+            if ((signal & 0x02) != 0)
+            {
+                 SGO = true;
+            }
+            else
+            {
+                 SGO = false;
+            }
+            if ((signal & 0x04) != 0)
+            {
+                 SGU = true;
+            }
+            else
+            {
+                 SGU = false;
+            }
+
+
+            // Aktualisiere das ViewModel im UI-Thread:
+            Dispatcher.UIThread.Post(() =>
+            {
+                if (MainWindow.Instance?.ViewModel != null)
+                {
+                    MainWindow.Instance.ViewModel.SGM = SGM;
+                    MainWindow.Instance.ViewModel.SGO = SGO;
+                    MainWindow.Instance.ViewModel.SGU = SGU;
+                }
+            });
+        }
+
+        public static void setSKF(byte[] zustand)
+        {
+            int skf = zustand[4];
+
+            // Aktualisiere das ViewModel im UI-Thread:
+            Dispatcher.UIThread.Post(() =>
+            {
+                if (MainWindow.Instance?.ViewModel != null)
+                {
+                    MainWindow.Instance.ViewModel.SKF = skf;
+                }
+            });
+        }
+
+        public static void setLS(byte[] zustand, int tur)
+        {
+            
+
+            // Aktualisiere das ViewModel im UI-Thread:
+
+            switch(tur)
+            {
+                case 1:
+                    int ls1 = zustand[4];
+                    Dispatcher.UIThread.Post(() =>
+                    {
+                        if (MainWindow.Instance?.ViewModel != null)
+                        {
+                            MainWindow.Instance.ViewModel.LS1 = ls1;
+                        }
+                    });
+                    break;
+                case 2:
+                    int ls2 = zustand[4];
+                    Dispatcher.UIThread.Post(() =>
+                    {
+                        if (MainWindow.Instance?.ViewModel != null)
+                        {
+                            MainWindow.Instance.ViewModel.LS2 = ls2;
+                        }
+                    });
+                    break;
+                case 3:
+                    int ls3 = zustand[4];
+                    Dispatcher.UIThread.Post(() =>
+                    {
+                        if (MainWindow.Instance?.ViewModel != null)
+                        {
+                            MainWindow.Instance.ViewModel.LS3 = ls3;
+                        }
+                    });
+                    break;
+                default:
+                    break;
+            }
+
+        }
+
+        public static void setDS(byte[] zustand, int tur)
+        {
+            if(tur == 1)
+            {
+                byte signal = zustand[4];
+                bool DOP1;
+                bool DCL1;
+                bool DREV1;
+
+                if ((signal & 0x01) != 0)
+                {
+                    DOP1 = true;
+                }
+                else
+                {
+                    DOP1 = false;
+                }
+                if ((signal & 0x02) != 0)
+                {
+                    DCL1 = true;
+                }
+                else
+                {
+                    DCL1 = false;
+                }
+                if ((signal & 0x04) != 0)
+                {
+                    DREV1 = true;
+                }
+                else
+                {
+                    DREV1 = false;
+                }
+                Dispatcher.UIThread.Post(() =>
+                {
+                    if (MainWindow.Instance?.ViewModel != null)
+                    {
+                        MainWindow.Instance.ViewModel.DOP1 = DOP1;
+                        MainWindow.Instance.ViewModel.DCL1 = DCL1;
+                        MainWindow.Instance.ViewModel.DREV1 = DREV1;
+                    }
+                });
+            }
+
+            else if (tur == 2)
+            {
+                byte signal = zustand[4];
+                bool DOP2;
+                bool DCL2;
+                bool DREV2;
+
+                if ((signal & 0x01) != 0)
+                {
+                    DOP2 = true;
+                }
+                else
+                {
+                    DOP2 = false;
+                }
+                if ((signal & 0x02) != 0)
+                {
+                    DCL2 = true;
+                }
+                else
+                {
+                    DCL2 = false;
+                }
+                if ((signal & 0x04) != 0)
+                {
+                    DREV2 = true;
+                }
+                else
+                {
+                    DREV2 = false;
+                }
+                Dispatcher.UIThread.Post(() =>
+                {
+                    if (MainWindow.Instance?.ViewModel != null)
+                    {
+                        MainWindow.Instance.ViewModel.DOP2 = DOP2;
+                        MainWindow.Instance.ViewModel.DCL2 = DCL2;
+                        MainWindow.Instance.ViewModel.DREV2 = DREV2;
+                    }
+                });
+            }
+
+            else if (tur == 3)
+            {
+                byte signal = zustand[4];
+                bool DOP3;
+                bool DCL3;
+                bool DREV3;
+                if ((signal & 0x01) != 0)
+                {
+                    DOP3 = true;
+                }
+                else
+                {
+                    DOP3 = false;
+                }
+                if ((signal & 0x02) != 0)
+                {
+                    DCL3 = true;
+                }
+                else
+                {
+                    DCL3 = false;
+                }
+                if ((signal & 0x04) != 0)
+                {
+                    DREV3 = true;
+                }
+                else
+                {
+                    DREV3 = false;
+                }
+                Dispatcher.UIThread.Post(() =>
+                {
+                    if (MainWindow.Instance?.ViewModel != null)
+                    {
+                        MainWindow.Instance.ViewModel.DOP3 = DOP3;
+                        MainWindow.Instance.ViewModel.DCL3 = DCL3;
+                        MainWindow.Instance.ViewModel.DREV3 = DREV3;
+                    }
+                });
+            }
+
+
+
+
+        }
 
 
 
@@ -484,11 +738,11 @@ namespace HSED_2_0
         ///  - Zustandsindex 0x2102: SK-Zustand (wird ins ViewModel geschrieben)
         /// </summary>
         /// 
-        /*public static void animationValidator()
-        {
-            HseCom.SendHseCommand(new byte[] { 0x03, 0x01,  });
+            /*public static void animationValidator()
+            {
+                HseCom.SendHseCommand(new byte[] { 0x03, 0x01,  });
 
-        }*/
+            }*/
         public static void AnalyzeResponseNew(byte[] response)
         {
 
@@ -587,6 +841,89 @@ namespace HSED_2_0
 
 
             }
+
+            else if (response[0] == 0x63 && response[1] == 0x90)
+            {
+
+                Debug.WriteLine("Geschwin. Änderung erkannt.");
+                speed(response);
+
+
+            }
+
+            else if (response[0] == 0x26 && response[1] == 0x4F)
+            {
+
+                Debug.WriteLine("Signalgeber. Änderung erkannt.");
+                signal(response);
+
+
+            }
+
+            else if (response[0] == 0x26 && response[1] == 0x50)
+            {
+
+                Debug.WriteLine("SKF. Änderung erkannt.");
+                setSKF(response);
+
+
+            }
+
+            else if (response[0] == 0x63 && response[1] == 0x10 && response[2] == 0x01)
+            {
+
+                Debug.WriteLine("LS-T1. Änderung erkannt.");
+                setLS(response, 1);
+
+
+            }
+
+            else if (response[0] == 0x63 && response[1] == 0x10 && response[2] == 0x02)
+            {
+
+                Debug.WriteLine("LS-T3. Änderung erkannt.");
+                setLS(response, 2);
+
+
+            }
+
+            else if (response[0] == 0x63 && response[1] == 0x10 && response[2] == 0x03)
+            {
+
+                Debug.WriteLine("LS-T3. Änderung erkannt.");
+                setLS(response, 3);
+
+
+            }
+
+            else if (response[0] == 0x63 && response[1] == 0xEF && response[2] == 0x01)
+            {
+
+                Debug.WriteLine("DS1. Änderung erkannt.");
+                setDS(response, 1);
+
+
+            }
+
+            else if (response[0] == 0x63 && response[1] == 0xEF && response[2] == 0x02)
+            {
+
+                Debug.WriteLine("DS2. Änderung erkannt.");
+                setDS(response, 1);
+
+
+            }
+
+            else if (response[0] == 0x63 && response[1] == 0xEF && response[2] == 0x03)
+            {
+
+                Debug.WriteLine("DS3. Änderung erkannt.");
+                setDS(response, 1);
+
+
+            }
+
+
 
         }
         public static void AnalyzeResponse(byte[] response)
