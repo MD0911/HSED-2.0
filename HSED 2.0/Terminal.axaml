@@ -1,9 +1,9 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="HSED_2_0.Terminal"
-        Width="800" Height="480"
+        Width="440" Height="220"
         SystemDecorations="None"
-        Background="rgba(0, 0, 0, 0.46)"
+        Background="Transparent"
         WindowStartupLocation="Manual"
         Title="HSED_2_0"
         CanResize="False">
@@ -25,7 +25,7 @@
 		</LayoutTransformControl.LayoutTransform>
 
 		<!-- Dein bisheriger Canvas -->
-		<Canvas Margin="-30,-30,0,0">
+		<Canvas Margin="-30,-280,0,0">
 
 			<!-- Äußerer Rahmen -->
 			<Border BorderThickness="3"
