@@ -44,7 +44,17 @@
 		<None Remove="Animation\3GAuf.png" />
 		<None Remove="Animation\3GZu.png" />
 		<None Remove="Animation\3Zu.png" />
+		<None Remove="Animation\forBuild\Fahrkorb\Fahrkorb-1offen.png" />
+		<None Remove="Animation\forBuild\Fahrkorb\Fahrkorb-2offen.png" />
+		<None Remove="Animation\forBuild\Fahrkorb\Fahrkorb-Boffen.png" />
+		<None Remove="Animation\forBuild\Fahrkorb\Fahrkorb-offen.png" />
 		<None Remove="Animation\forBuild\Fahrkorb\Fahrkorb.png" />
+		<None Remove="Animation\forBuild\Fahrkorb\oeffentschliesst3.png" />
+		<None Remove="Animation\forBuild\Fahrkorb\oeffnetSchliesst1.png" />
+		<None Remove="Animation\forBuild\Fahrkorb\offen1.png" />
+		<None Remove="Animation\forBuild\Fahrkorb\offen2.png" />
+		<None Remove="Animation\forBuild\Fahrkorb\offen3.png" />
+		<None Remove="Animation\forBuild\Fahrkorb\offenetschliesst2.png" />
 		<None Remove="Animation\forBuild\SchachtHinten.svg" />
 		<None Remove="Animation\forBuild\SchachtVorne.svg" />
 		<None Remove="bitmap\ASCII00.bmp" />
@@ -227,12 +237,39 @@
 		<AvaloniaResource Include="Animation\3.png">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</AvaloniaResource>
+		<Content Include="Animation\forBuild\Fahrkorb\Fahrkorb-1offen.png">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Animation\forBuild\Fahrkorb\Fahrkorb-2offen.png">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Animation\forBuild\Fahrkorb\Fahrkorb-Boffen.png">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
 		<AvaloniaResource Include="Images\Icons\die-einstellungen.png">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</AvaloniaResource>
 		<AvaloniaResource Include="Images\Icons\refresh.png">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</AvaloniaResource>
+		<Content Include="Animation\forBuild\Fahrkorb\oeffentschliesst3.png">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Animation\forBuild\Fahrkorb\oeffnetSchliesst1.png">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Animation\forBuild\Fahrkorb\offen1.png">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Animation\forBuild\Fahrkorb\offen2.png">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Animation\forBuild\Fahrkorb\offen3.png">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Animation\forBuild\Fahrkorb\offenetschliesst2.png">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
 		<Content Include="Animation\forBuild\SchachtHinten.svg">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>

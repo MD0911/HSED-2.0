@@ -732,7 +732,7 @@ namespace HSED_2._0
                         tuer1Text.Text = "Geschlossen";
                         tuer1Text.Foreground = new SolidColorBrush(Colors.White);
                         break;
-                    case 50:
+                    case 80:
                         tuer1Text.Text = "Tür öffnet";
                         tuer1Text.Foreground = new SolidColorBrush(Colors.Yellow);
                         break;

@@ -289,9 +289,12 @@
 				<RotateTransform Angle="90" />
 			</Border.RenderTransform>
 
-			<StackPanel HorizontalAlignment="Center">
+			<StackPanel Name="ZustandPanel" HorizontalAlignment="Center">
 				<TextBlock VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,5,0,5" Foreground="#9ca3af" FontSize="15">Zustand</TextBlock>
 				<TextBlock Name="Zustand" VerticalAlignment="Center" HorizontalAlignment="Center"  Margin="0" Foreground="White" Text="lese..." FontSize="20"/>
+				<TextBlock x:Name="Zustand2" VerticalAlignment="Center" HorizontalAlignment="Center"  Margin="0" Foreground="White" Text="" FontSize="20"/>
+				<TextBlock x:Name="Zustand3" VerticalAlignment="Center" HorizontalAlignment="Center"  Margin="0" Foreground="White" Text="" FontSize="20"/>
+				<TextBlock x:Name="Zustand4" VerticalAlignment="Center" HorizontalAlignment="Center"  Margin="0" Foreground="White" Text="" FontSize="20"/>
 			</StackPanel>
 		</Border>
 
@@ -329,7 +332,7 @@
 							<Image.RenderTransform>
 								<TransformGroup>
 									<ScaleTransform ScaleX="1" ScaleY="1"/>
-									<TranslateTransform X="0" Y="0"/>
+									<TranslateTransform X="0" Y="197.5"/>
 								</TransformGroup>
 							</Image.RenderTransform>
 						</Image>
@@ -348,6 +351,47 @@
 							</TransformGroup>
 						</Image.RenderTransform>
 					</Image>
+					
+					<Image x:Name="FahrkorbOverlay1"
+						   Margin="10,0,0,0"
+						   Width="150"
+						   RenderOptions.BitmapInterpolationMode="LowQuality"
+						   Source="">
+						<Image.RenderTransform>
+							<TransformGroup>
+								<ScaleTransform ScaleX="1" ScaleY="1"/>
+								<TranslateTransform  X="0" Y="0"/>
+							</TransformGroup>
+						</Image.RenderTransform>
+					</Image>
+					
+					<Image x:Name="FahrkorbOverlay2"
+						   Margin="10,0,0,0"
+						   Width="150"
+						   RenderOptions.BitmapInterpolationMode="LowQuality"
+						   Source="">
+						<Image.RenderTransform>
+							<TransformGroup>
+								<ScaleTransform ScaleX="1" ScaleY="1"/>
+								<TranslateTransform  X="0" Y="0"/>
+							</TransformGroup>
+						</Image.RenderTransform>
+					</Image>
+					
+					<Image x:Name="FahrkorbOverlay3"
+						   Margin="10,0,0,0"
+						   Width="150"
+						   RenderOptions.BitmapInterpolationMode="LowQuality"
+						   Source="">
+						<Image.RenderTransform>
+							<TransformGroup>
+								<ScaleTransform ScaleX="1" ScaleY="1"/>
+								<TranslateTransform  X="0" Y="0"/>
+							</TransformGroup>
+						</Image.RenderTransform>
+					</Image>
+					
+					
 
 					<!-- Schacht Teil 2 -->
 					<Canvas Name="PositionControl2" Height="300" Width="300">
@@ -362,7 +406,7 @@
 							<Image.RenderTransform>
 								<TransformGroup>
 									<ScaleTransform ScaleX="1" ScaleY="1"/>
-									<TranslateTransform X="0" Y="0"/>
+									<TranslateTransform X="0" Y="197.5"/>
 								</TransformGroup>
 							</Image.RenderTransform>
 						</Image>

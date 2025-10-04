@@ -15,6 +15,9 @@ using HSED_2_0;
 using HSED_2_0.ViewModels;
 using Avalonia.Controls.Platform;
 using System.Collections.Generic;
+using Avalonia.Animation;
+using System.Collections;
+using System.Linq;
 
 namespace HSED_2._0
 {
@@ -34,6 +37,7 @@ namespace HSED_2._0
         public static bool BZeitSchalter = false;
         public int Pos_Cal = HseCom.SendHse(10101010);
         public int gesamteFloors = HseCom.SendHse(1001);
+        public int IncrementMultiple;
 
         // SVG Cache
         public static Bitmap SharedSvgBitmap { get; private set; }
@@ -68,6 +72,7 @@ namespace HSED_2._0
 
 
 
+
         // Fahrkorb-Animation (SmoothDamp)
         private DispatcherTimer _animTimer;
         private double _visY;      // sichtbarer Wert
@@ -84,6 +89,26 @@ namespace HSED_2._0
 
         private bool AutoFollow => _autoFollowMode == AutoFollowMode.Follow;
 
+        // Adaptive Framerate
+        private const int FrameMsFast = 50;   // ~20 FPS, wie bisher für schnelle Bewegungen
+        private const int FrameMsSlow = 16;   // ~60 FPS für langsame Bewegungen
+
+        // Schwellen
+        private const double SlowSpeedPxPerSec = 120.0;  // darunter gilt als langsam
+        private const double NearTargetPx = 2.0;         // nah am Ziel, dann 60 FPS
+
+        // SmoothDamp Parameter je Modus
+        private const double SmoothTimeFast = 0.16; // wie bisher
+        private const double SmoothTimeSlow = 0.10; // etwas straffer bei 60 FPS
+
+        // Snap Toleranz je Modus
+        private const double SnapEpsFast = 0.3;
+        private const double SnapEpsSlow = 0.0;     // kein Snap bei langsamen Bewegungen
+
+        // Laufende Messwerte für Zielgeschwindigkeit
+        private double _lastTarget;
+        private DateTime _lastTargetSampleTime;
+        private bool _slowMode = false;
 
 
         private const double FloorPitch = 95.0;          // bleibt
@@ -122,7 +147,20 @@ private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset na
         public bool firstRide = true;
         public int Fabriknummer;
 
+        private static readonly SolidColorBrush Red = new(Color.Parse("#ef4444"));
+        private static readonly SolidColorBrush Yellow = new(Color.Parse("#facc15"));
+        private readonly Dictionary<int, TextBlock> tuerZuordnung = new();
 
+        Bitmap Fahrkorb = new Bitmap("Animation/forBuild/Fahrkorb/Fahrkorb.png");
+        Bitmap Fahrkorb1offen = new Bitmap("Animation/forBuild/Fahrkorb/Fahrkorb-1offen.png");
+        Bitmap Fahrkorb2offen = new Bitmap("Animation/forBuild/Fahrkorb/Fahrkorb-2offen.png");
+        Bitmap FahrkorbBoffen = new Bitmap("Animation/forBuild/Fahrkorb/Fahrkorb-Boffen.png");
+        Bitmap FahrkorbOverlayoffen1 = new Bitmap("Animation/forBuild/Fahrkorb/offen1.png");
+        Bitmap FahrkorbOverlayoffen2 = new Bitmap("Animation/forBuild/Fahrkorb/offen2.png");
+        Bitmap FahrkorbOverlayoffen3 = new Bitmap("Animation/forBuild/Fahrkorb/offen3.png");
+        Bitmap Fahrkorb1offnetSchliesst = new Bitmap("Animation/forBuild/Fahrkorb/oeffnetSchliesst1.png");
+        Bitmap Fahrkorb2offnetSchliesst = new Bitmap("Animation/forBuild/Fahrkorb/offenetschliesst2.png");
+        Bitmap Fahrkorb3offnetSchliesst = new Bitmap("Animation/forBuild/Fahrkorb/oeffentschliesst3.png");
         public MainWindow()
         {
             InitializeComponent();
@@ -343,35 +381,46 @@ private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset na
                     DisplaySignal();
                     DisplayDiff();
                     DisplayDoorSwitch();
+                    DisplayDoor();
+                    DisplaySKF();
                 };
             }
             _updateTimer.Start();
 
-            // Smooth-Follow Fahrkorb
+            // Smooth-Follow Fahrkorb → ersetzt durch Feder-Integrator
             if (_animTimer == null)
             {
-                _animTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(FrameMs) };
+                _animTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(16) }; // immer 60 FPS
+                _animClock.Restart();
+
                 _animTimer.Tick += (s, ev) =>
                 {
-                    double target = ViewModel.PositionY;
-                    if (double.IsNaN(_visY)) _visY = target;
+                    double targetRaw = ViewModel.PositionY * MainWindow.Instance.IncrementMultiple;
+                    UpdateRawTargetSamples(targetRaw);
 
-                    double dt = FrameMs / 1000.0;
-                    _visY = SmoothDamp(_visY, target, ref _velY, SmoothTime, MaxSpeed, dt);
-                    if (Math.Abs(target - _visY) <= SnapEps)
-                    {
-                        _visY = target;
-                        _velY = 0.0;
-                    }
+                    // echtes dt
+                    double dt = Math.Max(_animClock.Elapsed.TotalSeconds, 1e-4);
+                    _animClock.Restart();
+
+                    // kontinuierliches Ziel
+                    double targetCont = GetContinuousTarget();
+
+                    // adaptives Verhalten: langsam oder schnell
+                    double err = targetCont - _springX;
+                    double targetSpeed = Math.Abs(_targetSpeedPxPerSec);
+                    double halfLife = (targetSpeed < 60 && Math.Abs(err) < 3) ? 0.30 : 0.18;
+
+                    // Feder-Integrator
+                    CriticallyDampedSpring(ref _springX, ref _springV, targetCont,
+                                           halfLife, 1.0, dt, 20000);
+
+                    _visY = _springX;
                     SetCarTransform(-_visY);
 
-                    UpdateAutoFollowState();      // erst State updaten
-                    if (AutoFollow)               // dann ggf. nachführen
+                    UpdateAutoFollowState();
+                    if (AutoFollow)
                         AutoFollowIfNeeded();
                 };
-
-
-
             }
             _animTimer.Start();
 
@@ -382,6 +431,63 @@ private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset na
             _cancellationTokenSource = new CancellationTokenSource();
             StartPeriodicUpdateO(TimeSpan.FromSeconds(10), _cancellationTokenSource.Token);
         }
+
+
+        // Stopwatch für dt
+        private readonly Stopwatch _animClock = Stopwatch.StartNew();
+
+        // Spring-State
+        private double _springX;
+        private double _springV;
+
+        // Rohziel-Samples
+        private double _rawPrevTarget, _rawCurrTarget;
+        private double _rawPrevTime, _rawCurrTime;
+        private double _expectedSamplePeriod = 0.10;
+        private double _targetSpeedPxPerSec;
+
+        private void UpdateRawTargetSamples(double newTarget)
+        {
+            double now = Stopwatch.GetTimestamp() / (double)Stopwatch.Frequency;
+
+            if (Math.Abs(newTarget - _rawCurrTarget) > 0.01)
+            {
+                double dt = Math.Max(now - _rawCurrTime, 1e-3);
+                _expectedSamplePeriod = 0.9 * _expectedSamplePeriod + 0.1 * dt;
+
+                _rawPrevTarget = _rawCurrTarget;
+                _rawPrevTime = _rawCurrTime;
+
+                _rawCurrTarget = newTarget;
+                _rawCurrTime = now;
+
+                _targetSpeedPxPerSec = (_rawCurrTarget - _rawPrevTarget) / dt;
+            }
+        }
+
+        private double GetContinuousTarget()
+        {
+            double now = Stopwatch.GetTimestamp() / (double)Stopwatch.Frequency;
+            double span = Math.Max(_rawCurrTime - _rawPrevTime, 1e-3);
+            double t = Math.Clamp((now - _rawCurrTime) / Math.Max(_expectedSamplePeriod, 1e-3), 0, 1);
+            double s = t * t * (3 - 2 * t); // Smoothstep
+            return _rawPrevTarget + (_rawCurrTarget - _rawPrevTarget) * s;
+        }
+
+        private static void CriticallyDampedSpring(
+            ref double x, ref double v, double target,
+            double halfLife, double zeta, double dt, double maxAccel)
+        {
+            double lambda = Math.Log(2) / Math.Max(halfLife, 1e-4);
+            double w = Math.Sqrt(Math.Max(lambda * lambda, 1e-6));
+
+            double a = w * w * (target - x) - 2.0 * zeta * w * v;
+            if (maxAccel > 0) a = Math.Clamp(a, -maxAccel, maxAccel);
+
+            v += a * dt;
+            x += v * dt;
+        }
+
         // Fahrkorb-Transform zentral setzen (Schacht bleibt fix)
         private void SetCarTransform(double y)
         {
@@ -603,11 +709,56 @@ private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset na
                 DREV3.Background = new SolidColorBrush(Color.Parse("#9ca3af"));
             }
 
+
+           
+
+
+        }
+
+        public void FollowAnimationOverlay()
+        {
+            var fahrkorbTransform = ((TransformGroup)FahrkorbImage.RenderTransform)
+                        .Children.OfType<TranslateTransform>()
+                        .FirstOrDefault();
+
+            var overlayTransform1 = ((TransformGroup)FahrkorbOverlay1.RenderTransform)
+                                    .Children.OfType<TranslateTransform>()
+                                    .FirstOrDefault();
+          
+
+            if (fahrkorbTransform != null && overlayTransform1 != null)
+            {
+                overlayTransform1.Y = fahrkorbTransform.Y;
+                
+            }
+
+            var overlayTransform2 = ((TransformGroup)FahrkorbOverlay2.RenderTransform)
+                                    .Children.OfType<TranslateTransform>()
+                                    .FirstOrDefault();
+
+
+            if (fahrkorbTransform != null && overlayTransform2 != null)
+            {
+                overlayTransform2.Y = fahrkorbTransform.Y;
+
+            }
+
+            var overlayTransform3 = ((TransformGroup)FahrkorbOverlay3.RenderTransform)
+                                    .Children.OfType<TranslateTransform>()
+                                    .FirstOrDefault();
+
+
+            if (fahrkorbTransform != null && overlayTransform3 != null)
+            {
+                overlayTransform3.Y = fahrkorbTransform.Y;
+
+            }
+
         }
 
         public void DisplaySKF()
         {
-            if (ViewModel.SKF == 1)
+            if (ViewModel.SKF == 0)
             {
                 VFang.Background = new SolidColorBrush(Color.Parse("#22c55e"));
                
@@ -618,6 +769,105 @@ private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset na
                 
             }
         }
+
+        private TextBlock GetAssignedOrAllocate(int doorIndex, int state)
+        {
+            if (tuerZuordnung.TryGetValue(doorIndex, out var tb))
+                return tb;
+
+            if (state == 0) // bei 0 keinen neuen Slot binden
+                return null;
+
+            for (int i = 2; i <= 4; i++)
+            {
+                var frei = this.FindControl<TextBlock>($"Zustand{i}");
+                if (frei != null && string.IsNullOrWhiteSpace(frei.Text))
+                {
+                    Debug.WriteLine("Slot Frei bei " + i);
+                    tuerZuordnung[doorIndex] = frei;
+                    return frei;
+                }
+            }
+
+            Debug.WriteLine("Slots alle belegt.");
+            return null;
+        }
+
+
+
+
+
+
+
+        public void DisplayDoor()
+        {
+
+
+
+
+            if (ViewModel.CurrentStateTueur1 == 48 && ViewModel.CurrentStateTueur2 == 0)
+            {
+                FahrkorbImage.Source = Fahrkorb1offen;
+            }
+            else if (ViewModel.CurrentStateTueur1 == 0 && ViewModel.CurrentStateTueur2 == 48)
+            {
+                FahrkorbImage.Source = Fahrkorb2offen;
+            }
+            else if (ViewModel.CurrentStateTueur1 == 48 && ViewModel.CurrentStateTueur2 == 48)
+            {
+                FahrkorbImage.Source = FahrkorbBoffen;
+            }
+            else if (ViewModel.CurrentStateTueur1 == 0 && ViewModel.CurrentStateTueur2 == 0)
+            {
+                FahrkorbImage.Source = Fahrkorb;
+            }
+
+            if(ViewModel.CurrentStateTueur1 == 48)
+            {
+                FahrkorbOverlay1.Source = FahrkorbOverlayoffen1;
+            }
+            if (ViewModel.CurrentStateTueur2 == 48)
+            {
+                FahrkorbOverlay2.Source = FahrkorbOverlayoffen2;
+            }
+            if (ViewModel.CurrentStateTueur3 == 48)
+            {
+                FahrkorbOverlay3.Source = FahrkorbOverlayoffen3;
+            }
+
+            if (ViewModel.CurrentStateTueur1 == 0)
+            {
+                FahrkorbOverlay1.Source = null;
+            }
+            if (ViewModel.CurrentStateTueur2 == 0)
+            {
+                FahrkorbOverlay2.Source = null;
+            }
+            if (ViewModel.CurrentStateTueur3 == 0)
+            {
+                FahrkorbOverlay3.Source = null;
+            }
+
+            if (ViewModel.CurrentStateTueur1 == 80 || ViewModel.CurrentStateTueur1 == 32)
+            {
+                FahrkorbOverlay1.Source = Fahrkorb1offnetSchliesst;
+            }
+            if (ViewModel.CurrentStateTueur2 == 80 || ViewModel.CurrentStateTueur1 == 32)
+            {
+                FahrkorbOverlay2.Source = Fahrkorb2offnetSchliesst;
+            }
+            if (ViewModel.CurrentStateTueur3 == 80 || ViewModel.CurrentStateTueur1 == 32)
+            {
+                FahrkorbOverlay3.Source = Fahrkorb3offnetSchliesst;
+            }
+
+
+        }
+
+
+
+
+
 
         private void AutoFollowIfNeeded()
         {
@@ -682,6 +932,7 @@ private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset na
 
         private static readonly SolidColorBrush BorderGreen = new(Color.Parse("#22c55e"));
         private static readonly SolidColorBrush BorderGray = new(Color.Parse("#d1d5db"));
+        
 
         private void SetButtonOutline(Button btn, bool active)
         {
@@ -816,6 +1067,7 @@ private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset na
                 case 4:
                     Zustand.Text = "Stillstand";
                     Zustand.Foreground = new SolidColorBrush(Colors.White);
+                    FollowAnimationOverlay();
                     break;
                 case 5:
                     Zustand.Text = "Fährt";
@@ -1008,6 +1260,70 @@ private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset na
             Debug.WriteLine("Fabriknummer: " + MainWindow.Instance.Fabriknummer);
         }
 
+        public void setDOPs()
+        {
+            if (!ViewModel.DOPNA1)
+            {
+                DOP1.Width = 15;
+                DOP1.Height = 5;
+                DOP1.CornerRadius = new CornerRadius(0);
+
+                DCL1.Width = 15;
+                DCL1.Height = 5;
+                DCL1.CornerRadius = new CornerRadius(0);
+            }
+            else
+            {
+                DOP1.Width = 25;
+                DOP1.Height = 15;
+                DOP1.CornerRadius = new CornerRadius(5);
+
+                DCL1.Width = 25;
+                DCL1.Height = 15;
+                DCL1.CornerRadius = new CornerRadius(5);
+            }
+            if (!ViewModel.DOPNA2)
+            {
+                DOP2.Width = 15;
+                DOP2.Height = 5;
+                DOP2.CornerRadius = new CornerRadius(0);
+
+                DCL2.Width = 15;
+                DCL2.Height = 5;
+                DCL2.CornerRadius = new CornerRadius(0);
+            }
+            else
+            {
+                DOP2.Width = 25;
+                DOP2.Height = 15;
+                DOP2.CornerRadius = new CornerRadius(5);
+
+                DCL2.Width = 25;
+                DCL2.Height = 15;
+                DCL2.CornerRadius = new CornerRadius(5);
+            }
+            if (!ViewModel.DOPNA3)
+            {
+                DOP3.Width = 15;
+                DOP3.Height = 5;
+                DOP3.CornerRadius = new CornerRadius(0);
+
+                DCL3.Width = 15;
+                DCL3.Height = 5;
+                DCL3.CornerRadius = new CornerRadius(0);
+            }
+            else
+            {
+                DOP3.Width = 25;
+                DOP3.Height = 15;
+                DOP3.CornerRadius = new CornerRadius(5);
+
+                DCL1.Width = 25;
+                DCL1.Height = 15;
+                DCL1.CornerRadius = new CornerRadius(5);
+            }
+        }
+
         public void HseConnect()
         {
             Debug.WriteLine("HSECONNECT");
@@ -1016,6 +1332,7 @@ private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset na
             SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x05, 0x01, 0x01 });
             Debug.WriteLine("Monetoring gestartet.");
 
+            MainWindow.Instance.IncrementMultiple = Pos_Cal / 2;
 
             LevelPositionDefiner();
             FabrikNummerDefiner();
@@ -1025,7 +1342,9 @@ private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset na
             ViewModel.CurrentStateTueur2 = HseCom.SendHse(1016);
             ViewModel.CurrentFahrtZahler = HseCom.SendHse(2145);
 
-            
+
+            setDOPs();
+
 
             byte[] totalDoor = HseCom.SendHseCommand(new byte[] { 0x03, 0x01, 0x20, 0x00 });
             if (totalDoor[10] == 3)
@@ -1038,20 +1357,21 @@ private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset na
             {
                 D1.Foreground = new SolidColorBrush(Colors.White);
                 D2.Foreground = new SolidColorBrush(Colors.White);
+                D3.Foreground = new SolidColorBrush(Colors.Transparent);
 
-                DOP3.Height = 5;
+                DOP3.Height = 0;
                 DOP3.Width = 15;
                 DOP3.CornerRadius = new CornerRadius(0);
 
-                DCL3.Height = 5;
+                DCL3.Height = 0;
                 DCL3.Width = 15;
                 DCL3.CornerRadius = new CornerRadius(0);
 
-                DREV3.Height = 5;
+                DREV3.Height = 0;
                 DREV3.Width = 15;
                 DREV3.CornerRadius = new CornerRadius(0);
 
-                DLS3.Height = 5;
+                DLS3.Height = 0;
                 DLS3.Width = 15;
                 DLS3.CornerRadius = new CornerRadius(0);
 
@@ -1168,7 +1488,12 @@ private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset na
 
                 var (shaftL, shaftR, shaftTop, shaftBot) = GetShaftFrameInOverlay();
 
-                // neu aufbauen
+                // ===== Dynamischer Pitch: aus sichtbarer (skalierten) Schachthöhe statt fester Pixelwerte =====
+                double shaftHeight = shaftBot - shaftTop;   // sichtbare, skaliert gerenderte Höhe des Schachts
+                double pitch = shaftHeight / count;         // Abstand von Etage zu Etage in Overlay-Pixeln
+                double firstCenterY = shaftBot - pitch / 2; // Mitte der untersten Etage
+
+                // Neu aufbauen
                 FloorButtonsOverlay.Children.Clear();
                 _insideButtons.Clear();
                 _insideCenters.Clear();
@@ -1178,14 +1503,14 @@ private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset na
                 {
                     int idxFromBottom = f - bootLabel;
 
-                    // vertikale mitte dieser etage (wie zuvor)
-                    double yCenter = shaftBot - (idxFromBottom + 0.5) * FloorPitch + FloorAnchorOffsetPx;
+                    // Vertikale Mitte dieser Etage — unabhängig von der Schachtgröße korrekt
+                    double yCenter = firstCenterY - idxFromBottom * pitch;
 
                     // ===== Innenruf (links) =====
-                    // sichtbares zentrum: vorherige logik + globaler horizontal-offset
+                    // Sichtbares Zentrum: vom linken Schachtrand aus + kleiner horizontaler Offset
                     double insideVisualCenterX = (shaftL - GapToShaft) - (VisualInsideSize / 2.0) + HorizontalOffsetPx;
 
-                    // hitbox so platzieren, dass der kleine sichtbare kreis mittig bleibt
+                    // Hitbox so platzieren, dass der sichtbare Kreis mittig bleibt
                     double insideHitboxLeft = insideVisualCenterX - (HitboxSize / 2.0);
                     double insideHitboxTop = yCenter - (HitboxSize / 2.0);
 
@@ -1197,7 +1522,7 @@ private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset na
                         Background = Brushes.Transparent,
                         BorderThickness = new Thickness(0),
                         Tag = f,
-                        IsHitTestVisible = false
+                        IsHitTestVisible = false // Picking zentral über das Overlay
                     };
 
                     var insideVisual = new Border
@@ -1219,7 +1544,6 @@ private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset na
                     };
 
                     insideBtn.Content = insideVisual;
-
                     Canvas.SetLeft(insideBtn, insideHitboxLeft);
                     Canvas.SetTop(insideBtn, insideHitboxTop);
                     FloorButtonsOverlay.Children.Add(insideBtn);
@@ -1231,7 +1555,7 @@ private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset na
                     bool isBottom = (f == bootLabel);
                     bool isTop = (f == topLabel);
 
-                    // sichtbares zentrum rechts + gleicher horizontal-offset
+                    // Sichtbares Zentrum rechts + gleicher horizontaler Offset
                     double arrowVisualCenterX = (shaftR + GapToShaft) + (VisualArrowSize / 2.0) + HorizontalOffsetPx;
 
                     if (isBottom)
@@ -1262,7 +1586,7 @@ private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset na
                     }
                     else
                     {
-                        // gestapelt: abstände der sichtbaren pfeile bleiben wie vorher
+                        // Gestapelt: sichtbare Pfeile mit konstantem Abstand, Hitboxen entsprechend mittig
                         double stackVisible = VisualArrowSize + ArrowStackGap;
                         double upCenterY = yCenter - (stackVisible / 2.0);
                         double downCenterY = yCenter + (stackVisible / 2.0);
@@ -1286,7 +1610,6 @@ private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset na
                 _buildingOverlay = false;
             }
         }
-
 
 
         private void FloorButtonsOverlay_PointerPressed(object? sender, Avalonia.Input.PointerPressedEventArgs e)

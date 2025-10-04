@@ -88,7 +88,7 @@ namespace HSED_2._0
             );
 
             // Füge für jede Etage ein <g>-Element mit entsprechender vertikaler Translation hinzu.
-            for (int i = 0; i < GesamtFloor -1; i++)
+            for (int i = 0; i < GesamtFloor - 2; i++)
             {
                 XElement group = new XElement(svgNs + "g",
                     new XAttribute("transform", $"translate(0, {i * floorHeight})")
@@ -148,7 +148,7 @@ namespace HSED_2._0
                 new XAttribute("height", totalHeight)
             );
 
-            for (int i = 0; i < GesamtFloor; i++)
+            for (int i = 0; i < GesamtFloor - 2; i++)
             {
                 XElement group = new XElement(svgNs + "g",
                     new XAttribute("transform", $"translate(0, {i * floorHeight})")

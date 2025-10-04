@@ -42,7 +42,7 @@ namespace HSED_2_0
         /// </summary>
         public void Start()
         {
-            
+
 
             _cts = new CancellationTokenSource();
             Task.Run(async () =>
@@ -50,7 +50,7 @@ namespace HSED_2_0
                 while (!_cts.Token.IsCancellationRequested)
                 {
                     // Sende Monitoring-Befehl (z. B. 0x05,0x01) ohne auf Antwort zu warten.
-                   SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x05, 0x01});
+                   SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x05, 0x01 });
                     try
                     {
                         await Task.Delay(1000, _cts.Token);
@@ -541,6 +541,8 @@ namespace HSED_2_0
         public static void setSKF(byte[] zustand)
         {
             int skf = zustand[4];
+            Debug.WriteLine("SKF: " + skf);
+            Debug.WriteLine(zustand);
 
             // Aktualisiere das ViewModel im UI-Thread:
             Dispatcher.UIThread.Post(() =>
@@ -604,7 +606,7 @@ namespace HSED_2_0
                 bool DOP1;
                 bool DCL1;
                 bool DREV1;
-
+                bool DOPNA1;
                 if ((signal & 0x01) != 0)
                 {
                     DOP1 = true;
@@ -629,6 +631,15 @@ namespace HSED_2_0
                 {
                     DREV1 = false;
                 }
+                if ((signal & 0x80) != 0)
+                {
+                   DOPNA1 = true;
+
+                }
+                else
+                {
+                   DOPNA1 = false;
+                }
                 Dispatcher.UIThread.Post(() =>
                 {
                     if (MainWindow.Instance?.ViewModel != null)
@@ -636,6 +647,7 @@ namespace HSED_2_0
                         MainWindow.Instance.ViewModel.DOP1 = DOP1;
                         MainWindow.Instance.ViewModel.DCL1 = DCL1;
                         MainWindow.Instance.ViewModel.DREV1 = DREV1;
+                        MainWindow.Instance.ViewModel.DOPNA1 = DOPNA1;
                     }
                 });
             }
@@ -646,7 +658,7 @@ namespace HSED_2_0
                 bool DOP2;
                 bool DCL2;
                 bool DREV2;
-
+                bool DOPNA2;
                 if ((signal & 0x01) != 0)
                 {
                     DOP2 = true;
@@ -671,6 +683,15 @@ namespace HSED_2_0
                 {
                     DREV2 = false;
                 }
+                if ((signal & 0x80) != 0)
+                {
+                    DOPNA2 = true;
+
+                }
+                else
+                {
+                    DOPNA2 = false;
+                }
                 Dispatcher.UIThread.Post(() =>
                 {
                     if (MainWindow.Instance?.ViewModel != null)
@@ -678,6 +699,7 @@ namespace HSED_2_0
                         MainWindow.Instance.ViewModel.DOP2 = DOP2;
                         MainWindow.Instance.ViewModel.DCL2 = DCL2;
                         MainWindow.Instance.ViewModel.DREV2 = DREV2;
+                        MainWindow.Instance.ViewModel.DOPNA1 = DOPNA2;
                     }
                 });
             }
@@ -688,6 +710,7 @@ namespace HSED_2_0
                 bool DOP3;
                 bool DCL3;
                 bool DREV3;
+                bool DOPNA3;
                 if ((signal & 0x01) != 0)
                 {
                     DOP3 = true;
@@ -712,6 +735,15 @@ namespace HSED_2_0
                 {
                     DREV3 = false;
                 }
+                if ((signal & 0x80) != 0)
+                {
+                   DOPNA3 = true;
+                    
+                }
+                else
+                {
+                   DOPNA3 = false;
+                }
                 Dispatcher.UIThread.Post(() =>
                 {
                     if (MainWindow.Instance?.ViewModel != null)
@@ -719,6 +751,7 @@ namespace HSED_2_0
                         MainWindow.Instance.ViewModel.DOP3 = DOP3;
                         MainWindow.Instance.ViewModel.DCL3 = DCL3;
                         MainWindow.Instance.ViewModel.DREV3 = DREV3;
+                        MainWindow.Instance.ViewModel.DOPNA1 = DOPNA3;
                     }
                 });
             }
@@ -881,7 +914,7 @@ namespace HSED_2_0
             else if (response[0] == 0x63 && response[1] == 0x10 && response[2] == 0x02)
             {
 
-                Debug.WriteLine("LS-T3. Änderung erkannt.");
+                Debug.WriteLine("LS-T2. Änderung erkannt.");
                 setLS(response, 2);
 
 

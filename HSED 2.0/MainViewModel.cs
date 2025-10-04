@@ -528,6 +528,47 @@ namespace HSED_2_0.ViewModels
             }
         }
 
+        private bool _dopna1;
+        public bool DOPNA1
+        {
+            get => _dopna1;
+            set
+            {
+                if (_dopna1 != value)
+                {
+                    _dopna1 = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private bool _dopna2;
+        public bool DOPNA2
+        {
+            get => _dopna2;
+            set
+            {
+                if (_dopna2 != value)
+                {
+                    _dopna2 = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private bool _dopna3;
+        public bool DOPNA3
+        {
+            get => _dopna3;
+            set
+            {
+                if (_dopna3 != value)
+                {
+                    _dopna3 = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
         private bool _sgm;
         public bool SGM
