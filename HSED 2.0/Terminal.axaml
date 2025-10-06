@@ -29,8 +29,8 @@
 
 			<!-- Äußerer Rahmen -->
 			<Border BorderThickness="3"
-                    BorderBrush="GreenYellow"
-                    Background="#a8a8a8"
+                    BorderBrush="#22c55e"
+                    Background="#111827"
                     Width="220"
                     Height="400"
                     Canvas.Top="10"
@@ -44,192 +44,134 @@
 			<!-- LCD Display -->
 			<Border BorderThickness="2"
                     BorderBrush="Black"
-                    Background="#a8e49c"
+                    Background="Black"
                     Width="200"
                     Height="100"
-                    Canvas.Top="30"
+                    Canvas.Top="20"
                     Canvas.Left="290"
                     CornerRadius="5"
                     Padding="5">
 				<Grid>
 					<!-- Unteres Grid -->
 					<UniformGrid x:Name="ImageGrid" Columns="16" Rows="4">
-						<Image x:Name="Cell_1_1" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_1_2" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_1_3" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_1_4" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_1_5" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_1_6" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_1_7" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_1_8" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_1_9" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_1_10" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_1_11" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_1_12" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_1_13" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_1_14" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_1_15" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_1_16" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_2_1" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_2_2" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_2_3" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_2_4" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_2_5" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_2_6" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_2_7" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_2_8" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_2_9" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_2_10" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_2_11" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_2_12" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_2_13" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_2_14" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_2_15" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_2_16" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_3_1" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_3_2" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_3_3" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_3_4" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_3_5" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_3_6" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_3_7" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_3_8" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_3_9" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_3_10" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_3_11" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_3_12" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_3_13" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_3_14" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_3_15" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_3_16" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_4_1" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_4_2" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_4_3" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_4_4" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_4_5" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_4_6" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_4_7" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_4_8" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_4_9" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_4_10" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_4_11" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_4_12" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_4_13" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_4_14" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_4_15" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cell_4_16" Margin="2" Stretch="Uniform"/>
+						<Image x:Name="Cell_1_1" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_1_2" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_1_3" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_1_4" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_1_5" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_1_6" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_1_7" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_1_8" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_1_9" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_1_10" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_1_11" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_1_12" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_1_13" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_1_14" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_1_15" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_1_16" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_2_1" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_2_2" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_2_3" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_2_4" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_2_5" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_2_6" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_2_7" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_2_8" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_2_9" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_2_10" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_2_11" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_2_12" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_2_13" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_2_14" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_2_15" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_2_16" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_3_1" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_3_2" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_3_3" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_3_4" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_3_5" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_3_6" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_3_7" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_3_8" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_3_9" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_3_10" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_3_11" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_3_12" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_3_13" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_3_14" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_3_15" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_3_16" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_4_1" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_4_2" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_4_3" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_4_4" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_4_5" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_4_6" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_4_7" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_4_8" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_4_9" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_4_10" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_4_11" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_4_12" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_4_13" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_4_14" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_4_15" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_4_16" Margin="0" Stretch="Uniform"/>
 					</UniformGrid>
 
-					<!-- Cursor Overlay -->
-					<UniformGrid x:Name="CursorGrid" Columns="16" Rows="4" Panel.ZIndex="1"
-                                 Background="Transparent" IsHitTestVisible="False">
-						<Image x:Name="Cursor_1_1" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_1_2" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_1_3" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_1_4" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_1_5" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_1_6" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_1_7" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_1_8" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_1_9" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_1_10" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_1_11" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_1_12" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_1_13" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_1_14" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_1_15" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_1_16" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_2_1" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_2_2" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_2_3" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_2_4" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_2_5" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_2_6" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_2_7" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_2_8" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_2_9" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_2_10" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_2_11" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_2_12" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_2_13" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_2_14" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_2_15" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_2_16" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_3_1" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_3_2" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_3_3" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_3_4" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_3_5" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_3_6" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_3_7" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_3_8" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_3_9" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_3_10" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_3_11" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_3_12" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_3_13" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_3_14" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_3_15" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_3_16" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_4_1" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_4_2" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_4_3" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_4_4" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_4_5" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_4_6" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_4_7" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_4_8" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_4_9" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_4_10" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_4_11" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_4_12" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_4_13" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_4_14" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_4_15" Margin="2" Stretch="Uniform"/>
-						<Image x:Name="Cursor_4_16" Margin="2" Stretch="Uniform"/>
-					</UniformGrid>
+					
 				</Grid>
 			</Border>
 
 			<!-- Tastatur -->
-			<Border Background="LightGray"
+			<Border Background="#111827"
                     Width="200"
                     Height="240"
-                    Canvas.Top="155"
+                    Canvas.Top="120"
                     Canvas.Left="290"
                     CornerRadius="8"
                     Padding="5">
 				<UniformGrid Rows="5" Columns="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-					<Button Width="40" Height="40" Content="1" FontSize="14" Margin="10,0"
+					<Button Width="50" Height="40" Background="#2250C7" Content="1" FontSize="20" FontWeight="Bold" Margin="8,0"
                             HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="OnKeyButtonClick"/>
-					<Button Width="40" Height="40" Content="2" FontSize="14" Margin="10,0"
+					<Button Width="50" Height="40" Background="#2250C7" Content="2" FontSize="20" FontWeight="Bold" Margin="8,0"
                             HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="OnKeyButtonClick"/>
-					<Button Width="40" Height="40" Content="3" FontSize="14" Margin="10,0"
+					<Button Width="50" Height="40" Background="#2250C7" Content="3" FontSize="20" FontWeight="Bold" Margin="8,0"
                             HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="OnKeyButtonClick"/>
-					<Button Width="40" Height="40" Content="4" FontSize="14" Margin="10,0"
+					<Button Width="50" Height="40" Background="#2250C7" Content="4" FontSize="20" FontWeight="Bold" Margin="8,0"
                             HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="OnKeyButtonClick"/>
-					<Button Width="40" Height="40" Content="5" FontSize="14" Margin="10,0"
+					<Button Width="50" Height="40" Background="#2250C7" Content="5" FontSize="20" FontWeight="Bold" Margin="8,0"
                             HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="OnKeyButtonClick"/>
-					<Button Width="40" Height="40" Content="6" FontSize="14" Margin="10,0"
+					<Button Width="50" Height="40" Background="#2250C7" Content="6" FontSize="20" FontWeight="Bold" Margin="8,0"
                             HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="OnKeyButtonClick"/>
-					<Button Width="40" Height="40" Content="7" FontSize="14" Margin="10,0"
+					<Button Width="50" Height="40" Background="#2250C7" Content="7" FontSize="20" FontWeight="Bold" Margin="8,0"
                             HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="OnKeyButtonClick"/>
-					<Button Width="40" Height="40" Content="8" FontSize="14" Margin="10,0"
+					<Button Width="50" Height="40" Background="#2250C7" Content="8" FontSize="20" FontWeight="Bold" Margin="8,0"
                             HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="OnKeyButtonClick"/>
-					<Button Width="40" Height="40" Content="9" FontSize="14" Margin="10,0"
+					<Button Width="50" Height="40" Background="#2250C7" Content="9" FontSize="20" FontWeight="Bold" Margin="8,0"
                             HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="OnKeyButtonClick"/>
-					<Button Width="40" Height="40" Content="↓" FontSize="14" Margin="10,0"
+					<Button Width="50" Height="40" Background="#2250C7" Content="F1" FontSize="20" FontWeight="Bold" Margin="8,0"
                             HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="OnKeyButtonClick"/>
-					<Button Width="40" Height="40" Content="0" FontSize="14" Margin="10,0"
+					<Button Width="50" Height="40" Background="#2250C7" Content="0" FontSize="20" FontWeight="Bold" Margin="8,0"
                             HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="OnKeyButtonClick"/>
-					<Button Width="40" Height="40" Content="↑" FontSize="14" Margin="10,0"
+					<Button Width="50" Height="40" Background="#2250C7" Content="F2" FontSize="20" FontWeight="Bold" Margin="8,0"
+							HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="OnKeyButtonClick"/>
+					<Button Width="50" Height="40" Background="#facc15" Content="-" FontSize="20" FontWeight="Bold" Margin="8,0"
                             HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="OnKeyButtonClick"/>
-					<Button Width="40" Height="40" Content="ESC" FontSize="14" Margin="10,0"
+					<Button Width="50" Height="40" Background="#facc15" Content="↑" FontSize="20" FontWeight="Bold" Margin="10,0"
                             HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="OnKeyButtonClick"/>
+					<Button Width="50" Height="40" Background="#facc15" Content="-" FontSize="20" FontWeight="Bold" Margin="10,0"
+                            HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="OnKeyButtonClick"/>
+					<Button Width="50" Height="40" Background="#ef4444" Content="ESC" FontSize="17" FontWeight="Bold" Margin="10,0"
+                            HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="OnKeyButtonClick"/>
+					<Button Width="50" Height="40" Background="#facc15" Content="↓" FontSize="20" FontWeight="Bold" Margin="10,0"
+							HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="OnKeyButtonClick"/>
+					<Button Width="50" Height="40" Background="#22c55e" Content="ENT" FontSize="17" FontWeight="Bold" Margin="10,0"
+                            HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="OnKeyButtonClick"/>
+
 					<ContentControl />
-					<Button Width="40" Height="40" Content="↵" FontSize="14" Margin="10,0"
-                            HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="OnKeyButtonClick"/>
-				</UniformGrid>
+					</UniformGrid>
 			</Border>
 
 			<!-- Close Button -->

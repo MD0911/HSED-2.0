@@ -1,4 +1,5 @@
-﻿using Avalonia.Controls;
+﻿using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Media.Imaging;
 using System;
 using System.Diagnostics;
@@ -15,7 +16,7 @@ namespace HSED_2_0
             InitializeComponent();
             // Fensterposition über die Property 'Position' setzen
             SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x01, 0x03, 0x00, 0x1B });
-            this.Position = new Avalonia.PixelPoint(0, 0);
+            this.Position = new Avalonia.PixelPoint(340, 250);
             terminalManager.Start();
             Instance = this;
         }
@@ -97,7 +98,7 @@ namespace HSED_2_0
                         // Logik für ESC-Taste
                         SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x01, 0x03, 0x00, 0x1B });
                         break;
-            case "↵":
+            case "ENT":
                         // Logik für ENTER-Taste
                         SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x01, 0x03, 0x00, 0x0D });
                         break;
@@ -119,7 +120,9 @@ namespace HSED_2_0
 
         private void Button_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
         {
+
             TerminalManager.terminalActive = false;
+            terminalManager.Stop();
             this.Close();
         }
     }

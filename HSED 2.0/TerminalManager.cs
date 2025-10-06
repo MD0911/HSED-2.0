@@ -20,7 +20,7 @@ namespace HSED_2_0
         // Unser Timer zum Togglen des Cursors
         private static DispatcherTimer _blinkTimer;
         private CancellationTokenSource _cts;
-
+        
         public static object Instance { get; internal set; }
 
         public void Start()
@@ -46,6 +46,7 @@ namespace HSED_2_0
         }
 
         public void Stop() => _cts?.Cancel();
+       
 
         /// <summary>
         /// Analysiert die empfangene Response. Bei (0x01,0x04) werden Bildzellen aktualisiert,
@@ -83,45 +84,11 @@ namespace HSED_2_0
                     });
                 }
 
-                // Cursor-Nachricht
-                if (response.Length >= 8 && response[4] == 0x01 && response[5] == 0x02)
-                {
-                    Dispatcher.UIThread.Post(() =>
-                    {
-                        int position = response[7];
-                        int newRow = position / 16 + 1;
-                        int newCol = position % 16;
-                        Debug.WriteLine($"Neue Cursorposition: Zeile {newRow}, Spalte {newCol}");
-
-                        // Falls sich die Position ändert, lösche den Cursor in der alten Position
-                        if (_lastBlinkRow != -1 && _lastBlinkCol != -1 &&
-                            (newRow != _lastBlinkRow || newCol != _lastBlinkCol))
-                        {
-                            Terminal.Instance.UpdateCusorImage(_lastBlinkRow, _lastBlinkCol, null);
-                        }
-                        // Aktualisiere die aktuelle Cursorposition
-                        _cursorRow = newRow;
-                        _cursorCol = newCol;
-                        // Setze die letzte blinkende Position auf die neue Position
-                        _lastBlinkRow = newRow;
-                        _lastBlinkCol = newCol;
-
-                        // Zeige den Cursor sofort an (z.B. mit Bitmap 0xFF)
-                        try
-                        {
-                            var cursorBmp = AsciiLoader.LoadAsciiBitmap(0xFF);
-                            Terminal.Instance.UpdateCusorImage(_cursorRow, _cursorCol, cursorBmp);
-                        }
-                        catch (Exception ex)
-                        {
-                            Debug.WriteLine($"Error loading cursor bitmap: {ex.Message}");
-                        }
-                        // Starte den Blink-Timer
-                        StartBlinkTimer();
-                    });
-                }
+               
             }
         }
+    }
+}
 
         /// <summary>
         /// Startet oder setzt den Blink-Timer neu. Der Timer toggelt alle 500ms den Cursor.
@@ -129,47 +96,4 @@ namespace HSED_2_0
         /// noch der zuletzt blinkenden Position entspricht (_lastBlinkRow/_lastBlinkCol). Falls nicht,
         /// wird der Timer zurückgesetzt.
         /// </summary>
-        private static void StartBlinkTimer()
-        {
-            if (_blinkTimer == null)
-            {
-                _blinkTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(500) };
-                _blinkTimer.Tick += (s, e) =>
-                {
-                    // Prüfe, ob sich die blinkende Position noch geändert hat
-                    if (_cursorRow != _lastBlinkRow || _cursorCol != _lastBlinkCol)
-                    {
-                        // Position hat sich geändert – stoppe den Timer (er wird beim nächsten Cursor-Update wieder gestartet)
-                        Terminal.Instance.UpdateCusorImage(_lastBlinkRow, _lastBlinkCol, null);
-                        _blinkTimer.Stop();
-                        _blinkState = false;
-                        return;
-                    }
-
-                    // Toggle den Blinkstatus
-                    _blinkState = !_blinkState;
-                    if (_blinkState)
-                    {
-                        try
-                        {
-                            var bmp = AsciiLoader.LoadAsciiBitmap(0xFF); // Beispiel-Cursor-Bitmap
-                            Terminal.Instance.UpdateCusorImage(_cursorRow, _cursorCol, bmp);
-                        }
-                        catch (Exception ex)
-                        {
-                            Debug.WriteLine($"Error in blink timer (showing cursor): {ex.Message}");
-                        }
-                    }
-                    else
-                    {
-                        Terminal.Instance.UpdateCusorImage(_cursorRow, _cursorCol, null);
-                    }
-                };
-            }
-            if (!_blinkTimer.IsEnabled)
-            {
-                _blinkTimer.Start();
-            }
-        }
-    }
-}
+       
