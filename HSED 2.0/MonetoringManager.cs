@@ -317,8 +317,8 @@ namespace HSED_2_0
         public static void setFahrkorbAnimationPosition(byte[] zustand)
         {
             // Lese den Fahrkorbwert aus dem Byte-Array (als Int32)
-            int newFahrkorb = BitConverter.ToInt32(zustand, 4);
-            newFahrkorb = newFahrkorb * MainWindow.Instance.IncrementMultiple;
+            float newFahrkorb = BitConverter.ToInt32(zustand, 4);
+            newFahrkorb = newFahrkorb;
             // Gesamtzahl der Etagen und das Etagen-Inkremente-Array
             int floorCount = GesamtFloor; // GesamtFloor sollte hier als int verfügbar sein
             int[] originalEtagen = LievViewManager.IngrementEtage;

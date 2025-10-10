@@ -37,7 +37,7 @@ namespace HSED_2._0
         public static bool BZeitSchalter = false;
         public int Pos_Cal = HseCom.SendHse(10101010);
         public int gesamteFloors = HseCom.SendHse(1001);
-        public int IncrementMultiple;
+        public float IncrementMultiple;
 
         // SVG Cache
         public static Bitmap SharedSvgBitmap { get; private set; }
