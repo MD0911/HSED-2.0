@@ -37,7 +37,7 @@
 						</Image.RenderTransform>
 					</Image>
 				</Canvas>
-				<Image Margin="10,0,0,0" Width="150" Source="Animation\forBuild\Fahrkorb\Fahrkorb.png"></Image>
+				<Image Margin="10,0,0,0" Width="150" Source="Animation\forBuild\Fahrkorb\FahrkorbFirst.png"></Image>
 				<Canvas Name="PositionControl2" Height="300" Width="300">
 					<Canvas.RenderTransform>
 						<TransformGroup>

@@ -49,6 +49,7 @@
 		<None Remove="Animation\forBuild\Fahrkorb\Fahrkorb-Boffen.png" />
 		<None Remove="Animation\forBuild\Fahrkorb\Fahrkorb-offen.png" />
 		<None Remove="Animation\forBuild\Fahrkorb\Fahrkorb.png" />
+		<None Remove="Animation\forBuild\Fahrkorb\FahrkorbFirst.png" />
 		<None Remove="Animation\forBuild\Fahrkorb\oeffentschliesst3.png" />
 		<None Remove="Animation\forBuild\Fahrkorb\oeffnetSchliesst1.png" />
 		<None Remove="Animation\forBuild\Fahrkorb\offen1.png" />
@@ -189,8 +190,11 @@
 		<None Remove="Images\Icons\zuhause.png" />
 	</ItemGroup>
 	<ItemGroup>
-		<AvaloniaXaml Include="Animation\forBuild\Fahrkorb\Fahrkorb.png">
+		<Content Include="Animation\forBuild\Fahrkorb\Fahrkorb.png">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<AvaloniaXaml Include="Animation\forBuild\Fahrkorb\FahrkorbFirst.png">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</AvaloniaXaml>
 		<Content Include="Animation\1Auf.png">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
