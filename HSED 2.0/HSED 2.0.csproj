@@ -49,7 +49,9 @@
 		<None Remove="Animation\forBuild\Fahrkorb\Fahrkorb-Boffen.png" />
 		<None Remove="Animation\forBuild\Fahrkorb\Fahrkorb-offen.png" />
 		<None Remove="Animation\forBuild\Fahrkorb\Fahrkorb.png" />
+		<None Remove="Animation\forBuild\Fahrkorb\Fahrkorb1DoorOpen.png" />
 		<None Remove="Animation\forBuild\Fahrkorb\FahrkorbFirst.png" />
+		<None Remove="Animation\forBuild\Fahrkorb\FahrkorbOneDoor.png" />
 		<None Remove="Animation\forBuild\Fahrkorb\oeffentschliesst3.png" />
 		<None Remove="Animation\forBuild\Fahrkorb\oeffnetSchliesst1.png" />
 		<None Remove="Animation\forBuild\Fahrkorb\offen1.png" />
@@ -256,6 +258,12 @@
 		<AvaloniaResource Include="Images\Icons\refresh.png">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</AvaloniaResource>
+		<Content Include="Animation\forBuild\Fahrkorb\Fahrkorb1DoorOpen.png">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Animation\forBuild\Fahrkorb\FahrkorbOneDoor.png">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
 		<Content Include="Animation\forBuild\Fahrkorb\oeffentschliesst3.png">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>

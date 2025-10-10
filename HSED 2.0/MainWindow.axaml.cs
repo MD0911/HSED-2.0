@@ -124,7 +124,7 @@ namespace HSED_2._0
 
 
         private const double FloorPitch = 95.0;          // bleibt
-private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset nach unten
+        private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset nach unten
 
         // --- Styling ---
         private const double InsideSize = 28.0; // Innenruf: runder Button (Breite=Höhe)
@@ -172,6 +172,8 @@ private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset na
         Bitmap Fahrkorb1offnetSchliesst = new Bitmap("Animation/forBuild/Fahrkorb/oeffnetSchliesst1.png");
         Bitmap Fahrkorb2offnetSchliesst = new Bitmap("Animation/forBuild/Fahrkorb/offenetschliesst2.png");
         Bitmap Fahrkorb3offnetSchliesst = new Bitmap("Animation/forBuild/Fahrkorb/oeffentschliesst3.png");
+        Bitmap FahrkorbOneDoor = new Bitmap("Animation/forBuild/Fahrkorb/FahrkorbOneDoor.png");
+        Bitmap FahrkorbOneDoorOpen = new Bitmap("Animation/forBuild/Fahrkorb/Fahrkorb1DoorOpen.png");
         public MainWindow()
         {
             InitializeComponent();
@@ -384,7 +386,7 @@ private const double FloorAnchorOffsetPx = 210; // NEU: globaler Start-Offset na
         }
 
         // --- Dein fester Top-Anker & Pitch ---
-        private const double TopAnchorY = 250.0;  // hier sitzt die OBERSTE Etage (Mitte des Innenruf-Kreises)
+        private const double TopAnchorY = 155.0;  // hier sitzt die OBERSTE Etage (Mitte des Innenruf-Kreises)
         private const double Pitch = 95.0;   // fester Abstand Etage->Etage
 
         // horizontale Positionen (kannst du anpassen)

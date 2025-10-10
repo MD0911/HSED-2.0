@@ -327,7 +327,7 @@
 							<Image.RenderTransform>
 								<TransformGroup>
 									<ScaleTransform ScaleX="1" ScaleY="1"/>
-									<TranslateTransform X="0" Y="197.5"/>
+									<TranslateTransform X="0" Y="0"/>
 								</TransformGroup>
 							</Image.RenderTransform>
 						</Image>
@@ -399,7 +399,7 @@
 							<Image.RenderTransform>
 								<TransformGroup>
 									<ScaleTransform ScaleX="1" ScaleY="1"/>
-									<TranslateTransform X="0" Y="197.5"/>
+									<TranslateTransform X="0" Y="0"/>
 								</TransformGroup>
 							</Image.RenderTransform>
 						</Image>
