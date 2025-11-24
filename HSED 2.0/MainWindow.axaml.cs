@@ -2023,27 +2023,24 @@ namespace HSED_2._0
                               MainWindow.Instance.Close();
                               break;*/
                         case "Ansicht":
-                            if (TerminalManager.terminalActive && TerminalManager.terminalInstance != null)
+                            // Wenn ein Terminal-Fenster bereits existiert → schließen
+                            if (Terminal.Instance != null)
                             {
-                                // Fenster ist offen → schließen
-                                TerminalManager.terminalInstance.Close();
-                                TerminalManager.terminalInstance = null;
+                                Terminal.Instance.Close();
                                 TerminalManager.terminalActive = false;
                             }
                             else
                             {
-                                // Neues Fenster öffnen
+                                // Neues Terminal Fenster erstellen
                                 var terminal = new Terminal();
-                                TerminalManager.terminalInstance = terminal;
+                                terminal.Show();
+
                                 TerminalManager.terminalActive = true;
 
                                 terminal.Closed += (s, e) =>
                                 {
                                     TerminalManager.terminalActive = false;
-                                    TerminalManager.terminalInstance = null;
                                 };
-
-                                terminal.Show();
                             }
                             break;
                     }
