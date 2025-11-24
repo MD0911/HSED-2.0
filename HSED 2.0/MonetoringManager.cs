@@ -16,6 +16,7 @@ namespace HSED_2_0
         public static int BootFloor { get; private set; }
         public static int TopFloor { get; private set; }
         public static int GesamtFloor { get; private set; }
+        public static int RawGesamtFloor { get; private set; }
         public static int CurrentFloor { get; private set; } // umgerechneter Floor: raw + BootFloor - 1
         public static int CurrentTemp { get; private set; }
         public static int CurrentSK1 { get; private set; }
@@ -105,6 +106,7 @@ namespace HSED_2_0
             }
 
             GesamtFloor = (TopFloor - BootFloor) + 1;
+            RawGesamtFloor = HseCom.SendHse(1001);
 
             Debug.WriteLine("BootFloor: " + BootFloor);
             Debug.WriteLine("TopFloor: " + TopFloor);
@@ -313,80 +315,207 @@ namespace HSED_2_0
             });
         }
 
-        // Eine statische Variable, um den vorherigen Y-Wert zu speichern (für Smoothing)
         public static void setFahrkorbAnimationPosition(byte[] zustand)
         {
-            // Lese den Fahrkorbwert aus dem Byte-Array (als Int32)
-            float newFahrkorb = BitConverter.ToInt32(zustand, 4);
-            newFahrkorb = newFahrkorb;
-            // Gesamtzahl der Etagen und das Etagen-Inkremente-Array
-            int floorCount = GesamtFloor; // GesamtFloor sollte hier als int verfügbar sein
-            int[] originalEtagen = LievViewManager.IngrementEtage;
+            // ===== Konfiguration =====
+            const float yStep = 95f;     // Abstand zwischen Etagen (Pixel)
+            float yOffsetPx;  // GLOBALER OFFSET (Pixel): + nach unten, - nach oben
 
-            // Wert der obersten Etage (wird für die Normalisierung verwendet)
-            int topFloorValue = originalEtagen[floorCount - 1];
-
-            // Normalisiere die Etagenwerte und den Fahrkorbwert:
-            // Das Ergebnis: oberste Etage = 0, darunter negative Werte.
-            float[] normalizedEtagen = new float[floorCount];
-            for (int i = 0; i < floorCount; i++)
+            if (BootFloor >= 0)
             {
-                normalizedEtagen[i] = originalEtagen[i] - topFloorValue;
-            }
-            float normalizedFahrkorb = newFahrkorb - topFloorValue;
-
-            // UI-Schritt in Y-Einheiten (z. B. 95 pro Etage)
-            float yStep = 95f;
-            float YPosition = 0f;
-
-            // Clamping, falls der Fahrkorbwert außerhalb des bekannten Bereichs liegt:
-            if (normalizedFahrkorb <= normalizedEtagen[0])
-            {
-                // Unterste Etage
-                YPosition = -((floorCount - 1) * yStep);
-            }
-            else if (normalizedFahrkorb >= normalizedEtagen[floorCount - 1])
-            {
-                // Oberste Etage
-                YPosition = 0f;
+                yOffsetPx = -95f; // Kein Offset
             }
             else
             {
-                // Finde das Intervall, in dem normalizedFahrkorb liegt.
-                for (int i = 0; i < floorCount - 1; i++)
-                {
-                    if (normalizedFahrkorb >= normalizedEtagen[i] && normalizedFahrkorb <= normalizedEtagen[i + 1])
-                    {
-                        // Berechne den Anteil innerhalb des Intervalls:
-                        // fraction = 0  -> genau an Etage i+1 (höher)
-                        // fraction = 1  -> genau an Etage i (niedriger)
-                        float fraction = (normalizedFahrkorb - normalizedEtagen[i]) /
-                                         (normalizedEtagen[i + 1] - normalizedEtagen[i]);
-
-                        // Berechne den UI-Wert der unteren Etage (i) in diesem Intervall:
-                        // UI(i) = -((floorCount - 1 - i) * yStep)
-                        float uiLower = -((floorCount - 1 - i) * yStep);
-
-                        // Da die Differenz zwischen zwei Etagen immer yStep (z. B. 95) beträgt,
-                        // erhalten wir die interpolierte Y-Position:
-                        YPosition = uiLower + fraction * yStep;
-                        break;
-                    }
-                }
+                yOffsetPx = 0;
             }
 
-            Debug.WriteLine("FahrkorbAnimationY: " + YPosition);
+                // 1) Eingangsprüfungen
+                if (zustand == null || zustand.Length < 8)
+                return;
 
-            // Aktualisiere das ViewModel im UI-Thread:
+            // Falls der Wert im Telegramm eigentlich Float32 ist, hier ToSingle benutzen
+            int raw = BitConverter.ToInt32(zustand, 4);
+            float value = raw;
+
+            int[] source = LievViewManager.IngrementEtage;
+            if (source == null || source.Length == 0 || GesamtFloor <= 0)
+                return;
+
+            // 2) Floors kopieren und sortieren (Bottom → Top)
+            int floorCount = Math.Min(GesamtFloor, source.Length);
+            if (floorCount <= 0) return;
+
+            int[] floors = new int[floorCount];
+            Array.Copy(source, floors, floorCount);
+            Array.Sort(floors);
+
+            float y;
+
+            // 3) Degenerate Fälle
+            if (floorCount == 1)
+            {
+                y = 0f + yOffsetPx; // Offset anwenden
+                Debug.WriteLine("FahrkorbAnimationY (single floor): " + y);
+                Dispatcher.UIThread.Post(() =>
+                {
+                    var vm = MainWindow.Instance?.ViewModel;
+                    if (vm != null)
+                    {
+                        vm.PositionY = y;
+                        LastKorbPosition = y;
+                    }
+                });
+                return;
+            }
+
+            if (float.IsNaN(value) || float.IsInfinity(value))
+            {
+                y = 0f + yOffsetPx; // Offset anwenden
+                Debug.WriteLine("FahrkorbAnimationY (NaN/Inf): " + y);
+                Dispatcher.UIThread.Post(() =>
+                {
+                    var vm = MainWindow.Instance?.ViewModel;
+                    if (vm != null)
+                    {
+                        vm.PositionY = y;
+                        LastKorbPosition = y;
+                    }
+                });
+                return;
+            }
+
+            // Hilfsfunktionen für Spannen, die nicht 0 sind
+            static int FindFirstNonZeroSpan(int[] arr)
+            {
+                for (int i = 0; i < arr.Length - 1; i++)
+                    if (arr[i + 1] > arr[i]) return i;
+                return -1;
+            }
+            static int FindLastNonZeroSpan(int[] arr)
+            {
+                for (int i = arr.Length - 2; i >= 0; i--)
+                    if (arr[i + 1] > arr[i]) return i;
+                return -1;
+            }
+
+            // 4) Drei Fälle: unterhalb, innerhalb, oberhalb
+
+            // Unterhalb der untersten Etage → Extrapolation nach unten mit erster gültiger Spanne
+            if (value < floors[0])
+            {
+                int idx = FindFirstNonZeroSpan(floors);
+                if (idx < 0)
+                {
+                    // Alle Werte identisch, keine Skala möglich
+                    y = -((floorCount - 1) * yStep);
+                }
+                else
+                {
+                    int a = floors[idx];
+                    int b = floors[idx + 1];
+                    float span = b - a; // > 0 garantiert
+                    float tExtra = (value - floors[0]) / span; // negativ
+                    y = -((floorCount - 1) * yStep) + tExtra * yStep;
+                }
+
+                y += yOffsetPx; // Offset anwenden
+                Debug.WriteLine("FahrkorbAnimationY (underflow): " + y);
+
+                Dispatcher.UIThread.Post(() =>
+                {
+                    var vm = MainWindow.Instance?.ViewModel;
+                    if (vm != null)
+                    {
+                        vm.PositionY = y;
+                        LastKorbPosition = y;
+                    }
+                });
+                return;
+            }
+
+            // Oberhalb der obersten Etage → Extrapolation nach oben mit letzter gültiger Spanne
+            if (value > floors[floorCount - 1])
+            {
+                int idx = FindLastNonZeroSpan(floors);
+                if (idx < 0)
+                {
+                    // Alle Werte identisch, keine Skala möglich
+                    y = 0f;
+                }
+                else
+                {
+                    int a = floors[idx];
+                    int b = floors[idx + 1];
+                    float span = b - a; // > 0 garantiert
+                    float tExtra = (value - floors[floorCount - 1]) / span; // positiv
+                    y = 0f + tExtra * yStep;
+                }
+
+                y += yOffsetPx; // Offset anwenden
+                Debug.WriteLine("FahrkorbAnimationY (overflow): " + y);
+
+                Dispatcher.UIThread.Post(() =>
+                {
+                    var vm = MainWindow.Instance?.ViewModel;
+                    if (vm != null)
+                    {
+                        vm.PositionY = y;
+                        LastKorbPosition = y;
+                    }
+                });
+                return;
+            }
+
+            // Innerhalb des Bereichs → UpperBound ohne Grenzüberschneidung
+            int lo = 0, hi = floorCount; // [lo, hi)
+            while (lo < hi)
+            {
+                int mid = (lo + hi) >> 1;
+                if (floors[mid] <= value) lo = mid + 1; else hi = mid;
+            }
+            int i = lo - 1;
+            if (i < 0) i = 0;
+            if (i > floorCount - 2) i = floorCount - 2;
+
+            int leftVal = floors[i];
+            int rightVal = floors[i + 1];
+            float spanLR = rightVal - leftVal;
+
+            if (spanLR == 0f)
+            {
+                // Duplikate: konstante Höhe auf linken Rand des Blocks
+                int left = i;
+                while (left > 0 && floors[left - 1] == leftVal) left--;
+                float yLowerDup = -((floorCount - 1 - left) * yStep);
+                y = yLowerDup;
+            }
+            else
+            {
+                float t = (value - leftVal) / spanLR; // 0..1
+                if (t < 0f) t = 0f; else if (t > 1f) t = 1f;
+
+                float yLower = -((floorCount - 1 - i) * yStep);
+                y = yLower + t * yStep;
+            }
+
+            y += yOffsetPx; // Offset anwenden
+
+            Debug.WriteLine("FahrkorbAnimationY: " + y);
+
+            // 5) UI Update
             Dispatcher.UIThread.Post(() =>
             {
-                if (MainWindow.Instance?.ViewModel != null)
+                var vm = MainWindow.Instance?.ViewModel;
+                if (vm != null)
                 {
-                    MainWindow.Instance.ViewModel.PositionY = YPosition;
-                    LastKorbPosition = YPosition;
+                    vm.PositionY = y;
+                    LastKorbPosition = y;
                 }
             });
         }
+
+
 
         public static void innenruftasterquittung(byte[] zustand)
         {
@@ -761,6 +890,43 @@ namespace HSED_2_0
 
         }
 
+        public static void setTime(byte[] zustand)
+        {
+            if (zustand == null || zustand.Length < 12)
+                return; // oder Exception werfen
+
+            // Zeit
+            byte stunde = zustand[4];   // 0..23
+            byte minute = zustand[5];   // 0..59
+            byte sekunde = zustand[6];   // 0..59
+
+            // Datum
+            byte tag = zustand[8];            // z.B. 0x18 = 24
+            byte rawMonat = zustand[9];            // z.B. 0x0C = 12
+            int monat = rawMonat - 1;          // 12 - 1 = 11 → November
+            int jahr = (zustand[10] << 8) | zustand[11]; // 0x07E9 = 2025
+
+            string zeitString = $"{stunde:00}:{minute:00}:{sekunde:00}";
+            string datumString = $"{tag:00}.{monat:00}.{jahr:0000}";
+
+            string telegramm = BitConverter.ToString(zustand).Replace("-", " ");
+
+            Debug.WriteLine("Telegramm: " + telegramm);
+            Debug.WriteLine("Zeit: " + zeitString);
+            Debug.WriteLine("Datum: " + datumString);
+            Dispatcher.UIThread.Post(() =>
+            {
+                if (MainWindow.Instance?.ViewModel != null)
+                {
+                    MainWindow.Instance.ViewModel.CurrentTime = zeitString;
+                    MainWindow.Instance.ViewModel.CurrentDate = datumString;
+
+                }
+            });
+        }
+
+
+
 
 
 
@@ -832,6 +998,7 @@ namespace HSED_2_0
 
                 Debug.WriteLine("Tür2-Änderung erkannt.");
                 setDoorState2(response);
+
             }
             else if (response[0] == 0x63 && response[1] == 0x01 && response[2] == 0x03)
             {
@@ -942,7 +1109,7 @@ namespace HSED_2_0
             {
 
                 Debug.WriteLine("DS2. Änderung erkannt.");
-                setDS(response, 1);
+                setDS(response, 2);
 
 
             }
@@ -951,7 +1118,16 @@ namespace HSED_2_0
             {
 
                 Debug.WriteLine("DS3. Änderung erkannt.");
-                setDS(response, 1);
+                setDS(response, 3);
+
+
+            }
+
+            else if (response[0] == 0x26 && response[1] == 0x47)
+            {
+
+                Debug.WriteLine("Uhr Änderung erkannt.");
+                setTime(response);
 
 
             }

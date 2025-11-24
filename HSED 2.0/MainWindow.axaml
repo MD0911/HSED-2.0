@@ -508,7 +508,7 @@
 								<RotateTransform Angle="90"/>
 							</Image.RenderTransform>
 						</Image>
-						<TextBlock Margin="10,5,0,0" x:Name="SettingsText4" IsVisible="False" Foreground="White">Codes</TextBlock>
+						<TextBlock Margin="10,5,0,0" x:Name="SettingsText4" IsVisible="False" Foreground="White">Terminal</TextBlock>
 					</StackPanel>
 				</Button>
 

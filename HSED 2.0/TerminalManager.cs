@@ -20,7 +20,8 @@ namespace HSED_2_0
         // Unser Timer zum Togglen des Cursors
         private static DispatcherTimer _blinkTimer;
         private CancellationTokenSource _cts;
-        
+        public static Terminal terminalInstance;  // 
+
         public static object Instance { get; internal set; }
 
         public void Start()
@@ -63,9 +64,9 @@ namespace HSED_2_0
                     {
                         for (int row = 1; row <= 4; row++)
                         {
-                            for (int col = 1; col <= 16; col++)
+                            for (int col = 1; col <= 28; col++)
                             {
-                                int index = (row - 1) * 16 + (col - 1);
+                                int index = (row - 1) * 28 + (col - 1);
                                 if (6 + index < response.Length)
                                 {
                                     byte value = response[6 + index];

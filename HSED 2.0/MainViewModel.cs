@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
 namespace HSED_2_0.ViewModels
@@ -112,6 +113,34 @@ namespace HSED_2_0.ViewModels
                 if (_currentLast != value)
                 {
                     _currentLast = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private String _currentTime;
+        public String CurrentTime
+        {
+            get => _currentTime;
+            set
+            {
+                if (_currentTime != value)
+                {
+                    _currentTime = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private String _currentDate;
+        public String CurrentDate
+        {
+            get => _currentDate;
+            set
+            {
+                if (_currentDate != value)
+                {
+                    _currentDate = value;
                     OnPropertyChanged();
                 }
             }

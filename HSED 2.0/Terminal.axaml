@@ -1,7 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="HSED_2_0.Terminal"
-        Width="440" Height="220"
+        Width="800" Height="480"
         SystemDecorations="None"
         Background="Transparent"
         WindowStartupLocation="Manual"
@@ -18,14 +18,17 @@
 		</Style>
 	</Window.Styles>
 
-	<!-- Wrapper für die Rotation -->
-	<LayoutTransformControl>
+	<!-- Wrapper für die Rotation und Skalierung -->
+	<LayoutTransformControl x:Name="RootLayoutTransform">
 		<LayoutTransformControl.LayoutTransform>
-			<RotateTransform Angle="90"/>
+			<TransformGroup>
+				<RotateTransform Angle="90"/>
+				<ScaleTransform ScaleX="1" ScaleY="1"/>
+			</TransformGroup>
 		</LayoutTransformControl.LayoutTransform>
 
-		<!-- Dein bisheriger Canvas -->
-		<Canvas Margin="-30,-280,0,0">
+		<!-- Dein Canvas -->
+		<Canvas x:Name="MainCanvas" Margin="-390,-280,0,0">
 
 			<!-- Äußerer Rahmen -->
 			<Border BorderThickness="3"
@@ -53,7 +56,8 @@
                     Padding="5">
 				<Grid>
 					<!-- Unteres Grid -->
-					<UniformGrid x:Name="ImageGrid" Columns="16" Rows="4">
+					<UniformGrid x:Name="ImageGrid" Columns="28" Rows="4">
+						<!-- Row 1 -->
 						<Image x:Name="Cell_1_1" Margin="0" Stretch="Uniform"/>
 						<Image x:Name="Cell_1_2" Margin="0" Stretch="Uniform"/>
 						<Image x:Name="Cell_1_3" Margin="0" Stretch="Uniform"/>
@@ -70,6 +74,20 @@
 						<Image x:Name="Cell_1_14" Margin="0" Stretch="Uniform"/>
 						<Image x:Name="Cell_1_15" Margin="0" Stretch="Uniform"/>
 						<Image x:Name="Cell_1_16" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_1_17" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_1_18" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_1_19" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_1_20" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_1_21" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_1_22" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_1_23" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_1_24" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_1_25" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_1_26" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_1_27" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_1_28" Margin="0" Stretch="Uniform"/>
+
+						<!-- Row 2 -->
 						<Image x:Name="Cell_2_1" Margin="0" Stretch="Uniform"/>
 						<Image x:Name="Cell_2_2" Margin="0" Stretch="Uniform"/>
 						<Image x:Name="Cell_2_3" Margin="0" Stretch="Uniform"/>
@@ -86,6 +104,20 @@
 						<Image x:Name="Cell_2_14" Margin="0" Stretch="Uniform"/>
 						<Image x:Name="Cell_2_15" Margin="0" Stretch="Uniform"/>
 						<Image x:Name="Cell_2_16" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_2_17" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_2_18" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_2_19" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_2_20" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_2_21" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_2_22" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_2_23" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_2_24" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_2_25" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_2_26" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_2_27" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_2_28" Margin="0" Stretch="Uniform"/>
+
+						<!-- Row 3 -->
 						<Image x:Name="Cell_3_1" Margin="0" Stretch="Uniform"/>
 						<Image x:Name="Cell_3_2" Margin="0" Stretch="Uniform"/>
 						<Image x:Name="Cell_3_3" Margin="0" Stretch="Uniform"/>
@@ -102,6 +134,20 @@
 						<Image x:Name="Cell_3_14" Margin="0" Stretch="Uniform"/>
 						<Image x:Name="Cell_3_15" Margin="0" Stretch="Uniform"/>
 						<Image x:Name="Cell_3_16" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_3_17" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_3_18" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_3_19" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_3_20" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_3_21" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_3_22" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_3_23" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_3_24" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_3_25" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_3_26" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_3_27" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_3_28" Margin="0" Stretch="Uniform"/>
+
+						<!-- Row 4 -->
 						<Image x:Name="Cell_4_1" Margin="0" Stretch="Uniform"/>
 						<Image x:Name="Cell_4_2" Margin="0" Stretch="Uniform"/>
 						<Image x:Name="Cell_4_3" Margin="0" Stretch="Uniform"/>
@@ -118,9 +164,19 @@
 						<Image x:Name="Cell_4_14" Margin="0" Stretch="Uniform"/>
 						<Image x:Name="Cell_4_15" Margin="0" Stretch="Uniform"/>
 						<Image x:Name="Cell_4_16" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_4_17" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_4_18" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_4_19" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_4_20" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_4_21" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_4_22" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_4_23" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_4_24" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_4_25" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_4_26" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_4_27" Margin="0" Stretch="Uniform"/>
+						<Image x:Name="Cell_4_28" Margin="0" Stretch="Uniform"/>
 					</UniformGrid>
-
-					
 				</Grid>
 			</Border>
 
@@ -157,11 +213,11 @@
                             HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="OnKeyButtonClick"/>
 					<Button Width="50" Height="40" Background="#2250C7" Content="F2" FontSize="20" FontWeight="Bold" Margin="8,0"
 							HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="OnKeyButtonClick"/>
-					<Button Width="50" Height="40" Background="#facc15" Content="-" FontSize="20" FontWeight="Bold" Margin="8,0"
+					<Button Width="50" Height="40" Background="#facc15" Content="←" FontSize="20" FontWeight="Bold" Margin="8,0"
                             HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="OnKeyButtonClick"/>
 					<Button Width="50" Height="40" Background="#facc15" Content="↑" FontSize="20" FontWeight="Bold" Margin="10,0"
                             HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="OnKeyButtonClick"/>
-					<Button Width="50" Height="40" Background="#facc15" Content="-" FontSize="20" FontWeight="Bold" Margin="10,0"
+					<Button Width="50" Height="40" Background="#facc15" Content="→" FontSize="20" FontWeight="Bold" Margin="10,0"
                             HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="OnKeyButtonClick"/>
 					<Button Width="50" Height="40" Background="#ef4444" Content="ESC" FontSize="17" FontWeight="Bold" Margin="10,0"
                             HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="OnKeyButtonClick"/>
@@ -171,13 +227,16 @@
                             HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="OnKeyButtonClick"/>
 
 					<ContentControl />
-					</UniformGrid>
+				</UniformGrid>
 			</Border>
 
 			<!-- Close Button -->
 			<Canvas>
 				<Button Canvas.Left="470" Canvas.Top="-25" CornerRadius="90" Width="30" Height="30" Background="Red" Click="Button_Click">
 					<TextBlock Foreground="White" FontSize="15" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center">X</TextBlock>
+				</Button>
+				<Button Canvas.Left="435" Canvas.Top="-25" CornerRadius="90" Width="30" Height="30" Background="#facc15" Click="Button_Click_1">
+					<TextBlock Foreground="White" FontSize="15" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center">–</TextBlock>
 				</Button>
 			</Canvas>
 

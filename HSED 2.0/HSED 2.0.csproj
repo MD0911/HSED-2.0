@@ -59,7 +59,9 @@
 		<None Remove="Animation\forBuild\Fahrkorb\offen3.png" />
 		<None Remove="Animation\forBuild\Fahrkorb\offenetschliesst2.png" />
 		<None Remove="Animation\forBuild\SchachtHinten.svg" />
+		<None Remove="Animation\forBuild\SchachtHintenLetzte.svg" />
 		<None Remove="Animation\forBuild\SchachtVorne.svg" />
+		<None Remove="Animation\forBuild\SchachtVorneLetzte.svg" />
 		<None Remove="bitmap\ASCII00.bmp" />
 		<None Remove="bitmap\ASCII01.bmp" />
 		<None Remove="bitmap\ASCII02.bmp" />
@@ -285,8 +287,14 @@
 		<Content Include="Animation\forBuild\SchachtHinten.svg">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
+		<Content Include="Animation\forBuild\SchachtHintenLetzte.svg">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
 		<Content Include="Animation\forBuild\SchachtVorne.svg">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Animation\forBuild\SchachtVorneLetzte.svg">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 		<Content Include="bitmap\ASCII00.bmp">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>

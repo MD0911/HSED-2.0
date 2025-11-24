@@ -24,6 +24,10 @@ namespace HSED_2._0
         public string SingleFloorSvgPath { get; set; } = "Animation/forBuild/SchachtVorne.svg";
         public string AlternativeSingleFloorSvgPath { get; set; } = "Animation/forBuild/SchachtHinten.svg";
 
+        public string SingleFloorSvgPathLetzte { get; set; } = "Animation/forBuild/SchachtVorneLetzte.svg";
+
+        public string AlternativeSingleFloorSvgLetzte { get; set; } = "Animation/forBuild/SchachtHintenLetzte.svg";
+
         /// <summary>
         /// Liest die Floor-Werte aus dem MonetoringManager aus.
         /// </summary>
@@ -32,7 +36,7 @@ namespace HSED_2._0
             // Übernehme die statischen Werte aus dem MonetoringManager
             BootFloor = MonetoringManager.BootFloor;
             TopFloor = MonetoringManager.TopFloor;
-            GesamtFloor = MonetoringManager.GesamtFloor;
+            GesamtFloor = MonetoringManager.RawGesamtFloor;
             SetIngrementEtage();
 
             Debug.WriteLine($"LievViewManager: BootFloor = {BootFloor}, TopFloor = {TopFloor}, GesamtFloor = {GesamtFloor}");
@@ -71,30 +75,32 @@ namespace HSED_2._0
 
             // Bestimme die Höhe der Etage (z.B. aus dem "height"-Attribut oder als Fallback 325)
             double floorHeight = GetFloorHeight(floorSvgDoc);
-            // Gesamthöhe des Schachts = Höhe einer Etage * Anzahl der Etagen
+            // Gesamthöhe der Etagen
             double totalHeight = floorHeight * GesamtFloor;
-            TotalHeight = totalHeight;  // Speichern der Gesamthöhe
+            TotalHeight = totalHeight;  // Speichern der Gesamthöhe (nur Etagen)
 
             // Namespace definieren (SVG-Namespace)
             XNamespace svgNs = "http://www.w3.org/2000/svg";
 
-            // Erstelle das Root-Element für das zusammengesetzte SVG.
-            // Hier setzen wir die "height"-Eigenschaft auf totalHeight,
-            // sodass im Originalkoordinatensystem die volle Höhe abgebildet wird.
+            // Footer-SVG einlesen (gehört ganz nach unten)
+            string footerSvgContent = File.ReadAllText(SingleFloorSvgPathLetzte);
+            XDocument footerSvgDoc = XDocument.Parse(footerSvgContent);
+            double footerHeight = GetFloorHeight(footerSvgDoc); // bei deinen neuen SVGs: 456
+
+            // Root-SVG anlegen: Höhe = Etagen + Footer
             XElement composedSvg = new XElement(svgNs + "svg",
                 new XAttribute("xmlns", svgNs.NamespaceName),
                 new XAttribute("width", floorSvgDoc.Root.Attribute("width")?.Value ?? "auto"),
-                new XAttribute("height", totalHeight)
+                new XAttribute("height", totalHeight + footerHeight)
             );
 
-            // Füge für jede Etage ein <g>-Element mit entsprechender vertikaler Translation hinzu.
-            for (int i = 0; i < GesamtFloor - 1; i++)
+            // Etagen stapeln
+            for (int i = 0; i < GesamtFloor; i++)
             {
                 XElement group = new XElement(svgNs + "g",
                     new XAttribute("transform", $"translate(0, {i * floorHeight})")
                 );
 
-                // Kopiere alle untergeordneten Elemente der Einzel-Etagen-SVG in die Gruppe.
                 foreach (XElement element in floorSvgDoc.Root.Elements())
                 {
                     group.Add(new XElement(element));
@@ -103,9 +109,20 @@ namespace HSED_2._0
                 composedSvg.Add(group);
             }
 
+            // Footer direkt UNTER die Etagen setzen
+            XElement footerGroup = new XElement(svgNs + "g",
+                new XAttribute("transform", $"translate(0, {totalHeight})")
+            );
+            foreach (XElement element in footerSvgDoc.Root.Elements())
+            {
+                footerGroup.Add(new XElement(element));
+            }
+            composedSvg.Add(footerGroup);
+
             // Speichere das zusammengesetzte SVG als String.
             ComposedSvg = new XDocument(new XDeclaration("1.0", "utf-8", "yes"), composedSvg).ToString();
         }
+
 
         /// <summary>
         /// Extrahiert die Höhe aus dem "height"-Attribut des SVG-Root-Elements.
@@ -142,13 +159,20 @@ namespace HSED_2._0
 
             XNamespace svgNs = "http://www.w3.org/2000/svg";
 
+            // Alternativen Footer laden
+            string footerSvgContent = File.ReadAllText(AlternativeSingleFloorSvgLetzte);
+            XDocument footerSvgDoc = XDocument.Parse(footerSvgContent);
+            double footerHeight = GetFloorHeight(footerSvgDoc); // bei deinen neuen SVGs: 456
+
+            // Root-SVG: Höhe = Etagen + Footer
             XElement composedSvg = new XElement(svgNs + "svg",
                 new XAttribute("xmlns", svgNs.NamespaceName),
                 new XAttribute("width", floorSvgDoc.Root.Attribute("width")?.Value ?? "auto"),
-                new XAttribute("height", totalHeight)
+                new XAttribute("height", totalHeight + footerHeight)
             );
 
-            for (int i = 0; i < GesamtFloor - 1; i++)
+            // Etagen stapeln
+            for (int i = 0; i < GesamtFloor; i++)
             {
                 XElement group = new XElement(svgNs + "g",
                     new XAttribute("transform", $"translate(0, {i * floorHeight})")
@@ -162,8 +186,20 @@ namespace HSED_2._0
                 composedSvg.Add(group);
             }
 
+            // Footer direkt UNTER die Etagen setzen
+            XElement footerGroup = new XElement(svgNs + "g",
+                new XAttribute("transform", $"translate(0, {totalHeight})")
+            );
+            foreach (XElement element in footerSvgDoc.Root.Elements())
+            {
+                footerGroup.Add(new XElement(element));
+            }
+            composedSvg.Add(footerGroup);
+
             ComposedSvgAlternative = new XDocument(new XDeclaration("1.0", "utf-8", "yes"), composedSvg).ToString();
         }
+
+
 
         // Neue Eigenschaft für das alternative zusammengesetzte SVG.
         public string ComposedSvgAlternative { get; private set; }
