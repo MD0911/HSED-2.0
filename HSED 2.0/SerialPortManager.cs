@@ -16,6 +16,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Material.Styles.Controls;
 using Avalonia.Controls.Platform;
 using Microsoft.Extensions.Configuration;
+using System.IO;
 
 
 public class SerialPortManager
@@ -34,30 +35,48 @@ public class SerialPortManager
     // Statische Referenz für den Fehlerdialog
 
     private static Window _connectionErrorDialog = null;
+    // Klasse: SerialPortManager (neue Felder)
+    private Task _processingTask;
 
-   
+    // Klasse: SerialPortManager (neue Felder)
+    private readonly ConcurrentQueue<byte[]> _responseQueue = new ConcurrentQueue<byte[]>();
+    private readonly SemaphoreSlim _responseAvailable = new SemaphoreSlim(0);
+
+    private readonly TelegramProcessor _tp = new TelegramProcessor();
+    // Klasse: SerialPortManager
+    private static int _waitingForResponse = 0;
+
+
+
 
     private SerialPortManager()
     {
         var config = new Microsoft.Extensions.Configuration.ConfigurationBuilder()
-                   .SetBasePath(AppContext.BaseDirectory)
-                   .AddJsonFile("config.json", optional: false, reloadOnChange: true)
-                   .Build();
+            .SetBasePath(AppContext.BaseDirectory)
+            .AddJsonFile("config.json", optional: false, reloadOnChange: true)
+            .Build();
+
         string serialPort = config["SerialSettings:SerialPort"];
         int serialBaudrate = int.Parse(config["SerialSettings:SerialBaudrate"]);
 
-
         _serialPort = new SerialPort(serialPort, serialBaudrate, Parity.None, 8, StopBits.One)
         {
-            ReadTimeout = 100,
+            ReadTimeout = SerialPort.InfiniteTimeout,   // wichtig: keine TimeoutException mehr
+            WriteTimeout = 2000,
             NewLine = "\r\n"
         };
 
         Open();
 
         _cancellationTokenSource = new CancellationTokenSource();
+
+        // Listener liest nur Bytes und baut Telegramme
         _listeningTask = Task.Run(() => Listen(_cancellationTokenSource.Token));
+
+        // Verarbeitung getrennt, damit Listener nicht blockiert
+        _processingTask = Task.Run(() => ProcessTelegrams(_cancellationTokenSource.Token));
     }
+
 
     /// <summary>
     /// Zeigt einen persistierenden Fehlerdialog an, falls keine Verbindung zur HSE besteht.
@@ -180,6 +199,65 @@ public class SerialPortManager
     /// <summary>
     /// Sendet ein Telegramm ohne auf eine Antwort zu warten.
     /// </summary>
+    /// 
+    // Klasse: SerialPortManager
+    // Klasse: SerialPortManager
+    // Klasse: SerialPortManager
+    // Klasse: SerialPortManager
+    private void ProcessTelegrams(CancellationToken token)
+    {
+        while (!token.IsCancellationRequested)
+        {
+            try
+            {
+                _telegramAvailable.Wait(token);
+
+                while (_telegramQueue.TryDequeue(out byte[] telegram))
+                {
+                    // Nur wenn wirklich jemand auf eine Antwort wartet,
+                    // kommt das Telegramm in die Response-Queue
+                    if (Volatile.Read(ref _waitingForResponse) > 0)
+                    {
+                        _responseQueue.Enqueue(telegram);
+                        _responseAvailable.Release();
+                    }
+
+                    // ===== ROUTING: nur relevante Parser aufrufen =====
+
+                    // Terminal nur bei Terminal-Telegrammen
+                    if (TerminalManager.terminalActive &&
+                        telegram.Length >= 6 &&
+                        telegram[4] == 0x01 &&
+                        (telegram[5] == 0x04 || telegram[5] == 0x02))
+                    {
+                        TerminalManager.AnalyzeResponse(telegram);
+                    }
+
+                    // Monitoring / TelegramProcessor nur bei 0x05 0x02
+                    if (telegram.Length >= 6 &&
+                        telegram[4] == 0x05 &&
+                        telegram[5] == 0x02)
+                    {
+                        _tp.ProcessTelegram(telegram);
+                    }
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                break;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("ProcessTelegrams Fehler: " + ex.Message);
+            }
+        }
+    }
+
+
+
+
+
+
     public async Task SendWithoutResponse(byte[] data)
     {
         byte[] command = new byte[data.Length + 6];
@@ -194,8 +272,8 @@ public class SerialPortManager
         Debug.WriteLine("Sende Telegramm ohne Antwort zu erwarten:");
         Debug.WriteLine(BitConverter.ToString(command).Replace("-", " "));
 
-        // Alte Telegramme löschen
-        while (_telegramQueue.TryDequeue(out _)) { }
+       
+        
 
         // Prüfe, ob der Port offen ist, andernfalls zeige Fehlerdialog
         if (!_serialPort.IsOpen)
@@ -249,57 +327,94 @@ public class SerialPortManager
 
     private void Listen(CancellationToken token)
     {
-        List<byte> buffer = new List<byte>();
+        var buffer = new List<byte>(256);
+
         while (!token.IsCancellationRequested)
         {
             try
             {
-                int byteRead = _serialPort.ReadByte();
-                if (byteRead >= 0)
+                if (_serialPort == null || !_serialPort.IsOpen)
                 {
-                    byte b = (byte)byteRead;
-                    buffer.Add(b);
-
-                    if (b == 0x85 && buffer.Count >= 6)
-                    {
-                        int expectedLength = buffer[3];
-                        if (buffer.Count == expectedLength)
-                        {
-                            byte[] telegram = buffer.ToArray();
-                            buffer.Clear();
-
-                            string hexString = BitConverter.ToString(telegram).Replace("-", " ");
-                            Debug.WriteLine("Listener: " + hexString);
-                            _telegramQueue.Enqueue(telegram);
-                            _telegramAvailable.Release();
-                            //MonetoringManager.AnalyzeResponse(telegram);
-                            TerminalManager.AnalyzeResponse(telegram);
-                            var tp = new TelegramProcessor();
-                            tp.ProcessTelegram(telegram);
-                            
-                        }
-                        else if (buffer.Count > expectedLength)
-                        {
-                            buffer.Clear();
-                        }
-                    }
+                    Thread.Sleep(200);
+                    continue;
                 }
+
+                int byteRead = _serialPort.ReadByte(); // blockierend, kein Timeout mehr
+                if (byteRead < 0)
+                    continue;
+
+                byte b = (byte)byteRead;
+                buffer.Add(b);
+
+                // Minimaler Frame Check: Header muss 0x95 0x9A sein
+                // Wenn nicht, resync: so lange schieben bis es passt
+                while (buffer.Count >= 2 && (buffer[0] != 0x95 || buffer[1] != 0x9A))
+                {
+                    buffer.RemoveAt(0);
+                }
+
+                // Wir brauchen mindestens 6 Bytes: 2 Header, 1,1, CRC, End
+                if (buffer.Count < 6)
+                    continue;
+
+                // Länge ist bei dir buffer[3]
+                int expectedLength = buffer[3];
+
+                // Schutz gegen Müllwerte
+                if (expectedLength < 6 || expectedLength > 255)
+                {
+                    buffer.Clear();
+                    continue;
+                }
+
+                // Warten bis gesamtes Telegramm im Buffer ist
+                if (buffer.Count < expectedLength)
+                    continue;
+
+                // Falls mehr drin ist, schneide genau ein Telegramm ab
+                byte[] telegram = buffer.GetRange(0, expectedLength).ToArray();
+                buffer.RemoveRange(0, expectedLength);
+
+                // Endbyte prüfen
+                if (telegram[expectedLength - 1] != 0x85)
+                {
+                    // Frame kaputt, resync
+                    buffer.Clear();
+                    continue;
+                }
+
+                // Nicht hier verarbeiten, nur enqueuen
+                _telegramQueue.Enqueue(telegram);
+                _telegramAvailable.Release();
             }
-            catch (TimeoutException)
+            catch (InvalidOperationException)
             {
-                // Timeout ignorieren
+                // Port ist gerade ungültig, z.B. während Close oder Reconnect
+                Thread.Sleep(200);
+            }
+            catch (IOException ex)
+            {
+                Debug.WriteLine("Listener IO Fehler: " + ex.Message);
+                ShowConnectionErrorDialog();
+                Thread.Sleep(500);
             }
             catch (Exception ex)
             {
                 Debug.WriteLine("Listener-Fehler: " + ex.Message);
+                Thread.Sleep(200);
             }
         }
     }
 
+
+    // Klasse: SerialPortManager
+    // Klasse: SerialPortManager
     public byte[] SendCommand(byte[] data)
     {
         lock (_lock)
         {
+            Interlocked.Increment(ref _waitingForResponse);
+
             try
             {
                 byte[] command = new byte[data.Length + 6];
@@ -314,7 +429,16 @@ public class SerialPortManager
                 Debug.WriteLine("Zu sendendes Telegramm:");
                 Debug.WriteLine(BitConverter.ToString(command).Replace("-", " "));
 
-                while (_telegramQueue.TryDequeue(out _)) { }
+                if (_serialPort == null || !_serialPort.IsOpen)
+                {
+                    ShowConnectionErrorDialog();
+                    return null;
+                }
+
+                // Alte Antwortreste entfernen
+                while (_responseQueue.TryDequeue(out _)) { }
+                while (_responseAvailable.CurrentCount > 0)
+                    _responseAvailable.Wait(0);
 
                 _serialPort.Write(command, 0, command.Length);
                 Debug.WriteLine("Befehl gesendet, warte auf Antwort...");
@@ -322,13 +446,14 @@ public class SerialPortManager
                 byte expectedByte1 = data[0];
                 byte expectedByte2 = (byte)(data[1] + 0x10);
 
-                int timeout = 2000;
-                DateTime start = DateTime.Now;
-                while ((DateTime.Now - start).TotalMilliseconds < timeout)
+                int timeoutMs = 2000;
+                int start = Environment.TickCount;
+
+                while (Environment.TickCount - start < timeoutMs)
                 {
-                    if (_telegramAvailable.Wait(100))
+                    if (_responseAvailable.Wait(100))
                     {
-                        while (_telegramQueue.TryDequeue(out byte[] telegram))
+                        while (_responseQueue.TryDequeue(out byte[] telegram))
                         {
                             if (telegram.Length >= 6 &&
                                 telegram[4] == expectedByte1 &&
@@ -339,6 +464,7 @@ public class SerialPortManager
                         }
                     }
                 }
+
                 Debug.WriteLine("Timeout beim Warten auf Antwort.");
                 return null;
             }
@@ -349,19 +475,38 @@ public class SerialPortManager
                 ShowConnectionErrorDialog();
                 return null;
             }
+            finally
+            {
+                Interlocked.Decrement(ref _waitingForResponse);
+            }
         }
     }
+
+
 
     public void Close()
     {
         lock (_lock)
         {
-            if (_serialPort != null && _serialPort.IsOpen)
+            try
             {
-                _serialPort.Close();
+                _cancellationTokenSource?.Cancel();
+
+                if (_serialPort != null)
+                {
+                    if (_serialPort.IsOpen)
+                    {
+                        _serialPort.Close();
+                    }
+                }
+
                 Debug.WriteLine("Serielle Verbindung geschlossen.");
             }
-            _cancellationTokenSource.Cancel();
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Fehler beim Schließen: " + ex.Message);
+            }
         }
     }
+
 }

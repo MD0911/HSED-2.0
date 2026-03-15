@@ -41,7 +41,7 @@ namespace HSED_2._0
         public static Bitmap SharedSvgBitmap { get; private set; }
         public static Bitmap SharedSvgBitmapAlternative { get; private set; }
 
-        private TestrufeNeu _cachedTestrufeWindow;
+        
 
         public MainVertical()
         {
@@ -54,8 +54,7 @@ namespace HSED_2._0
             TestrufeService.StartBackgroundUpdate();
             this.Opened += MainVertical_Opened;
 
-            _cachedTestrufeWindow = new TestrufeNeu();
-            _cachedTestrufeWindow.Hide();
+           
 
             this.Position = new PixelPoint(0, 0);
         }
@@ -452,11 +451,7 @@ namespace HSED_2._0
                 {
                     switch (tag)
                     {
-                        case "Testrufe":
-                            _cachedTestrufeWindow.Show();
-                            _cachedTestrufeWindow.Activate();
-                            StopLogic();
-                            break;
+                       
                         case "Codes":
                             new Code().Show();
                             break;

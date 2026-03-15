@@ -1,0 +1,114 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="HSED_2._0.UpdateChoiceDialog"
+        Width="240"
+        Height="420"
+        Background="Transparent"
+        CanResize="False"
+        SystemDecorations="None"
+        WindowStartupLocation="CenterOwner">
+
+  <Window.Styles>
+
+    <!-- Card -->
+    <Style Selector="Border.dialogCard">
+      <Setter Property="CornerRadius" Value="18"/>
+      <Setter Property="Background" Value="#1f2937"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="BorderBrush" Value="#2b3546"/>
+      <Setter Property="BoxShadow" Value="0 14 40 #00000066"/>
+      <Setter Property="Padding" Value="18"/>
+    </Style>
+
+    <!-- Titel -->
+    <Style Selector="TextBlock.dTitle">
+      <Setter Property="Foreground" Value="White"/>
+      <Setter Property="FontSize" Value="22"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+    </Style>
+
+    <Style Selector="TextBlock.dSub">
+      <Setter Property="Foreground" Value="#9ca3af"/>
+      <Setter Property="FontSize" Value="14"/>
+    </Style>
+
+    <!-- Buttons modern -->
+    <Style Selector="Button.choice">
+      <Setter Property="Width" Value="150"/>
+      <Setter Property="Height" Value="58"/>
+      <Setter Property="CornerRadius" Value="16"/>
+      <Setter Property="Background" Value="#0f172a"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="BorderBrush" Value="#2b3546"/>
+      <Setter Property="Foreground" Value="White"/>
+      <Setter Property="FontSize" Value="20"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+      <Setter Property="Padding" Value="0"/>
+    </Style>
+
+    <Style Selector="Button.choice:pointerover">
+      <Setter Property="Background" Value="#243246"/>
+    </Style>
+
+    <Style Selector="Button.choice:pressed">
+      <Setter Property="Background" Value="#1b2636"/>
+    </Style>
+
+    <!-- Abbrechen Link Style -->
+    <Style Selector="Button.cancel">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Foreground" Value="#9ca3af"/>
+      <Setter Property="FontSize" Value="14"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+      <Setter Property="Padding" Value="8,6"/>
+    </Style>
+
+    <Style Selector="Button.cancel:pointerover">
+      <Setter Property="Foreground" Value="White"/>
+    </Style>
+
+  </Window.Styles>
+
+  <!-- Transparentes Window, nur die Card sichtbar -->
+  <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+
+    <!-- Rotierter Dialog wie dein Rest -->
+    <Border Classes="dialogCard" Width="360" Height="170">
+      <Border.RenderTransform>
+        <RotateTransform Angle="90"/>
+      </Border.RenderTransform>
+
+      <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="Auto,*" >
+
+        <!-- Icon -->
+        
+
+        <!-- Text -->
+        <StackPanel Grid.Column="1" Spacing="4" Margin="14,0,0,0" VerticalAlignment="Center">
+          <TextBlock Text="Update" Classes="dTitle"/>
+          <TextBlock Text="Bitte Modus auswählen" Classes="dSub"/>
+        </StackPanel>
+
+        <!-- Buttons -->
+        <StackPanel Grid.Row="2" Grid.ColumnSpan="2"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Center"
+                    Spacing="12"
+                    Margin="0,14,0,0">
+
+          <Button Classes="choice" Click="Online_Click">Online</Button>
+          <Button Classes="choice" Click="Offline_Click">Offline</Button>
+
+        </StackPanel>
+
+        <!-- Cancel -->
+
+      </Grid>
+    </Border>
+
+  </Grid>
+</Window>

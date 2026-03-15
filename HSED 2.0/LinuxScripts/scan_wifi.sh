@@ -1,0 +1,77 @@
+#!/bin/sh
+set -eu
+
+IFACE="${1:-wlan0}"
+
+OUT="$(iw dev "$IFACE" scan 2>/dev/null || true)"
+
+if [ -z "$OUT" ]; then
+  echo "[]"
+  exit 0
+fi
+
+echo "$OUT" | awk '
+BEGIN {
+  print "["
+  first=1
+  ssid=""
+  signal=""
+  freq=""
+  rsn=0
+  wpa=0
+}
+
+function esc(s) {
+  gsub(/\\/,"\\\\",s)
+  gsub(/"/,"\\\"",s)
+  gsub(/\t/,"\\t",s)
+  gsub(/\r/,"\\r",s)
+  gsub(/\n/,"\\n",s)
+  return s
+}
+
+function flush() {
+  if (ssid == "") return
+
+  sec="open"
+  if (rsn==1 || wpa==1) sec="secured"
+
+  sig="null"
+  if (signal != "") {
+    sig = sprintf("%.0f", signal + 0)
+  }
+
+  fr="null"
+  if (freq != "") {
+    fr = sprintf("%d", freq + 0)
+  }
+
+  if (first==0) printf(",")
+  first=0
+
+  printf("{\"Ssid\":\"%s\",\"Security\":\"%s\",\"SignalDbm\":%s,\"FreqMhz\":%s}",
+    esc(ssid), sec, sig, fr)
+
+  ssid=""
+  signal=""
+  freq=""
+  rsn=0
+  wpa=0
+}
+
+$1=="BSS" { flush() }
+$1=="freq:" { freq=$2 }
+$1=="signal:" { signal=$2 }
+$1=="SSID:" {
+  $1=""
+  sub(/^ /,"")
+  ssid=$0
+}
+$1=="RSN:" { rsn=1 }
+$1=="WPA:" { wpa=1 }
+
+END {
+  flush()
+  print "\n]"
+}
+'

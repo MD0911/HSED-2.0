@@ -1,0 +1,157 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="HSED_2._0.Controls.OnScreenKeyboard"
+             Width="420"
+             Height="320">
+
+  <Border Background="#090f1c"
+          CornerRadius="18"
+          Padding="14">
+
+    <Border.Styles>
+
+      <!-- Default Key -->
+      <Style Selector="Button">
+        <Setter Property="Height" Value="58"/>
+        <Setter Property="FontSize" Value="24"/>
+        <Setter Property="Background" Value="#405a94"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="CornerRadius" Value="14"/>
+        <Setter Property="Foreground" Value="White"/>
+
+        <!-- IMPORTANT: perfect centering -->
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Padding" Value="0"/>
+
+        <!-- Let grid decide width -->
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        <Setter Property="VerticalAlignment" Value="Stretch"/>
+      </Style>
+
+      <Style Selector="Button.special">
+        <Setter Property="Background" Value="#405a94"/>
+      </Style>
+
+      <Style Selector="Button.bottom">
+        <Setter Property="Height" Value="72"/>
+        <Setter Property="FontSize" Value="22"/>
+      </Style>
+
+    </Border.Styles>
+
+    <StackPanel Spacing="10">
+
+      <!-- Row 1 -->
+      <ItemsControl x:Name="Row1Items">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <UniformGrid Columns="11"/>
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <Button Content="{Binding}"
+                    Click="Key_Click"
+                    Margin="2"/>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+
+      <!-- Row 2 -->
+      <ItemsControl x:Name="Row2Items">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <UniformGrid Columns="11"/>
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <Button Content="{Binding}"
+                    Click="Key_Click"
+                    Margin="2"/>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+
+      <!-- Row 3 -->
+      <Grid ColumnDefinitions="80,*,80">
+
+        <Button Grid.Column="0"
+                Width="80"
+                Height="58"
+                Classes="special"
+                Content="⬆"
+                Click="Shift_Click"
+                HorizontalContentAlignment="Center"
+                VerticalContentAlignment="Center"
+                Margin="0,0,6,0"/>
+
+        <ItemsControl x:Name="Row3Items" Grid.Column="1">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <UniformGrid Columns="7"/>
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <Button Content="{Binding}"
+                      Click="Key_Click"
+                      Margin="2"/>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <Button Grid.Column="2"
+                Width="80"
+                Height="58"
+                Classes="special"
+                Content="⌫"
+                Click="Backspace_Click"
+                HorizontalContentAlignment="Center"
+                VerticalContentAlignment="Center"
+                Margin="6,0,0,0"/>
+      </Grid>
+
+      <!-- Bottom Row -->
+      <Grid ColumnDefinitions="78,78,*,90">
+
+        <Button x:Name="ModeLeftBtn"
+                Grid.Column="0"
+                Width="78"
+                Classes="special bottom"
+                Click="ModeLeft_Click"
+                Margin="0,0,6,0"/>
+
+        <Button x:Name="ModeRightBtn"
+                Grid.Column="1"
+                Width="78"
+                Classes="special bottom"
+                Click="ModeRight_Click"
+                Margin="0,0,6,0"/>
+
+        <Button Grid.Column="2"
+                Classes="bottom"
+                Click="Space_Click"
+                Margin="0,0,6,0">
+          <Grid>
+            <TextBlock Text=" " />
+            <TextBlock Text=""
+                       HorizontalAlignment="Right"
+                       VerticalAlignment="Bottom"
+                       Margin="0,0,8,6"
+                       Opacity="0.4"
+                       FontSize="14"/>
+          </Grid>
+        </Button>
+
+        <Button Grid.Column="3"
+                Width="90"
+                Classes="special bottom"
+                Content="↩"
+                Click="Enter_Click"/>
+      </Grid>
+
+    </StackPanel>
+  </Border>
+</UserControl>

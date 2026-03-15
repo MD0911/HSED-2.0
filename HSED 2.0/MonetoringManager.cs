@@ -31,7 +31,19 @@ namespace HSED_2_0
         public static int CurrentLast { get; private set; }
         public static int CurrentZustand { get; private set; }
 
-        
+
+        // ===== Throttle nur für Fahrkorbposition (0x63 0x83) =====
+        private static readonly long _posMinIntervalTicks = Stopwatch.Frequency / 30; // 30 FPS
+        private static long _posNextAllowedTick = 0;
+
+        // Immer das letzte Telegramm merken
+        private static byte[] _pendingPosTelegram = null;
+
+        // Ein einziger Timer, kein Task.Run
+        private static System.Threading.Timer _posTimer = null;
+        private static int _posTimerArmed = 0; // 0 = nicht geplant, 1 = geplant
+        private static readonly object _posTimerLock = new object();
+
 
 
 
@@ -67,7 +79,21 @@ namespace HSED_2_0
         /// <summary>
         /// Stoppt den Monitoring-Vorgang.
         /// </summary>
-        public void Stop() => _cts?.Cancel();
+        public void Stop()
+        {
+            _cts?.Cancel();
+
+            lock (_posTimerLock)
+            {
+                _posTimer?.Dispose();
+                _posTimer = null;
+            }
+
+            Volatile.Write(ref _pendingPosTelegram, null);
+            Volatile.Write(ref _posNextAllowedTick, 0);
+            Volatile.Write(ref _posTimerArmed, 0);
+        }
+
 
         /// <summary>
         /// Initialisiert einmalig BootFloor und TopFloor und berechnet GesamtFloor.
@@ -117,6 +143,85 @@ namespace HSED_2_0
         /// Aktualisiert CurrentFloor anhand eines Monitoring-Telegramms (angenommen ab Offset 10).
         /// Umrechnung: CurrentFloor = rawFloor + BootFloor - 1.
         /// </summary>
+        /// 
+
+        private static void HandleFahrkorbThrottled(byte[] telegram)
+        {
+            if (telegram == null)
+                return;
+
+            // Immer das letzte Telegramm behalten
+            var copy = new byte[telegram.Length];
+            Buffer.BlockCopy(telegram, 0, copy, 0, telegram.Length);
+            Volatile.Write(ref _pendingPosTelegram, copy);
+
+
+            long now = Stopwatch.GetTimestamp();
+            long nextAllowed = Volatile.Read(ref _posNextAllowedTick);
+
+            // Wenn wir sofort dürfen, sofort anwenden
+            if (now >= nextAllowed)
+            {
+                Volatile.Write(ref _posNextAllowedTick, now + _posMinIntervalTicks);
+
+                var t = Interlocked.Exchange(ref _pendingPosTelegram, null);
+                if (t != null)
+                {
+                    setFahrkorb(t);
+                    setFahrkorbAnimationPosition(t);
+                }
+
+                return;
+            }
+
+            // Sonst Timer genau einmal scharf schalten
+            if (Interlocked.Exchange(ref _posTimerArmed, 1) == 1)
+                return;
+
+            long delayTicks = nextAllowed - now;
+            int delayMs = (int)Math.Max(1, (delayTicks * 1000L) / Stopwatch.Frequency);
+
+            lock (_posTimerLock)
+            {
+                if (_posTimer == null)
+                {
+                    _posTimer = new System.Threading.Timer(_ =>
+                    {
+                        try
+                        {
+                            if (Volatile.Read(ref _pendingPosTelegram) == null)
+                                return;
+
+                            long applyNow = Stopwatch.GetTimestamp();
+                            Volatile.Write(ref _posNextAllowedTick, applyNow + _posMinIntervalTicks);
+
+                            var t2 = Interlocked.Exchange(ref _pendingPosTelegram, null);
+                            if (t2 != null)
+                            {
+                                setFahrkorb(t2);
+                                setFahrkorbAnimationPosition(t2);
+                            }
+                        }
+                        finally
+                        {
+                            Volatile.Write(ref _posTimerArmed, 0);
+
+                            // Falls direkt wieder neue Daten reinkamen, erneut planen
+                            if (Volatile.Read(ref _pendingPosTelegram) != null)
+                            {
+                                HandleFahrkorbThrottled(Volatile.Read(ref _pendingPosTelegram));
+                            }
+                        }
+                    }, null, delayMs, Timeout.Infinite);
+                }
+                else
+                {
+                    _posTimer.Change(delayMs, Timeout.Infinite);
+                }
+            }
+        }
+
+
         private static void setCurrentFloor(byte[] currentFloorResponse)
         {
           
@@ -937,204 +1042,138 @@ namespace HSED_2_0
         ///  - Zustandsindex 0x2102: SK-Zustand (wird ins ViewModel geschrieben)
         /// </summary>
         /// 
-            /*public static void animationValidator()
-            {
-                HseCom.SendHseCommand(new byte[] { 0x03, 0x01,  });
+        /*public static void animationValidator()
+        {
+            HseCom.SendHseCommand(new byte[] { 0x03, 0x01,  });
 
-            }*/
+        }*/
         public static void AnalyzeResponseNew(byte[] response)
         {
+            if (response == null || response.Length < 2)
+                return;
 
             if (response[0] == 0x21 && response[1] == 0x01)
             {
                 Debug.WriteLine("Etagenänderung erkannt.");
                 setCurrentFloor(response);
             }
-
             else if (response[0] == 0x26 && response[1] == 0x48)
             {
                 Debug.WriteLine("Temperaturänderung erkannt.");
                 setTemp(response);
             }
-
             else if (response[0] == 0x21 && response[1] == 0x02)
             {
                 Debug.WriteLine("SK-Änderung erkannt.");
                 setSK(response);
             }
-
             else if (response[0] == 0x64 && response[1] == 0x80)
             {
                 Debug.WriteLine("Last-Änderung erkannt.");
                 setLast(response);
             }
-
             else if (response[0] == 0x20 && response[1] == 0xFF)
             {
                 Debug.WriteLine("Zustand-Änderung erkannt.");
                 setZustand(response);
             }
-
             else if (response[0] == 0x26 && response[1] == 0x4C)
             {
                 Debug.WriteLine("Fahrtenzähler-Änderung erkannt.");
                 setFahrtZahler(response);
             }
-
             else if (response[0] == 0x26 && response[1] == 0x4B)
             {
                 Debug.WriteLine("Betriebsstunden-Änderung erkannt.");
                 setBStunden(response);
             }
-
-            else if (response[0] == 0x63 && response[1] == 0x01 && response[2] == 0x01)
+            else if (response[0] == 0x63 && response[1] == 0x01 && response.Length >= 3 && response[2] == 0x01)
             {
-
                 Debug.WriteLine("Tür1-Änderung erkannt.");
                 setDoorState1(response);
             }
-            else if (response[0] == 0x63 && response[1] == 0x01 && response[2] == 0x02)
+            else if (response[0] == 0x63 && response[1] == 0x01 && response.Length >= 3 && response[2] == 0x02)
             {
-
                 Debug.WriteLine("Tür2-Änderung erkannt.");
                 setDoorState2(response);
-
             }
-            else if (response[0] == 0x63 && response[1] == 0x01 && response[2] == 0x03)
+            else if (response[0] == 0x63 && response[1] == 0x01 && response.Length >= 3 && response[2] == 0x03)
             {
-
                 Debug.WriteLine("Tür3-Änderung erkannt.");
                 setDoorState3(response);
             }
-
             else if (response[0] == 0x63 && response[1] == 0x83)
             {
-
-                Debug.WriteLine(DateTime.Now.ToString("HH:mm:ss:ffff") + "Fahrkorbposition-Änderung erkannt.");
-                setFahrkorb(response);
-                setFahrkorbAnimationPosition(response);
+                // NUR HIER throttlen
+                HandleFahrkorbThrottled(response);
             }
-
             else if (response[0] == 0x21 && response[1] == 0x03)
             {
-
                 Debug.WriteLine("Innenruftasterquittung erkannt.");
                 innenruftasterquittung(response);
-
-
             }
-
             else if (response[0] == 0x21 && response[1] == 0x04)
             {
-
                 Debug.WriteLine("Aufwärts-Außenrufasterquittung erkannt.");
                 aufAussentasterquittung(response);
-
-
             }
-
             else if (response[0] == 0x21 && response[1] == 0x05)
             {
-
                 Debug.WriteLine("Abwärts-Außenrufasterquittung erkannt.");
                 abAussentasterquittung(response);
-
-
             }
-
             else if (response[0] == 0x63 && response[1] == 0x90)
             {
-
                 Debug.WriteLine("Geschwin. Änderung erkannt.");
                 speed(response);
-
-
             }
-
             else if (response[0] == 0x26 && response[1] == 0x4F)
             {
-
                 Debug.WriteLine("Signalgeber. Änderung erkannt.");
                 signal(response);
-
-
             }
-
             else if (response[0] == 0x26 && response[1] == 0x50)
             {
-
                 Debug.WriteLine("SKF. Änderung erkannt.");
                 setSKF(response);
-
-
             }
-
-            else if (response[0] == 0x63 && response[1] == 0x10 && response[2] == 0x01)
+            else if (response[0] == 0x63 && response[1] == 0x10 && response.Length >= 3 && response[2] == 0x01)
             {
-
                 Debug.WriteLine("LS-T1. Änderung erkannt.");
                 setLS(response, 1);
-
-
             }
-
-            else if (response[0] == 0x63 && response[1] == 0x10 && response[2] == 0x02)
+            else if (response[0] == 0x63 && response[1] == 0x10 && response.Length >= 3 && response[2] == 0x02)
             {
-
                 Debug.WriteLine("LS-T2. Änderung erkannt.");
                 setLS(response, 2);
-
-
             }
-
-            else if (response[0] == 0x63 && response[1] == 0x10 && response[2] == 0x03)
+            else if (response[0] == 0x63 && response[1] == 0x10 && response.Length >= 3 && response[2] == 0x03)
             {
-
                 Debug.WriteLine("LS-T3. Änderung erkannt.");
                 setLS(response, 3);
-
-
             }
-
-            else if (response[0] == 0x63 && response[1] == 0xEF && response[2] == 0x01)
+            else if (response[0] == 0x63 && response[1] == 0xEF && response.Length >= 3 && response[2] == 0x01)
             {
-
                 Debug.WriteLine("DS1. Änderung erkannt.");
                 setDS(response, 1);
-
-
             }
-
-            else if (response[0] == 0x63 && response[1] == 0xEF && response[2] == 0x02)
+            else if (response[0] == 0x63 && response[1] == 0xEF && response.Length >= 3 && response[2] == 0x02)
             {
-
                 Debug.WriteLine("DS2. Änderung erkannt.");
                 setDS(response, 2);
-
-
             }
-
-            else if (response[0] == 0x63 && response[1] == 0xEF && response[2] == 0x03)
+            else if (response[0] == 0x63 && response[1] == 0xEF && response.Length >= 3 && response[2] == 0x03)
             {
-
                 Debug.WriteLine("DS3. Änderung erkannt.");
                 setDS(response, 3);
-
-
             }
-
             else if (response[0] == 0x26 && response[1] == 0x47)
             {
-
                 Debug.WriteLine("Uhr Änderung erkannt.");
                 setTime(response);
-
-
             }
-
-
-
         }
+
         public static void AnalyzeResponse(byte[] response)
         {
             Debug.WriteLine("Derzeitige Etage (vor Analyse): " + CurrentFloor);

@@ -191,7 +191,11 @@
 		<None Remove="Images\Icons\pfeil-runter.png" />
 		<None Remove="Images\Icons\refresh.png" />
 		<None Remove="Images\Icons\stift.png" />
+		<None Remove="Images\Icons\update.png" />
+		<None Remove="Images\Icons\verbindung.png" />
+		<None Remove="Images\Icons\wlan.png" />
 		<None Remove="Images\Icons\zuhause.png" />
+		<None Remove="LinuxScripts\update_hsed.sh" />
 	</ItemGroup>
 	<ItemGroup>
 		<Content Include="Animation\forBuild\Fahrkorb\Fahrkorb.png">
@@ -244,6 +248,18 @@
 		</AvaloniaResource>
 		<AvaloniaResource Include="Animation\3.png">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</AvaloniaResource>
+		<AvaloniaResource Include="Images\Icons\info.png">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</AvaloniaResource>
+		<AvaloniaResource Include="Images\Icons\update.png">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</AvaloniaResource>
+		<AvaloniaResource Include="Images\Icons\verbindung.png">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</AvaloniaResource>
+		<AvaloniaResource Include="Images\Icons\wlan.png">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</AvaloniaResource>
 		<Content Include="Animation\forBuild\Fahrkorb\Fahrkorb-1offen.png">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -652,6 +668,21 @@
 		</Content>
 		<Content Include="Images\BackgroundGradient.png">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="LinuxScripts\usb_update_hsed.sh">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="LinuxScripts\wifi_status.sh">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="LinuxScripts\connect_wifi.sh">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="LinuxScripts\scan_wifi.sh">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="LinuxScripts\update_hsed.sh">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
 	</ItemGroup>
 

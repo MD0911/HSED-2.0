@@ -41,10 +41,14 @@ namespace HSED_2._0
         public int TotalDoor;
         public bool DoorOverlayFinish = false;
 
+        private bool _reconnectPending;
+
+        private bool _lastTerminalActive = false;
+
+
         // SVG Cache
         public static Bitmap SharedSvgBitmap { get; private set; }
         public static Bitmap SharedSvgBitmapAlternative { get; private set; }
-        private TestrufeNeu _cachedTestrufeWindow;
         private bool _isLogicInitialized = false;
         private DispatcherTimer _updateTimer;
         private DispatcherTimer _updateTimer2;
@@ -177,6 +181,29 @@ namespace HSED_2._0
         Bitmap Fahrkorb3offnetSchliesst = new Bitmap("Animation/forBuild/Fahrkorb/oeffentschliesst3.png");
         Bitmap FahrkorbOneDoor = new Bitmap("Animation/forBuild/Fahrkorb/FahrkorbOneDoor.png");
         Bitmap FahrkorbOneDoorOpen = new Bitmap("Animation/forBuild/Fahrkorb/Fahrkorb1DoorOpen.png");
+
+        private int _lastFloor = int.MinValue;
+        private int _lastTemp = int.MinValue;
+        private int _lastSpeed = int.MinValue;
+        private string? _lastTime;
+        private string? _lastDate;
+
+        private IImage? _lastFahrkorbSource;
+        private IImage? _lastOverlay1;
+        private IImage? _lastOverlay2;
+        private IImage? _lastOverlay3;
+
+        private static readonly SolidColorBrush BrushGreen = new(Color.Parse("#22c55e"));
+        private static readonly SolidColorBrush BrushGray = new(Color.Parse("#9ca3af"));
+
+        private TranslateTransform? _carTT;
+        private TranslateTransform? _o1TT;
+        private TranslateTransform? _o2TT;
+        private TranslateTransform? _o3TT;
+
+     
+
+
         public MainWindow()
         {
             InitializeComponent();
@@ -189,8 +216,7 @@ namespace HSED_2._0
 
             this.Opened += MainWindow_Opened;
 
-            _cachedTestrufeWindow = new TestrufeNeu();
-            _cachedTestrufeWindow.Hide();
+          
 
             this.Position = new PixelPoint(0, 0);
         }
@@ -235,17 +261,31 @@ namespace HSED_2._0
 
             SetupLiveViewScrollBounds();
 
+            // <<<<<<<<<< HIER REIN
+            Dispatcher.UIThread.Post(() =>
+            {
+                CacheOverlayTransforms();
+            }, DispatcherPriority.Loaded);
+
             Dispatcher.UIThread.Post(() =>
             {
                 FloorButtonsOverlay.Background = Brushes.Transparent;
             }, DispatcherPriority.Loaded);
 
-            // Feste Buttons anhand TopAnchor + Pitch erzeugen und sichtbaren Bereich clampen
             Dispatcher.UIThread.Post(() =>
             {
                 BuildFixedFloorButtonsFromAnchor();
                 UpdateFixedFloorButtonsVisibility();
             }, DispatcherPriority.Render);
+        }
+
+
+        private void CacheOverlayTransforms()
+        {
+            _carTT = ((TransformGroup)FahrkorbImage.RenderTransform).Children[1] as TranslateTransform;
+            _o1TT = ((TransformGroup)FahrkorbOverlay1.RenderTransform).Children[1] as TranslateTransform;
+            _o2TT = ((TransformGroup)FahrkorbOverlay2.RenderTransform).Children[1] as TranslateTransform;
+            _o3TT = ((TransformGroup)FahrkorbOverlay3.RenderTransform).Children[1] as TranslateTransform;
         }
 
         private double EncToWorld(int enc)
@@ -463,6 +503,14 @@ namespace HSED_2._0
             return btn;
         }
 
+        private static void SetSourceIfChanged(Image img, ref IImage? cache, IImage? next)
+        {
+            if (ReferenceEquals(cache, next)) return;
+            cache = next;
+            img.Source = next;
+        }
+
+
         private void BuildFixedFloorButtonsFromAnchor()
         {
             FloorButtonsOverlay.Children.Clear();
@@ -559,54 +607,95 @@ namespace HSED_2._0
 
 
 
+        public void ForceRefreshOverlaidUi()
+        {
+            // Cache invalidieren, damit Display-Methoden wirklich neu setzen
+            _lastTemp = int.MinValue;
+            _lastSpeed = int.MinValue;
+            _lastFloor = int.MinValue;
+            _lastTime = null;
+            _lastDate = null;
+
+            // Einmal alles aktualisieren, was sonst pausiert wird
+            DisplayTemp();
+            DisplayLast();
+            DisplayFahrtZahler();
+            DisplayBStunden();
+            DisplayFahrkorbMM();
+            DisplayDatum();
+            DisplayUhr();
+            DisplaySpeed();
+            DisplayDiff();
+        }
 
 
-       
+
 
         private void ResumeLogic()
         {
             _monetoringManager?.Start();
 
-            // UI-Update-Timer
             if (_updateTimer == null)
             {
-                _updateTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(100) };
+                _updateTimer = new DispatcherTimer
+                {
+                    Interval = TimeSpan.FromMilliseconds(200)
+                };
+
                 _updateTimer.Tick += (s, ev) =>
                 {
+                    // Diese UI-Updates sind IMMER notwendig
                     DisplayFloor();
-                    DisplayTemp();
-                    DisplayLast();
-                    DisplayFahrtZahler();
                     DisplayZustand();
                     DisplaySk();
-                    DisplayBStunden();
-                    DisplayFahrkorbMM();
-                    DisplayDatum();
-                    DisplayUhr();
                     DisplayInnenruftasterquittung();
                     DisplayAussenruftasterquittung();
-                    DisplaySpeed();
                     DisplaySignal();
-                    DisplayDiff();
                     DisplayDoorSwitch();
                     DisplayDoor();
                     DisplaySKF();
 
-                   
-                    
-                    if(!DoorOverlayFinish)
+                    if (!DoorOverlayFinish)
                     {
                         FollowAnimationOverlay();
                     }
 
+                    bool terminalActive = TerminalManager.terminalActive;
+
+                    // Terminal wurde gerade geschlossen → einmal alles nachziehen
+                    if (_lastTerminalActive && !terminalActive)
+                    {
+                        ForceRefreshOverlaidUi();
+                    }
+
+                    _lastTerminalActive = terminalActive;
+
+                    // Alles was vom Terminal verdeckt ist, nur updaten wenn Terminal zu
+                    if (!terminalActive)
+                    {
+                        DisplayTemp();
+                        DisplayLast();
+                        DisplayFahrtZahler();
+                        DisplayBStunden();
+                        DisplayFahrkorbMM();
+                        DisplayDatum();
+                        DisplayUhr();
+                        DisplaySpeed();
+                        DisplayDiff();
+                    }
                 };
             }
+
             _updateTimer.Start();
 
-            // Fahrkorb-Animation (60 FPS)
+            // Animation läuft IMMER weiter
             if (_animTimer == null)
             {
-                _animTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(16) };
+                _animTimer = new DispatcherTimer
+                {
+                    Interval = TimeSpan.FromMilliseconds(16)
+                };
+
                 _animClock.Restart();
 
                 _animTimer.Tick += (s, ev) =>
@@ -619,11 +708,15 @@ namespace HSED_2._0
 
                     double targetCont = GetContinuousTarget();
 
-                    double err = targetCont - _springX;
-                    double targetSpeed = Math.Abs(_targetSpeedPxPerSec);
-                    double halfLife = (targetSpeed < 60 && Math.Abs(err) < 3) ? 0.30 : 0.18;
-
-                    CriticallyDampedSpring(ref _springX, ref _springV, targetCont, halfLife, 1.0, dt, 20000);
+                    CriticallyDampedSpring(
+                        ref _springX,
+                        ref _springV,
+                        targetCont,
+                        0.18,
+                        1.0,
+                        dt,
+                        20000
+                    );
 
                     _visY = _springX;
                     SetCarTransform(-_visY);
@@ -633,14 +726,13 @@ namespace HSED_2._0
                         AutoFollowIfNeeded();
                 };
             }
+
             _animTimer.Start();
 
-            // >>> Kein BuildOrUpdateFloorButtonsOverlay() mehr!
-
-            // Polling
             _cancellationTokenSource = new CancellationTokenSource();
             StartPeriodicUpdateO(TimeSpan.FromSeconds(10), _cancellationTokenSource.Token);
         }
+
 
 
 
@@ -815,172 +907,41 @@ namespace HSED_2._0
 
         public void DisplayDoorSwitch()
         {
-            if (ViewModel.LS1 == 1)
-            {
-                DLS1.Background = new SolidColorBrush(Color.Parse("#22c55e"));
-            }
-            else 
-            { 
-            DLS1.Background = new SolidColorBrush(Color.Parse("#9ca3af"));
-            }
-            if (ViewModel.LS2 == 1)
-            {
-                DLS2.Background = new SolidColorBrush(Color.Parse("#22c55e"));
-            }
-            else
-            {
-                DLS2.Background = new SolidColorBrush(Color.Parse("#9ca3af"));
-            }
-            if (ViewModel.LS3 == 1)
-            {
-                DLS3.Background = new SolidColorBrush(Color.Parse("#22c55e"));
-            }
-            else
-            {
-                DLS3.Background = new SolidColorBrush(Color.Parse("#9ca3af"));
-            }
+            DLS1.Background = ViewModel.LS1 == 1 ? BrushGreen : BrushGray;
+            DLS2.Background = ViewModel.LS2 == 1 ? BrushGreen : BrushGray;
+            DLS3.Background = ViewModel.LS3 == 1 ? BrushGreen : BrushGray;
 
+            DOP1.Background = ViewModel.DOP1 ? BrushGreen : BrushGray;
+            DOP2.Background = ViewModel.DOP2 ? BrushGreen : BrushGray;
+            DOP3.Background = ViewModel.DOP3 ? BrushGreen : BrushGray;
 
-            if(ViewModel.DOP1)
-            {
-                DOP1.Background = new SolidColorBrush(Color.Parse("#22c55e"));
-            }
-            else
-            {
-                DOP1.Background = new SolidColorBrush(Color.Parse("#9ca3af"));
-            }
+            DCL1.Background = ViewModel.DCL1 ? BrushGreen : BrushGray;
+            DCL2.Background = ViewModel.DCL2 ? BrushGreen : BrushGray;
+            DCL3.Background = ViewModel.DCL3 ? BrushGreen : BrushGray;
 
-            if (ViewModel.DOP2) 
-            {
-                DOP2.Background = new SolidColorBrush(Color.Parse("#22c55e"));
-            }
-            else
-            {
-                DOP2.Background = new SolidColorBrush(Color.Parse("#9ca3af"));
-            }
-            if (ViewModel.DOP3)
-            {
-                DOP3.Background = new SolidColorBrush(Color.Parse("#22c55e"));
-            }
-            else
-            {
-                DOP3.Background = new SolidColorBrush(Color.Parse("#9ca3af"));
-            }
-
-            if (ViewModel.DCL1)
-            {
-                DCL1.Background = new SolidColorBrush(Color.Parse("#22c55e"));
-            }
-            else
-            {
-                DCL1.Background = new SolidColorBrush(Color.Parse("#9ca3af"));
-
-            }
-
-            if (ViewModel.DCL2)
-            {
-                DCL2.Background = new SolidColorBrush(Color.Parse("#22c55e"));
-            }
-            else
-            {
-                DCL2.Background = new SolidColorBrush(Color.Parse("#9ca3af"));
-            }
-            if (ViewModel.DCL3)
-            {
-                DCL3.Background = new SolidColorBrush(Color.Parse("#22c55e"));
-            }
-            else
-            {
-                DCL3.Background = new SolidColorBrush(Color.Parse("#9ca3af"));
-            }
-
-
-            if (ViewModel.DREV1) 
-            {
-                DREV1.Background = new SolidColorBrush(Color.Parse("#22c55e"));
-            }
-            else
-            {
-                DREV1.Background = new SolidColorBrush(Color.Parse("#9ca3af"));
-            }
-            if (ViewModel.DREV2)
-            {
-                DREV2.Background = new SolidColorBrush(Color.Parse("#22c55e"));
-            }
-            else
-            {
-                DREV2.Background = new SolidColorBrush(Color.Parse("#9ca3af"));
-            }
-            if (ViewModel.DREV3)
-            {
-                DREV3.Background = new SolidColorBrush(Color.Parse("#22c55e"));
-            }
-            else
-            {
-                DREV3.Background = new SolidColorBrush(Color.Parse("#9ca3af"));
-            }
-
-
-           
-
-
+            DREV1.Background = ViewModel.DREV1 ? BrushGreen : BrushGray;
+            DREV2.Background = ViewModel.DREV2 ? BrushGreen : BrushGray;
+            DREV3.Background = ViewModel.DREV3 ? BrushGreen : BrushGray;
         }
 
-       
+
+
 
         public void FollowAnimationOverlay()
         {
-            var fahrkorbTransform = ((TransformGroup)FahrkorbImage.RenderTransform)
-                        .Children.OfType<TranslateTransform>()
-                        .FirstOrDefault();
+            if (_carTT == null || _o1TT == null || _o2TT == null || _o3TT == null)
+                return;
 
-            var overlayTransform1 = ((TransformGroup)FahrkorbOverlay1.RenderTransform)
-                                    .Children.OfType<TranslateTransform>()
-                                    .FirstOrDefault();
-          
-
-            if (fahrkorbTransform != null && overlayTransform1 != null)
-            {
-                overlayTransform1.Y = fahrkorbTransform.Y;
-                
-            }
-
-            var overlayTransform2 = ((TransformGroup)FahrkorbOverlay2.RenderTransform)
-                                    .Children.OfType<TranslateTransform>()
-                                    .FirstOrDefault();
-
-
-            if (fahrkorbTransform != null && overlayTransform2 != null)
-            {
-                overlayTransform2.Y = fahrkorbTransform.Y;
-
-            }
-
-            var overlayTransform3 = ((TransformGroup)FahrkorbOverlay3.RenderTransform)
-                                    .Children.OfType<TranslateTransform>()
-                                    .FirstOrDefault();
-
-
-            if (fahrkorbTransform != null && overlayTransform3 != null)
-            {
-                overlayTransform3.Y = fahrkorbTransform.Y;
-
-            }
-
+            var y = _carTT.Y;
+            _o1TT.Y = y;
+            _o2TT.Y = y;
+            _o3TT.Y = y;
         }
+
 
         public void DisplaySKF()
         {
-            if (ViewModel.SKF == 0)
-            {
-                VFang.Background = new SolidColorBrush(Color.Parse("#22c55e"));
-               
-            }
-            else
-            {
-                VFang.Background = new SolidColorBrush(Color.Parse("#9ca3af"));
-                
-            }
+            VFang.Background = (ViewModel.SKF == 0) ? BrushGreen : BrushGray;
         }
 
         private TextBlock GetAssignedOrAllocate(int doorIndex, int state)
@@ -1014,83 +975,42 @@ namespace HSED_2._0
 
         public void DisplayDoor()
         {
+            IImage? nextCar = null;
+            IImage? nextO1 = null;
+            IImage? nextO2 = null;
+            IImage? nextO3 = null;
 
-
-            if (MainWindow.Instance.TotalDoor != 1)
+            // --- Fahrkorb Basis ---
+            if (TotalDoor != 1)
             {
-
-                if (ViewModel.CurrentStateTueur1 == 48 && ViewModel.CurrentStateTueur2 == 0)
-                {
-                    FahrkorbImage.Source = Fahrkorb1offen;
-                }
-                else if (ViewModel.CurrentStateTueur1 == 0 && ViewModel.CurrentStateTueur2 == 48)
-                {
-                    FahrkorbImage.Source = Fahrkorb2offen;
-                }
-                else if (ViewModel.CurrentStateTueur1 == 48 && ViewModel.CurrentStateTueur2 == 48)
-                {
-                    FahrkorbImage.Source = FahrkorbBoffen;
-                }
-                else if (ViewModel.CurrentStateTueur1 == 0 && ViewModel.CurrentStateTueur2 == 0)
-                {
-                    FahrkorbImage.Source = Fahrkorb;
-                }
+                if (ViewModel.CurrentStateTueur1 == 48 && ViewModel.CurrentStateTueur2 == 0) nextCar = Fahrkorb1offen;
+                else if (ViewModel.CurrentStateTueur1 == 0 && ViewModel.CurrentStateTueur2 == 48) nextCar = Fahrkorb2offen;
+                else if (ViewModel.CurrentStateTueur1 == 48 && ViewModel.CurrentStateTueur2 == 48) nextCar = FahrkorbBoffen;
+                else nextCar = Fahrkorb;
             }
             else
             {
-                if (ViewModel.CurrentStateTueur1 == 48)
-                {
-                    FahrkorbImage.Source = FahrkorbOneDoorOpen;
-                }
-                else if (ViewModel.CurrentStateTueur1 == 0)
-                {
-                    FahrkorbImage.Source = FahrkorbOneDoor;
-                }
-              
+                nextCar = (ViewModel.CurrentStateTueur1 == 48) ? FahrkorbOneDoorOpen : FahrkorbOneDoor;
             }
 
+            // --- Overlays ---
+            nextO1 = GetDoorOverlay(ViewModel.CurrentStateTueur1, FahrkorbOverlayoffen1, Fahrkorb1offnetSchliesst);
+            nextO2 = GetDoorOverlay(ViewModel.CurrentStateTueur2, FahrkorbOverlayoffen2, Fahrkorb2offnetSchliesst);
+            nextO3 = GetDoorOverlay(ViewModel.CurrentStateTueur3, FahrkorbOverlayoffen3, Fahrkorb3offnetSchliesst);
 
+            // nur setzen wenn changed
+            SetSourceIfChanged(FahrkorbImage, ref _lastFahrkorbSource, nextCar);
+            SetSourceIfChanged(FahrkorbOverlay1, ref _lastOverlay1, nextO1);
+            SetSourceIfChanged(FahrkorbOverlay2, ref _lastOverlay2, nextO2);
+            SetSourceIfChanged(FahrkorbOverlay3, ref _lastOverlay3, nextO3);
+        }
 
-                if (ViewModel.CurrentStateTueur1 == 48)
-                {
-                    FahrkorbOverlay1.Source = FahrkorbOverlayoffen1;
-                }
-                if (ViewModel.CurrentStateTueur2 == 48)
-                {
-                    FahrkorbOverlay2.Source = FahrkorbOverlayoffen2;
-                }
-                if (ViewModel.CurrentStateTueur3 == 48)
-                {
-                    FahrkorbOverlay3.Source = FahrkorbOverlayoffen3;
-                }
-
-                if (ViewModel.CurrentStateTueur1 == 0)
-                {
-                    FahrkorbOverlay1.Source = null;
-                }
-                if (ViewModel.CurrentStateTueur2 == 0)
-                {
-                    FahrkorbOverlay2.Source = null;
-                }
-                if (ViewModel.CurrentStateTueur3 == 0)
-                {
-                    FahrkorbOverlay3.Source = null;
-                }
-
-                if (ViewModel.CurrentStateTueur1 == 80 || ViewModel.CurrentStateTueur1 == 32)
-                {
-                    FahrkorbOverlay1.Source = Fahrkorb1offnetSchliesst;
-                }
-                if (ViewModel.CurrentStateTueur2 == 80 || ViewModel.CurrentStateTueur2 == 32)
-                {
-                    FahrkorbOverlay2.Source = Fahrkorb2offnetSchliesst;
-                }
-                if (ViewModel.CurrentStateTueur3 == 80 || ViewModel.CurrentStateTueur3 == 32)
-                {
-                    FahrkorbOverlay3.Source = Fahrkorb3offnetSchliesst;
-                }
-            
-
+        private static IImage? GetDoorOverlay(int state, IImage offen, IImage bewegt)
+        {
+            // 48 offen, 80/32 bewegt, 0 sonst aus
+            if (state == 48) return offen;
+            if (state == 80 || state == 32) return bewegt;
+            return null;
         }
 
 
@@ -1201,39 +1121,17 @@ namespace HSED_2._0
 
         public void DisplaySpeed()
         {
-
-            Geschwindigkeit.Text = ViewModel.Speed.ToString() + "mm/s";
+            int s = ViewModel.Speed;
+            if (s == _lastSpeed) return;
+            _lastSpeed = s;
+            Geschwindigkeit.Text = s + "mm/s";
         }
 
         public void DisplaySignal()
         {
-            if(ViewModel.SGO)
-            {
-                SGO.Background = new SolidColorBrush(Color.Parse("#22c55e"));
-            }
-            else
-            {
-                SGO.Background = new SolidColorBrush(Color.Parse("#9ca3af"));
-            }
-
-            if (ViewModel.SGU)
-            {
-                SGU.Background = new SolidColorBrush(Color.Parse("#22c55e"));
-            }
-            else
-            {
-                SGU.Background = new SolidColorBrush(Color.Parse("#9ca3af"));
-            }
-
-            if (ViewModel.SGU)
-            {
-                SGU.Background = new SolidColorBrush(Color.Parse("#22c55e"));
-            }
-            else
-            {
-                SGU.Background = new SolidColorBrush(Color.Parse("#9ca3af"));
-            }
-
+            SGO.Background = ViewModel.SGO ? BrushGreen : BrushGray;
+            SGU.Background = ViewModel.SGU ? BrushGreen : BrushGray;
+            SGM.Background = ViewModel.SGM ? BrushGreen : BrushGray;
         }
 
 
@@ -1243,14 +1141,32 @@ namespace HSED_2._0
 
         public void DisplayDatum()
         {
-            Datum.Text = ViewModel.CurrentDate;
-        } 
-        public void DisplayUhr() 
-        {
-            Uhr.Text = ViewModel.CurrentTime;
+            var v = ViewModel.CurrentDate;
+            if (v == _lastDate) return;
+            _lastDate = v;
+            Datum.Text = v;
         }
-        public void DisplayTemp() => Temp.Text = ViewModel.CurrentTemp.ToString() + "°C";
-        public void DisplayFloor() => Etage.Text = ViewModel.CurrentFloor.ToString();
+        public void DisplayUhr()
+        {
+            var v = ViewModel.CurrentTime;
+            if (v == _lastTime) return;
+            _lastTime = v;
+            Uhr.Text = v;
+        }
+        public void DisplayTemp()
+        {
+            int t = ViewModel.CurrentTemp;
+            if (t == _lastTemp) return;
+            _lastTemp = t;
+            Temp.Text = t + "°C";
+        }
+        public void DisplayFloor()
+        {
+            int f = ViewModel.CurrentFloor;
+            if (f == _lastFloor) return;
+            _lastFloor = f;
+            Etage.Text = f.ToString();
+        }
 
         public void DisplayFahrtZahler()
         {
@@ -1319,11 +1235,12 @@ namespace HSED_2._0
 
         public void DisplaySk()
         {
-            SK1.Background = ViewModel.CurrentSK1 == 0 ? new SolidColorBrush(Color.Parse("#9ca3af")) : new SolidColorBrush(Color.Parse("#22c55e"));
-            SK2.Background = ViewModel.CurrentSK2 == 0 ? new SolidColorBrush(Color.Parse("#9ca3af")) : new SolidColorBrush(Color.Parse("#22c55e"));
-            SK3.Background = ViewModel.CurrentSK3 == 0 ? new SolidColorBrush(Color.Parse("#9ca3af")) : new SolidColorBrush(Color.Parse("#22c55e"));
-            SK4.Background = ViewModel.CurrentSK4 == 0 ? new SolidColorBrush(Color.Parse("#9ca3af")) : new SolidColorBrush(Color.Parse("#22c55e"));
+            SK1.Background = ViewModel.CurrentSK1 == 0 ? BrushGray : BrushGreen;
+            SK2.Background = ViewModel.CurrentSK2 == 0 ? BrushGray : BrushGreen;
+            SK3.Background = ViewModel.CurrentSK3 == 0 ? BrushGray : BrushGreen;
+            SK4.Background = ViewModel.CurrentSK4 == 0 ? BrushGray : BrushGreen;
         }
+
 
         // ===================== Timer =====================
 
@@ -1542,65 +1459,38 @@ namespace HSED_2._0
         {
             if (!ViewModel.DOPNA1)
             {
-                DOP1.Width = 15;
-                DOP1.Height = 5;
-                DOP1.CornerRadius = new CornerRadius(0);
-
-                DCL1.Width = 15;
-                DCL1.Height = 5;
-                DCL1.CornerRadius = new CornerRadius(0);
+                DOP1.Width = 15; DOP1.Height = 5; DOP1.CornerRadius = new CornerRadius(0);
+                DCL1.Width = 15; DCL1.Height = 5; DCL1.CornerRadius = new CornerRadius(0);
             }
             else
             {
-                DOP1.Width = 25;
-                DOP1.Height = 15;
-                DOP1.CornerRadius = new CornerRadius(5);
-
-                DCL1.Width = 25;
-                DCL1.Height = 15;
-                DCL1.CornerRadius = new CornerRadius(5);
+                DOP1.Width = 25; DOP1.Height = 15; DOP1.CornerRadius = new CornerRadius(5);
+                DCL1.Width = 25; DCL1.Height = 15; DCL1.CornerRadius = new CornerRadius(5);
             }
+
             if (!ViewModel.DOPNA2)
             {
-                DOP2.Width = 15;
-                DOP2.Height = 5;
-                DOP2.CornerRadius = new CornerRadius(0);
-
-                DCL2.Width = 15;
-                DCL2.Height = 5;
-                DCL2.CornerRadius = new CornerRadius(0);
+                DOP2.Width = 15; DOP2.Height = 5; DOP2.CornerRadius = new CornerRadius(0);
+                DCL2.Width = 15; DCL2.Height = 5; DCL2.CornerRadius = new CornerRadius(0);
             }
             else
             {
-                DOP2.Width = 25;
-                DOP2.Height = 15;
-                DOP2.CornerRadius = new CornerRadius(5);
-
-                DCL2.Width = 25;
-                DCL2.Height = 15;
-                DCL2.CornerRadius = new CornerRadius(5);
+                DOP2.Width = 25; DOP2.Height = 15; DOP2.CornerRadius = new CornerRadius(5);
+                DCL2.Width = 25; DCL2.Height = 15; DCL2.CornerRadius = new CornerRadius(5);
             }
+
             if (!ViewModel.DOPNA3)
             {
-                DOP3.Width = 15;
-                DOP3.Height = 5;
-                DOP3.CornerRadius = new CornerRadius(0);
-
-                DCL3.Width = 15;
-                DCL3.Height = 5;
-                DCL3.CornerRadius = new CornerRadius(0);
+                DOP3.Width = 15; DOP3.Height = 5; DOP3.CornerRadius = new CornerRadius(0);
+                DCL3.Width = 15; DCL3.Height = 5; DCL3.CornerRadius = new CornerRadius(0);
             }
             else
             {
-                DOP3.Width = 25;
-                DOP3.Height = 15;
-                DOP3.CornerRadius = new CornerRadius(5);
-
-                DCL1.Width = 25;
-                DCL1.Height = 15;
-                DCL1.CornerRadius = new CornerRadius(5);
+                DOP3.Width = 25; DOP3.Height = 15; DOP3.CornerRadius = new CornerRadius(5);
+                DCL3.Width = 25; DCL3.Height = 15; DCL3.CornerRadius = new CornerRadius(5); // FIX
             }
         }
+
         public async void HseConnect()
         {
             Debug.WriteLine("HSECONNECT");
@@ -1614,6 +1504,7 @@ namespace HSED_2._0
             LevelPositionDefiner();
             FabrikNummerDefiner();
             FN.Text = MainWindow.Instance.Fabriknummer.ToString();
+
             ViewModel.CurrentZustand = HseCom.SendHse(1005);
             ViewModel.CurrentStateTueur1 = HseCom.SendHse(1006);
             ViewModel.CurrentStateTueur2 = HseCom.SendHse(1016);
@@ -1623,6 +1514,7 @@ namespace HSED_2._0
 
             byte[] totalDoor = HseCom.SendHseCommand(new byte[] { 0x03, 0x01, 0x20, 0x00 });
             MainWindow.Instance.TotalDoor = totalDoor[10];
+
             if (totalDoor[10] == 3)
             {
                 D1.Foreground = new SolidColorBrush(Colors.White);
@@ -1657,9 +1549,6 @@ namespace HSED_2._0
                 DLS3.Height = 0; DLS3.Width = 15; DLS3.CornerRadius = new CornerRadius(0);
             }
 
-            var transformGroup = (TransformGroup)PositionControl.RenderTransform;
-            var YTransform = (TranslateTransform)transformGroup.Children[1];
-
             int temp = HseCom.SendHse(3001);
             ViewModel.CurrentTemp = temp;
 
@@ -1681,24 +1570,36 @@ namespace HSED_2._0
             }
 
             int currentFloor = HseCom.SendHse(1002);
+
+            // Fix 1: Keine Rekursion mehr
             if (currentFloor == 505)
             {
-                currentFloor = ViewModel.CurrentFloor; // beibehalten
+                if (_reconnectPending) return;
+                _reconnectPending = true;
+
                 await Task.Delay(1000);
-                HseConnect();
+
+                _reconnectPending = false;
+
+                await Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    HseConnect();
+                });
+
                 return;
             }
-            else
-            {
-                ViewModel.CurrentFloor = currentFloor;
-            }
+
+            ViewModel.CurrentFloor = currentFloor;
+
             _monetoringManager = new MonetoringManager();
             _monetoringManager.Start();
+            Debug.WriteLine("HSE-Connect abgeschlossen");
 
-            float lastKorbPosition = MonetoringManager.LastKorbPosition;
             int bStunden = MonetoringManager.Betriebsstunden;
 
-            if (lastKorbPosition == null)
+            // Fix 2: float kann nicht null sein, daher sauber prüfen
+            float lastKorbPosition = MonetoringManager.LastKorbPosition;
+            if (float.IsNaN(lastKorbPosition) || float.IsInfinity(lastKorbPosition))
             {
                 ViewModel.PositionY = 0;
             }
@@ -1711,13 +1612,18 @@ namespace HSED_2._0
             _visY = ViewModel.PositionY;
             _velY = 0.0;
 
-            // Feste Buttons nach HSE-Daten (boot/count) sichtbar schalten
             Dispatcher.UIThread.Post(() =>
             {
                 BuildFixedFloorButtonsFromAnchor();
                 UpdateFixedFloorButtonsVisibility();
             }, DispatcherPriority.Render);
         }
+
+        private bool IsValidPosition(float value)
+        {
+            return !float.IsNaN(value) && !float.IsInfinity(value);
+        }
+
 
         private void UpdateFixedFloorButtonsVisibility()
         {
@@ -1907,6 +1813,29 @@ namespace HSED_2._0
             circle.BorderThickness = active ? new Thickness(3.0) : new Thickness(1.5);
         }
 
+        private SettingsVertical? _settingsWindow;
+
+        private void OpenSettings()
+        {
+            if (_settingsWindow == null)
+            {
+                _settingsWindow = new SettingsVertical();
+
+                // wenn User das X klickt: nicht "weg-disposen", sondern wieder referenz sauber machen
+                _settingsWindow.Closed += (_, __) => _settingsWindow = null;
+            }
+
+            // Owner setzen (wichtig für Stacking auf Linux)
+            _settingsWindow.Show(this);
+
+            // Fokus nach vorne holen
+            _settingsWindow.Activate();
+
+            // Linux-Workaround: kurz Topmost toggeln, damit es wirklich über dem MainWindow landet
+            _settingsWindow.Topmost = true;
+            _settingsWindow.Topmost = false;
+        }
+
         public void DisplayInnenruftasterquittung()
         {
             int index = ViewModel.InnenruftasterquittungEtage;     // 1 = unterste
@@ -2006,43 +1935,36 @@ namespace HSED_2._0
                 {
                     switch (buttonTag)
                     {
-                        /*  case "Settings":
-                              break;
-                          case "Testrufe":
-                              _cachedTestrufeWindow.Show();
-                              _cachedTestrufeWindow.Activate();
-                              StopLogic();
-                              break;
-                          case "Codes":
-                              new Code().Show();
-                              break;
-                          case "SelfDia":
-                              var newWindowSelfDia = new MainVertical();
-                              newWindowSelfDia.Show();
-                              StopLogic();
-                              MainWindow.Instance.Close();
-                              break;*/
+                        case "Settings":
+                            OpenSettings();
+                            break;
+                        /* case "Testrufe":
+                             _cachedTestrufeWindow.Show();
+                             _cachedTestrufeWindow.Activate();
+                             StopLogic();
+                             break;
+                         case "Codes":
+                             new Code().Show();
+                             break;
+                         case "SelfDia":
+                             var newWindowSelfDia = new MainVertical();
+                             newWindowSelfDia.Show();
+                             StopLogic();
+                             MainWindow.Instance.Close();
+                             break;*/
                         case "Ansicht":
-                            // Wenn ein Terminal-Fenster bereits existiert → schließen
-                            if (Terminal.Instance != null)
+                            if (Terminal.Instance == null)
                             {
-                                Terminal.Instance.Close();
-                                TerminalManager.terminalActive = false;
+                                var terminal = new Terminal();
+                                terminal.Show();
+                                TerminalManager.terminalActive = true; // optional, Closed setzt wieder false
                             }
                             else
                             {
-                                // Neues Terminal Fenster erstellen
-                                var terminal = new Terminal();
-                                terminal.Show();
-
-                                TerminalManager.terminalActive = true;
-
-                                terminal.Closed += (s, e) =>
-                                {
-                                    TerminalManager.terminalActive = false;
-                                };
+                                Terminal.Instance.Close(); // löst Closed aus, setzt Instance = null
                             }
                             break;
+
                     }
                 }
             }

@@ -1,0 +1,370 @@
+<Window xmlns="https://github.com/avaloniaui"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:models="clr-namespace:HSED_2._0.Models"
+		x:Class="HSED_2._0.Updater"
+		Width="800"
+		Height="480"
+		Background="#111827"
+		FontFamily="DejaVu Sans"
+		Title="HSED_2._0"
+		CanResize="False"
+		SystemDecorations="None"
+		WindowStartupLocation="Manual">
+
+  <Window.Styles>
+
+	<!-- Typography -->
+	<Style Selector="TextBlock.h1">
+	  <Setter Property="Foreground" Value="White"/>
+	  <Setter Property="FontSize" Value="24"/>
+	  <Setter Property="FontWeight" Value="Bold"/>
+	</Style>
+
+	<Style Selector="TextBlock.muted">
+	  <Setter Property="Foreground" Value="#9ca3af"/>
+	  <Setter Property="FontSize" Value="13"/>
+	</Style>
+
+	<Style Selector="TextBlock.verWhite">
+	  <Setter Property="Foreground" Value="White"/>
+	  <Setter Property="FontSize" Value="16"/>
+	  <Setter Property="FontWeight" Value="Bold"/>
+	</Style>
+
+	<Style Selector="TextBlock.verGreen">
+	  <Setter Property="Foreground" Value="#22c55e"/>
+	  <Setter Property="FontSize" Value="16"/>
+	  <Setter Property="FontWeight" Value="Bold"/>
+	</Style>
+
+	<Style Selector="TextBlock.date">
+	  <Setter Property="Foreground" Value="#9ca3af"/>
+	  <Setter Property="FontSize" Value="12"/>
+	</Style>
+
+	<!-- Outer panel -->
+	<Style Selector="Border.panel">
+	  <Setter Property="CornerRadius" Value="14"/>
+	  <Setter Property="Background" Value="#0f172a"/>
+	  <Setter Property="BorderThickness" Value="1"/>
+	  <Setter Property="BorderBrush" Value="#1f2a3b"/>
+	</Style>
+
+	<!-- Badge -->
+	<Style Selector="Border.badge">
+	  <Setter Property="CornerRadius" Value="999"/>
+	  <Setter Property="Padding" Value="8,3"/>
+	  <Setter Property="Background" Value="#052e16"/>
+	  <Setter Property="BorderThickness" Value="1"/>
+	  <Setter Property="BorderBrush" Value="#14532d"/>
+	</Style>
+
+	<Style Selector="TextBlock.badgeText">
+	  <Setter Property="Foreground" Value="#22c55e"/>
+	  <Setter Property="FontSize" Value="11"/>
+	  <Setter Property="FontWeight" Value="Bold"/>
+	</Style>
+
+	<!-- ListBox clean -->
+	<Style Selector="ListBox">
+	  <Setter Property="Background" Value="Transparent"/>
+	  <Setter Property="BorderThickness" Value="0"/>
+	</Style>
+
+	<Style Selector="ListBoxItem.releaseItem">
+	  <Setter Property="Padding" Value="0"/>
+	  <Setter Property="Margin" Value="0,0,0,8"/>
+	  <Setter Property="Template">
+		<ControlTemplate>
+		  <Border x:Name="Bd"
+				  CornerRadius="12"
+				  Background="#111827"
+				  BorderThickness="1"
+				  BorderBrush="#1f2a3b"
+				  Padding="12">
+			<ContentPresenter/>
+		  </Border>
+		</ControlTemplate>
+	  </Setter>
+	</Style>
+
+	<Style Selector="ListBoxItem.releaseItem:pointerover /template/ Border#Bd">
+	  <Setter Property="Background" Value="#0b1220"/>
+	  <Setter Property="BorderBrush" Value="#2a3a55"/>
+	</Style>
+
+	<Style Selector="ListBoxItem.releaseItem:selected /template/ Border#Bd">
+	  <Setter Property="Background" Value="#0b1220"/>
+	  <Setter Property="BorderBrush" Value="#334155"/>
+	</Style>
+
+	<!-- Status box -->
+	<Style Selector="Border.statusBox">
+	  <Setter Property="CornerRadius" Value="12"/>
+	  <Setter Property="Background" Value="#111827"/>
+	  <Setter Property="BorderThickness" Value="1"/>
+	  <Setter Property="BorderBrush" Value="#1f2a3b"/>
+	  <Setter Property="Padding" Value="12"/>
+	</Style>
+
+	<!-- Action button -->
+	<Style Selector="Button.action">
+  <Setter Property="Height" Value="52"/>
+  <Setter Property="FontSize" Value="16"/>
+  <Setter Property="FontWeight" Value="Bold"/>
+  <Setter Property="Foreground" Value="White"/>
+  <Setter Property="Background" Value="#1d4ed8"/>
+  <Setter Property="BorderThickness" Value="0"/>
+  <Setter Property="Template">
+	<ControlTemplate>
+	  <Border CornerRadius="14"
+			  Background="{TemplateBinding Background}">
+		<ContentPresenter Content="{TemplateBinding Content}"
+						  HorizontalAlignment="Center"
+						  VerticalAlignment="Center"
+						  Foreground="{TemplateBinding Foreground}"/>
+	  </Border>
+	</ControlTemplate>
+  </Setter>
+</Style>
+
+
+	<Style Selector="Button.action:pointerover">
+	  <Setter Property="Background" Value="#1e40af"/>
+	</Style>
+
+	<Style Selector="Button.action:pressed">
+	  <Setter Property="Background" Value="#1e3a8a"/>
+	</Style>
+
+	<Style Selector="Button.action:disabled">
+	  <Setter Property="Opacity" Value="0.45"/>
+	</Style>
+
+	<!-- ProgressBar -->
+	<Style Selector="ProgressBar">
+	  <Setter Property="Height" Value="16"/>
+	  <Setter Property="Background" Value="#0b1220"/>
+	  <Setter Property="BorderThickness" Value="1"/>
+	  <Setter Property="BorderBrush" Value="#1f2a3b"/>
+	</Style>
+
+  </Window.Styles>
+
+  <Canvas>
+
+	<!-- Background right of Nav -->
+	<Border Canvas.Left="60"
+			Canvas.Top="0"
+			Width="740"
+			Height="480"
+			Background="#111827"/>
+
+	<!-- Main content rotated like your other windows -->
+	<Border Canvas.Left="665"
+			Canvas.Top="125"
+			Width="740"
+			Height="480"
+			Background="#111827">
+
+	  <Border Width="480"
+			  Height="740"
+			  RenderTransformOrigin="0.5,0.5">
+		<Border.RenderTransform>
+		  <RotateTransform Angle="90"/>
+		</Border.RenderTransform>
+
+		<Border Classes="panel" Margin="14" Padding="16">
+
+		  <!-- CHANGED: letzte Button-Row entfernt -->
+		  <Grid RowDefinitions="Auto,*,Auto">
+
+			<!-- Header -->
+			<Grid Grid.Row="0" ColumnDefinitions="*,Auto">
+			  <StackPanel>
+				<TextBlock Text="Update" Classes="h1"/>
+				<TextBlock Text="Version auswählen" Classes="muted" Margin="0,4,0,0"/>
+			  </StackPanel>
+
+			  <Border Grid.Column="1"
+					  CornerRadius="999"
+					  Padding="10,6"
+					  Background="#111827"
+					  BorderThickness="1"
+					  BorderBrush="#1f2a3b"
+					  VerticalAlignment="Center">
+				<TextBlock Text="HSE-Touch Versionen" Classes="muted" FontSize="12"/>
+			  </Border>
+			</Grid>
+
+			<!-- List -->
+			<ScrollViewer x:Name="ReleaseScroll"
+              Grid.Row="1"
+              Margin="0,14,0,0"
+              HorizontalScrollBarVisibility="Hidden"
+              VerticalScrollBarVisibility="Auto">
+			<ListBox x:Name="ReleaseList"
+					 Grid.Row="1"
+					 SelectionMode="Single"
+					 Margin="0,14,0,0">
+
+			  <ListBox.ItemTemplate>
+				<DataTemplate x:DataType="models:ReleaseItem">
+				  <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
+
+					<TextBlock Grid.Row="0"
+							   Grid.Column="0"
+							   Text="{Binding Tag}"
+							   Classes="verWhite"
+							   IsVisible="{Binding !IsLatest}"/>
+
+					<TextBlock Grid.Row="0"
+							   Grid.Column="0"
+							   Text="{Binding Tag}"
+							   Classes="verGreen"
+							   IsVisible="{Binding IsLatest}"/>
+
+					<Border Grid.Row="0"
+							Grid.Column="1"
+							Classes="badge"
+							HorizontalAlignment="Right"
+							IsVisible="{Binding IsLatest}">
+					  <TextBlock Text="AKTUELL" Classes="badgeText"/>
+					</Border>
+
+					<TextBlock Grid.Row="1"
+							   Grid.Column="0"
+							   Text="{Binding Published, StringFormat='{}{0:dd.MM.yyyy}'}"
+							   Classes="date"
+							   Margin="0,6,0,0"/>
+
+				  </Grid>
+				</DataTemplate>
+			  </ListBox.ItemTemplate>
+
+			</ListBox>
+				</ScrollViewer>
+			<!-- CHANGED: StatusBox enthält jetzt Status + Progress + Button rechts -->
+			<Border Grid.Row="2" Classes="statusBox" Margin="0,10,0,10">
+			  <Grid ColumnDefinitions="*,160" RowDefinitions="Auto,Auto">
+
+				<TextBlock x:Name="StatusText"
+						   Grid.Row="0"
+						   Grid.Column="0"
+						   Grid.ColumnSpan="2"
+						   Text=""
+						   Classes="muted"/>
+
+				<ProgressBar x:Name="UpdateProgress"
+							 Grid.Row="1"
+							 Grid.Column="0"
+							 Minimum="0"
+							 Maximum="100"
+							 Value="0"
+							 Margin="0,10,0,0"
+							 Height="45"
+							 CornerRadius="20"/>
+
+				<Button x:Name="UpdateButton"
+						Grid.Row="1"
+						Grid.Column="1"
+						Classes="action"
+						Content="Update starten"
+						IsEnabled="False"
+						Width="160"
+						Margin="12,10,0,0"
+						Click="UpdateButton_Click"
+						Foreground="White"/>
+
+			  </Grid>
+			</Border>
+
+		  </Grid>
+
+		</Border>
+	  </Border>
+	</Border>
+
+	<!-- Overlay -->
+	<Border x:Name="Overlap"
+			Background="#1f2937"
+			Width="800"
+			Height="480"
+			Opacity="1"
+			IsVisible="False"/>
+
+	<!-- NavBar unchanged -->
+	<Border x:Name="NavBar" Background="#1f2937" Width="60" Height="480">
+	  <StackPanel x:Name="StackPanelNavBar" HorizontalAlignment="Center" Margin="0,25,0,0">
+
+		<Button Background="#1f2937" Tag="Menu" x:Name="ButtonSettings" Width="50" Height="40" Click="Button_Click_Settings">
+		  <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+			<Image Source="Images\Icons\menu-offnen.png" RenderOptions.BitmapInterpolationMode="LowQuality">
+			  <Image.RenderTransform>
+				<RotateTransform Angle="90"/>
+			  </Image.RenderTransform>
+			</Image>
+			<TextBlock Margin="10,5,0,0" x:Name="SettingsText" IsVisible="False" Foreground="White">Menue</TextBlock>
+		  </StackPanel>
+		</Button>
+
+		<Button Background="#1f2937" Tag="Home" x:Name="ButtonSettings7" Width="50" Height="40" Margin="0,5,0,0" Click="Button_Click_Settings">
+		  <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+			<Image Source="Images\Icons\zuhause.png" RenderOptions.BitmapInterpolationMode="LowQuality">
+			  <Image.RenderTransform>
+				<RotateTransform Angle="90"/>
+			  </Image.RenderTransform>
+			</Image>
+			<TextBlock Margin="10,5,0,0" x:Name="SettingsText7" IsVisible="False" Foreground="White">Home</TextBlock>
+		  </StackPanel>
+		</Button>
+
+		<Button Background="#1f2937" Tag="Testrufe" x:Name="ButtonSettings3" Width="50" Height="40" Margin="0,5,0,0" Click="Button_Click_Settings">
+		  <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+			<Image Source="Images\Icons\aufzug.png" RenderOptions.BitmapInterpolationMode="LowQuality">
+			  <Image.RenderTransform>
+				<RotateTransform Angle="90"/>
+			  </Image.RenderTransform>
+			</Image>
+			<TextBlock Margin="10,5,0,0" x:Name="SettingsText3" IsVisible="False" Foreground="White">Testrufe</TextBlock>
+		  </StackPanel>
+		</Button>
+
+		<Button Background="#1f2937" Tag="Ansicht" x:Name="ButtonSettings4" Width="50" Height="40" Margin="0,5,0,0" Click="Button_Click_Settings">
+		  <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+			<Image Source="Images\Icons\stift.png" RenderOptions.BitmapInterpolationMode="LowQuality">
+			  <Image.RenderTransform>
+				<RotateTransform Angle="90"/>
+			  </Image.RenderTransform>
+			</Image>
+			<TextBlock Margin="10,5,0,0" x:Name="SettingsText4" IsVisible="False" Foreground="White">Terminal</TextBlock>
+		  </StackPanel>
+		</Button>
+
+		<Button Background="#1f2937" Tag="SelfDia" x:Name="ButtonSettings6" Width="50" Height="40" Margin="0,5,0,0" Click="Button_Click_Settings">
+		  <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+			<Image Source="Images\Icons\analysieren.png" RenderOptions.BitmapInterpolationMode="LowQuality">
+			  <Image.RenderTransform>
+				<RotateTransform Angle="90"/>
+			  </Image.RenderTransform>
+			</Image>
+			<TextBlock Margin="10,5,0,0" x:Name="SettingsText6" IsVisible="False" Foreground="White">Self Dia</TextBlock>
+		  </StackPanel>
+		</Button>
+
+		<Button Background="#1f2937" Tag="Settings" x:Name="ButtonSettings2" Width="50" Height="40" Margin="0,180,0,0" Click="Button_Click_Settings">
+		  <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+			<Image Source="Images/Icons/die-einstellungen.png" RenderOptions.BitmapInterpolationMode="LowQuality">
+			  <Image.RenderTransform>
+				<RotateTransform Angle="90"/>
+			  </Image.RenderTransform>
+			</Image>
+			<TextBlock Margin="10,5,0,0" x:Name="SettingsText2" IsVisible="False" Foreground="White">Settings</TextBlock>
+		  </StackPanel>
+		</Button>
+
+	  </StackPanel>
+	</Border>
+
+  </Canvas>
+</Window>

@@ -1,0 +1,332 @@
+<Window xmlns="https://github.com/avaloniaui"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		x:Class="HSED_2._0.SettingsVertical"
+		Width="800" Height="480"
+		Background="#111827"
+		Title="HSED_2._0"
+		CanResize="False"
+		SystemDecorations="None"
+		WindowStartupLocation="Manual">
+		
+
+	<Window.Styles>
+
+		<!-- Größere Touch Zone für Up/Down -->
+		<Style Selector="Button.touchTarget">
+			<Setter Property="Width" Value="56"/>
+			<Setter Property="Height" Value="56"/>
+			<Setter Property="Padding" Value="0"/>
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="HorizontalContentAlignment" Value="Center"/>
+			<Setter Property="VerticalContentAlignment" Value="Center"/>
+		</Style>
+
+		<!-- Neutraler Tile Button -->
+		<Style Selector="Button.tileBtn">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="Padding" Value="0"/>
+		</Style>
+
+		<!-- Tile Card: modern ohne Border -->
+		<Style Selector="Border.tileCard">
+			<Setter Property="CornerRadius" Value="16"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="Background" Value="#1f2937"/>
+			<Setter Property="BoxShadow" Value="0 10 30 #00000055"/>
+		</Style>
+
+		<Style Selector="Button.tileBtn:pointerover Border.tileCard">
+			<Setter Property="Background" Value="#243246"/>
+		</Style>
+
+		<Style Selector="Button.tileBtn:pressed Border.tileCard">
+			<Setter Property="Background" Value="#1b2636"/>
+		</Style>
+
+		<!-- Typo -->
+		<Style Selector="TextBlock.tileTitle">
+			<Setter Property="Foreground" Value="White"/>
+			<Setter Property="FontSize" Value="22"/>
+			<Setter Property="FontWeight" Value="Bold"/>
+		</Style>
+
+		<Style Selector="TextBlock.tileSub">
+			<Setter Property="Foreground" Value="#9ca3af"/>
+			<Setter Property="FontSize" Value="14"/>
+		</Style>
+
+		<!-- Icon Box: ohne Border, größer, cleaner -->
+		<Style Selector="Border.iconBox">
+			<Setter Property="Width" Value="64"/>
+			<Setter Property="Height" Value="64"/>
+			<Setter Property="CornerRadius" Value="18"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="Background" Value="#0f172a"/>
+			<Setter Property="BoxShadow" Value="0 6 18 #00000044"/>
+		</Style>
+
+	</Window.Styles>
+
+	<Canvas>
+
+		<!-- Hintergrund rechts neben der NavBar -->
+		<Border Canvas.Left="60"
+				Canvas.Top="0"
+				Width="740"
+				Height="480"
+				Background="#111827"/>
+
+		<!-- INFO -->
+		<Button Classes="tileBtn"
+				Tag="Info"
+				Click="Button_Click_Settings"
+				Canvas.Left="390"
+				Canvas.Top="20"
+				Width="120"
+				Height="440">
+
+			<Border Classes="tileCard"
+					Width="440"
+					Height="120">
+				<Border.RenderTransform>
+					<RotateTransform Angle="90"/>
+				</Border.RenderTransform>
+
+				<StackPanel Orientation="Horizontal"
+							Margin="18"
+							Spacing="16"
+							VerticalAlignment="Center">
+
+					<Border Classes="iconBox">
+						<Image Source="Images\Icons\info.png"
+							   Width="34"
+							   Height="34"
+							   RenderOptions.BitmapInterpolationMode="HighQuality"
+							   HorizontalAlignment="Center"
+							   VerticalAlignment="Center">
+							<Image.RenderTransform>
+								<RotateTransform Angle="180"/>
+							</Image.RenderTransform>
+						</Image>
+					</Border>
+
+					<StackPanel VerticalAlignment="Center" Spacing="2">
+						<TextBlock Text="Info" Classes="tileTitle"/>
+						<TextBlock Text="Gerätedaten" Classes="tileSub"/>
+					</StackPanel>
+
+				</StackPanel>
+			</Border>
+		</Button>
+
+		<!-- SERIELL -->
+		<Button Classes="tileBtn"
+				Tag="Serial"
+				Click="Button_Click_Settings"
+				Canvas.Left="520"
+				Canvas.Top="20"
+				Width="120"
+				Height="440">
+
+			<Border Classes="tileCard"
+					Width="440"
+					Height="120">
+				<Border.RenderTransform>
+					<RotateTransform Angle="90"/>
+				</Border.RenderTransform>
+
+				<StackPanel Orientation="Horizontal"
+							Margin="18"
+							Spacing="16"
+							VerticalAlignment="Center">
+
+					<Border Classes="iconBox">
+						<Image Source="Images\Icons\verbindung.png"
+							   Width="34"
+							   Height="34"
+							   RenderOptions.BitmapInterpolationMode="HighQuality"
+							   HorizontalAlignment="Center"
+							   VerticalAlignment="Center">
+							<Image.RenderTransform>
+								<RotateTransform Angle="90"/>
+							</Image.RenderTransform>
+						</Image>
+					</Border>
+
+					<StackPanel VerticalAlignment="Center" Spacing="2">
+						<TextBlock Text="Seriell" Classes="tileTitle"/>
+						<TextBlock Text="COM, Baudrate" Classes="tileSub"/>
+					</StackPanel>
+
+				</StackPanel>
+			</Border>
+		</Button>
+
+		<!-- UPDATE -->
+		<Button Classes="tileBtn"
+				Tag="Update"
+				Click="Button_Click_Settings"
+				Canvas.Left="650"
+				Canvas.Top="20"
+				Width="120"
+				Height="440">
+
+			<Border Classes="tileCard"
+					Width="440"
+					Height="120">
+				<Border.RenderTransform>
+					<RotateTransform Angle="90"/>
+				</Border.RenderTransform>
+
+				<StackPanel Orientation="Horizontal"
+							Margin="18"
+							Spacing="16"
+							VerticalAlignment="Center">
+
+					<Border Classes="iconBox">
+						<Image Source="Images/Icons/update.png"
+							   Width="34"
+							   Height="34"
+							   RenderOptions.BitmapInterpolationMode="HighQuality"
+							   HorizontalAlignment="Center"
+							   VerticalAlignment="Center">
+							<Image.RenderTransform>
+								<RotateTransform Angle="90"/>
+							</Image.RenderTransform>
+						</Image>
+					</Border>
+
+					<StackPanel VerticalAlignment="Center" Spacing="2">
+						<TextBlock Text="Update" Classes="tileTitle"/>
+						<TextBlock Text="Software" Classes="tileSub"/>
+					</StackPanel>
+
+				</StackPanel>
+			</Border>
+		</Button>
+
+		<!-- FÜGE DAS TILE Z. B. ZWISCHEN SERIELL UND UPDATE EIN -->
+<!-- WLAN -->
+<Button Classes="tileBtn"
+        Tag="Wifi"
+        Click="Button_Click_Settings"
+        Canvas.Left="260"
+        Canvas.Top="20"
+        Width="120"
+        Height="440">
+
+  <Border Classes="tileCard"
+          Width="440"
+          Height="120">
+    <Border.RenderTransform>
+      <RotateTransform Angle="90"/>
+    </Border.RenderTransform>
+
+    <StackPanel Orientation="Horizontal"
+                Margin="18"
+                Spacing="16"
+                VerticalAlignment="Center">
+
+      <Border Classes="iconBox">
+        <Image Source="Images\Icons\wlan.png"
+               Width="34"
+               Height="34"
+               RenderOptions.BitmapInterpolationMode="HighQuality"
+               HorizontalAlignment="Center"
+               VerticalAlignment="Center">
+          <Image.RenderTransform>
+            <RotateTransform Angle="0"/>
+          </Image.RenderTransform>
+        </Image>
+      </Border>
+
+      <StackPanel VerticalAlignment="Center" Spacing="2">
+        <TextBlock Text="WLAN" Classes="tileTitle"/>
+        <TextBlock Text="Netzwerke" Classes="tileSub"/>
+      </StackPanel>
+
+    </StackPanel>
+  </Border>
+</Button>
+
+<!-- UPDATE TILE MUSS DANN NACH RECHTS (ODER WLAN WOANDERS HIN) -->
+
+
+		<!-- NavBar (DEIN ORIGINAL 1:1) -->
+		<Border x:Name="Overlap" Background="#1f2937" Width="800" Height="480" Opacity="1" IsVisible="False"/>
+		<Border x:Name="NavBar" Background="#1f2937" Width="60" Height="480">
+			<StackPanel x:Name="StackPanelNavBar" HorizontalAlignment="Center" Margin="0,25,0,0">
+
+				<Button Background="#1f2937" Tag="Menu" x:Name="ButtonSettings" Width="50" Height="40" Click="Button_Click_Settings">
+					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+						<Image Source="Images\Icons\menu-offnen.png" RenderOptions.BitmapInterpolationMode="LowQuality">
+							<Image.RenderTransform>
+								<RotateTransform Angle="90"/>
+							</Image.RenderTransform>
+						</Image>
+						<TextBlock Margin="10,5,0,0" x:Name="SettingsText" IsVisible="False" Foreground="White">Menue</TextBlock>
+					</StackPanel>
+				</Button>
+
+				<Button Background="#1f2937" Tag="Home" x:Name="ButtonSettings7" Width="50" Height="40" Margin="0,5,0,0" Click="Button_Click_Settings">
+					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+						<Image Source="Images\Icons\zuhause.png" RenderOptions.BitmapInterpolationMode="LowQuality">
+							<Image.RenderTransform>
+								<RotateTransform Angle="90"/>
+							</Image.RenderTransform>
+						</Image>
+						<TextBlock Margin="10,5,0,0" x:Name="SettingsText7" IsVisible="False" Foreground="White">Home</TextBlock>
+					</StackPanel>
+				</Button>
+
+				<Button Background="#1f2937" Tag="Testrufe" x:Name="ButtonSettings3" Width="50" Height="40" Margin="0,5,0,0" Click="Button_Click_Settings">
+					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+						<Image Source="Images\Icons\aufzug.png" RenderOptions.BitmapInterpolationMode="LowQuality">
+							<Image.RenderTransform>
+								<RotateTransform Angle="90"/>
+							</Image.RenderTransform>
+						</Image>
+						<TextBlock Margin="10,5,0,0" x:Name="SettingsText3" IsVisible="False" Foreground="White">Testrufe</TextBlock>
+					</StackPanel>
+				</Button>
+
+				<Button Background="#1f2937" Tag="Ansicht" x:Name="ButtonSettings4" Width="50" Height="40" Margin="0,5,0,0" Click="Button_Click_Settings">
+					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+						<Image Source="Images\Icons\stift.png" RenderOptions.BitmapInterpolationMode="LowQuality">
+							<Image.RenderTransform>
+								<RotateTransform Angle="90"/>
+							</Image.RenderTransform>
+						</Image>
+						<TextBlock Margin="10,5,0,0" x:Name="SettingsText4" IsVisible="False" Foreground="White">Terminal</TextBlock>
+					</StackPanel>
+				</Button>
+
+				<Button Background="#1f2937" Tag="SelfDia" x:Name="ButtonSettings6" Width="50" Height="40" Margin="0,5,0,0" Click="Button_Click_Settings">
+					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+						<Image Source="Images\Icons\analysieren.png" RenderOptions.BitmapInterpolationMode="LowQuality">
+							<Image.RenderTransform>
+								<RotateTransform Angle="90"/>
+							</Image.RenderTransform>
+						</Image>
+						<TextBlock Margin="10,5,0,0" x:Name="SettingsText6" IsVisible="False" Foreground="White">Self Dia</TextBlock>
+					</StackPanel>
+				</Button>
+
+				<Button Background="#1f2937" Tag="Settings" x:Name="ButtonSettings2" Width="50" Height="40" Margin="0,180,0,0" Click="Button_Click_Settings">
+					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+						<Image Source="Images/Icons/die-einstellungen.png" RenderOptions.BitmapInterpolationMode="LowQuality">
+							<Image.RenderTransform>
+								<RotateTransform Angle="90"/>
+							</Image.RenderTransform>
+						</Image>
+						<TextBlock Margin="10,5,0,0" x:Name="SettingsText2" IsVisible="False" Foreground="White">Settings</TextBlock>
+					</StackPanel>
+				</Button>
+
+			</StackPanel>
+		</Border>
+
+	</Canvas>
+</Window>

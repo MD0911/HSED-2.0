@@ -2,6 +2,7 @@
 using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
+using HSED_2._0;
 using System;
 using System.Diagnostics;
 
@@ -25,7 +26,7 @@ namespace HSED_2_0
         // ========== Canvas-Margins ==========
         // Canvas-Margin im Normalzustand (muss zur XAML passen!)
         private const int NORMAL_MARGIN_LEFT = -370;
-        private const int NORMAL_MARGIN_TOP = -250;
+        private const int NORMAL_MARGIN_TOP = -270;
 
         // Canvas-Margin im Zoomzustand
         private const int ZOOM_MARGIN_LEFT = 320;  // hier spielen, bis es gut aussieht
@@ -39,41 +40,106 @@ namespace HSED_2_0
 
         private const double ZoomFactor = 1.4;
 
+        // Klasse: Terminal
+        private readonly Image[,] _cellImages = new Image[4, 28];
+        private readonly Image[,] _cursorImages = new Image[4, 28];
+        private bool _uiCacheInitialized = false;
+
         public Terminal()
         {
             InitializeComponent();
 
-            // Fenster-Startposition festlegen
+            // Cache direkt einmalig aufbauen (nach InitializeComponent!)
+            BuildUiCache();
+
             this.Position = new PixelPoint(NORMAL_SPAWN_X, NORMAL_SPAWN_Y);
             _originalPosition = this.Position;
-
-            // WICHTIG:
-            // KEIN Setzen von MainCanvas.Margin hier!
-            // => beim ersten Öffnen gelten die Werte aus der XAML (-390, -280, 0, 0)
 
             SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x01, 0x03, 0x00, 0x1B });
 
             terminalManager.Start();
             Instance = this;
+
+            this.Closed += (_, __) =>
+            {
+                TerminalManager.terminalActive = false;
+
+                terminalManager.Stop();
+                Instance = null;
+
+                // Cache resetten, weil Window neu geöffnet wird
+                _uiCacheInitialized = false;
+
+                // Optional: Referenzen freigeben (sauber für GC)
+                for (int r = 0; r < 4; r++)
+                {
+                    for (int c = 0; c < 28; c++)
+                    {
+                        _cellImages[r, c] = null;
+                        _cursorImages[r, c] = null;
+                    }
+                }
+
+                // MainWindow sofort aktualisieren
+                MainWindow.Instance?.ForceRefreshOverlaidUi();
+            };
+
+
         }
 
+
+
+        // Klasse: Terminal
+
+
+        // Klasse: Terminal
+        private void BuildUiCache()
+        {
+            if (_uiCacheInitialized)
+                return;
+
+            for (int row = 1; row <= 4; row++)
+            {
+                for (int col = 1; col <= 28; col++)
+                {
+                    _cellImages[row - 1, col - 1] = this.FindControl<Image>($"Cell_{row}_{col}");
+                    _cursorImages[row - 1, col - 1] = this.FindControl<Image>($"Cursor_{row}_{col}");
+                }
+            }
+
+            _uiCacheInitialized = true;
+        }
+
+        // Klasse: Terminal
+        public void UpdateCusorImage(int row, int col, Bitmap? bmp)
+        {
+            BuildUiCache();
+
+            if (row < 1 || row > 4 || col < 1 || col > 28)
+                return;
+
+            var img = _cursorImages[row - 1, col - 1];
+            if (img == null) return;
+
+            img.Source = bmp;
+        }
+
+
+        // Klasse: Terminal
         public void UpdateCellImage(int row, int col, Bitmap bmp)
         {
-            string cellName = $"Cell_{row}_{col}";
-            if (this.FindControl<Image>(cellName) is Image cell)
-            {
-                cell.Source = bmp;
-            }
+            BuildUiCache();
+
+            if (row < 1 || row > 4 || col < 1 || col > 28)
+                return;
+
+            var img = _cellImages[row - 1, col - 1];
+            if (img == null)
+                return;
+
+            img.Source = bmp;
         }
 
-        public void UpdateCusorImage(int row, int col, Bitmap bmp)
-        {
-            string cellName = $"Cursor_{row}_{col}";
-            if (this.FindControl<Image>(cellName) is Image cursor)
-            {
-                cursor.Source = bmp;
-            }
-        }
 
         public void OnKeyButtonClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
         {
@@ -114,10 +180,10 @@ namespace HSED_2_0
 
         private void Button_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
         {
-            TerminalManager.terminalActive = false;
-            terminalManager.Stop();
+            // Nur schließen – Rest erledigt das Closed-Event
             this.Close();
         }
+
 
         private void Button_Click_1(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
         {
