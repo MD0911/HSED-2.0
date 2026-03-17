@@ -90,7 +90,7 @@
         <!-- Text -->
         <StackPanel Grid.Column="1" Spacing="4" Margin="14,0,0,0" VerticalAlignment="Center">
           <TextBlock Text="Update" Classes="dTitle"/>
-          <TextBlock Text="Bitte Modus auswählen" Classes="dSub"/>
+          <TextBlock Text="Bitte Modus auswÃ¤hlen" Classes="dSub"/>
         </StackPanel>
 
         <!-- Buttons -->

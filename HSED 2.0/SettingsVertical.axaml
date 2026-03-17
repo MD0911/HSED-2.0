@@ -11,7 +11,7 @@
 
 	<Window.Styles>
 
-		<!-- Größere Touch Zone für Up/Down -->
+		<!-- GrÃ¶ÃŸere Touch Zone fÃ¼r Up/Down -->
 		<Style Selector="Button.touchTarget">
 			<Setter Property="Width" Value="56"/>
 			<Setter Property="Height" Value="56"/>
@@ -57,7 +57,7 @@
 			<Setter Property="FontSize" Value="14"/>
 		</Style>
 
-		<!-- Icon Box: ohne Border, größer, cleaner -->
+		<!-- Icon Box: ohne Border, grÃ¶ÃŸer, cleaner -->
 		<Style Selector="Border.iconBox">
 			<Setter Property="Width" Value="64"/>
 			<Setter Property="Height" Value="64"/>
@@ -114,7 +114,7 @@
 
 					<StackPanel VerticalAlignment="Center" Spacing="2">
 						<TextBlock Text="Info" Classes="tileTitle"/>
-						<TextBlock Text="Gerätedaten" Classes="tileSub"/>
+						<TextBlock Text="GerÃ¤tedaten" Classes="tileSub"/>
 					</StackPanel>
 
 				</StackPanel>
@@ -207,7 +207,7 @@
 			</Border>
 		</Button>
 
-		<!-- FÜGE DAS TILE Z. B. ZWISCHEN SERIELL UND UPDATE EIN -->
+		<!-- FÃœGE DAS TILE Z. B. ZWISCHEN SERIELL UND UPDATE EIN -->
 <!-- WLAN -->
 <Button Classes="tileBtn"
         Tag="Wifi"

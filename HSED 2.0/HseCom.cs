@@ -17,6 +17,77 @@ namespace HSED_2_0
 
     public class HseCom
     {
+        private static int ReadNumericParameter(byte indexHigh, byte indexLow, params byte[] preferredDataTypes)
+        {
+            foreach (byte dataType in preferredDataTypes)
+            {
+                byte[] response = SendHseCommand(new byte[] { 0x03, 0x01, indexHigh, indexLow, 0x00, dataType });
+                if (response == null || response.Length <= 10)
+                    continue;
+
+                string hex = BitConverter.ToString(response);
+                Debug.WriteLine($"Parameter {indexHigh:X2}{indexLow:X2} Antwort: {hex}");
+
+                if (response.Length <= 9)
+                    continue;
+
+                byte responseDataType = response[9];
+                int valueOffset = 10;
+
+                try
+                {
+                    switch (responseDataType)
+                    {
+                        case DataTypes.D_UNSIGNED8:
+                            return response[valueOffset];
+
+                        case DataTypes.D_INTEGER16:
+                            if (response.Length <= valueOffset + 1)
+                                continue;
+                            return BitConverter.ToInt16(new byte[] { response[valueOffset], response[valueOffset + 1] }, 0);
+
+                        case DataTypes.D_UNSIGNED16:
+                            if (response.Length <= valueOffset + 1)
+                                continue;
+                            return BitConverter.ToUInt16(new byte[] { response[valueOffset], response[valueOffset + 1] }, 0);
+
+                        case DataTypes.D_UNSIGNED32:
+                        case DataTypes.D_IDENTITY:
+                            if (response.Length <= valueOffset + 3)
+                                continue;
+                            uint value32 = BitConverter.ToUInt32(
+                                new byte[] { response[valueOffset], response[valueOffset + 1], response[valueOffset + 2], response[valueOffset + 3] }, 0);
+
+                            if (value32 > int.MaxValue)
+                            {
+                                Debug.WriteLine($"Parameter {indexHigh:X2}{indexLow:X2} überschreitet Int32: {value32}");
+                                return int.MaxValue;
+                            }
+
+                            return (int)value32;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Fehler beim Interpretieren des Parameters {indexHigh:X2}{indexLow:X2}: {ex.Message}");
+                }
+            }
+
+            byte[] legacyResponse = SendHseCommand(new byte[] { 0x03, 0x01, indexHigh, indexLow });
+            if (legacyResponse != null && legacyResponse.Length > 9)
+            {
+                string legacyHex = BitConverter.ToString(legacyResponse);
+                Debug.WriteLine($"Legacy-Parameter {indexHigh:X2}{indexLow:X2} Antwort: {legacyHex}");
+
+                if (legacyResponse.Length > 10)
+                {
+                    return BitConverter.ToUInt16(new byte[] { legacyResponse[8], legacyResponse[9] }, 0);
+                }
+            }
+
+            return 505;
+        }
+
         /// <summary>
         /// Berechnet die CRC (Prüfsumme) für die Daten.
         /// </summary>
@@ -279,11 +350,7 @@ namespace HSED_2_0
             {
                 try
                 {
-                    byte[] date = SendHseCommand(new byte[] { 0x03, 0x01, 0x26, 0x4B });
-                    string Hex = BitConverter.ToString(date);
-                    int newBStunden = BitConverter.ToInt16(new byte[] { date[8], date[9] }, 0);
-                    Debug.WriteLine("BStunden Anfang: "+Hex);
-                    return newBStunden;
+                    return ReadNumericParameter(0x21, 0x62, DataTypes.D_UNSIGNED32, DataTypes.D_UNSIGNED16, DataTypes.D_INTEGER16);
                 }
                 catch (Exception ex)
                 {
@@ -296,11 +363,7 @@ namespace HSED_2_0
             {
                 try
                 {
-                    byte[] date = SendHseCommand(new byte[] { 0x03, 0x01, 0x26, 0x4C });
-                    string Hex = BitConverter.ToString(date);
-                    int newBStunden = BitConverter.ToInt16(new byte[] { date[8], date[9] }, 0);
-                    Debug.WriteLine("Fahrtenzähler Anfang: " + Hex);
-                    return newBStunden;
+                    return ReadNumericParameter(0x21, 0x61, DataTypes.D_UNSIGNED32, DataTypes.D_UNSIGNED16, DataTypes.D_INTEGER16);
                 }
                 catch (Exception ex)
                 {

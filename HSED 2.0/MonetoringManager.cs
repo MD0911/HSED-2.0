@@ -329,8 +329,10 @@ namespace HSED_2_0
 
         private static void setBStunden(byte[] zustand)
         {
-            
-            int newBStunden = BitConverter.ToInt16(new byte[] { zustand[4], zustand[5] }, 0);
+            if (!TryReadMonitoringNumericValue(zustand, out int newBStunden))
+            {
+                return;
+            }
             Debug.WriteLine("Betriebsstunden: " + newBStunden);
             
            
@@ -347,8 +349,10 @@ namespace HSED_2_0
 
         private static void setFahrtZahler(byte[] zustand)
         {
-           
-            int newFahrtzahler = BitConverter.ToInt16(new byte[] { zustand[4], zustand[5] }, 0);
+            if (!TryReadMonitoringNumericValue(zustand, out int newFahrtzahler))
+            {
+                return;
+            }
             Debug.WriteLine("Fahrtzähler: " + newFahrtzahler);
             // Aktualisiere das ViewModel im UI-Thread:
             Dispatcher.UIThread.Post(() =>
@@ -359,6 +363,55 @@ namespace HSED_2_0
                 }
             });
 
+        }
+
+        private static bool TryReadMonitoringNumericValue(byte[] zustand, out int value)
+        {
+            value = 0;
+
+            if (zustand == null || zustand.Length < 5)
+            {
+                return false;
+            }
+
+            byte dataType = zustand[3];
+
+            switch (dataType)
+            {
+                case DataTypes.D_UNSIGNED8:
+                    value = zustand[4];
+                    return true;
+
+                case DataTypes.D_INTEGER16:
+                    if (zustand.Length < 6)
+                        return false;
+                    value = BitConverter.ToInt16(new byte[] { zustand[4], zustand[5] }, 0);
+                    return true;
+
+                case DataTypes.D_UNSIGNED16:
+                    if (zustand.Length < 6)
+                        return false;
+                    value = BitConverter.ToUInt16(new byte[] { zustand[4], zustand[5] }, 0);
+                    return true;
+
+                case DataTypes.D_UNSIGNED32:
+                case DataTypes.D_IDENTITY:
+                    if (zustand.Length < 8)
+                        return false;
+                    uint value32 = BitConverter.ToUInt32(new byte[] { zustand[4], zustand[5], zustand[6], zustand[7] }, 0);
+                    if (value32 > int.MaxValue)
+                    {
+                        Debug.WriteLine($"Monitoringwert überschreitet Int32: {value32}");
+                        value = int.MaxValue;
+                        return true;
+                    }
+                    value = (int)value32;
+                    return true;
+
+                default:
+                    Debug.WriteLine($"Unerwarteter Datentyp für numerischen Monitoringwert: 0x{dataType:X2}");
+                    return false;
+            }
         }
 
         private static void setDoorState1(byte[] zustand)
@@ -1077,15 +1130,23 @@ namespace HSED_2_0
                 Debug.WriteLine("Zustand-Änderung erkannt.");
                 setZustand(response);
             }
-            else if (response[0] == 0x26 && response[1] == 0x4C)
+            else if (response[0] == 0x21 && response[1] == 0x61)
             {
                 Debug.WriteLine("Fahrtenzähler-Änderung erkannt.");
                 setFahrtZahler(response);
             }
-            else if (response[0] == 0x26 && response[1] == 0x4B)
+            else if (response[0] == 0x21 && response[1] == 0x62)
             {
                 Debug.WriteLine("Betriebsstunden-Änderung erkannt.");
                 setBStunden(response);
+            }
+            else if (response[0] == 0x26 && response[1] == 0x4B)
+            {
+                Debug.WriteLine("0x264B empfangen, aber nicht als Betriebsstunden interpretiert.");
+            }
+            else if (response[0] == 0x26 && response[1] == 0x4C)
+            {
+                Debug.WriteLine("0x264C empfangen, aber nicht als Fahrtenzähler interpretiert.");
             }
             else if (response[0] == 0x63 && response[1] == 0x01 && response.Length >= 3 && response[2] == 0x01)
             {
@@ -1216,16 +1277,24 @@ namespace HSED_2_0
                     setZustand(response);
                 }
 
-                else if (response[6] == 0x26 && response[7] == 0x4C)
+                else if (response[6] == 0x21 && response[7] == 0x61)
                 {
                     Debug.WriteLine("Fahrtenzähler-Änderung erkannt.");
                     setFahrtZahler(response);
                 }
                 //Bisher nur hier Impelmentiert in ViewModel etc muss noch B-Stunden aktuallisiert werden.
-                else if (response[6] == 0x26 && response[7] == 0x4B)
+                else if (response[6] == 0x21 && response[7] == 0x62)
                 {
                     Debug.WriteLine("Betriebsstunden-Änderung erkannt.");
-                    setFahrtZahler(response);
+                    setBStunden(response);
+                }
+                else if (response[6] == 0x26 && response[7] == 0x4B)
+                {
+                    Debug.WriteLine("0x264B empfangen, aber nicht als Betriebsstunden interpretiert.");
+                }
+                else if (response[6] == 0x26 && response[7] == 0x4C)
+                {
+                    Debug.WriteLine("0x264C empfangen, aber nicht als Fahrtenzähler interpretiert.");
                 }
 
                 else if (response[6] == 0x63 && response[7] == 0x83)

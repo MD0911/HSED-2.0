@@ -183,7 +183,7 @@
 			<Grid Grid.Row="0" ColumnDefinitions="*,Auto">
 			  <StackPanel>
 				<TextBlock Text="Update" Classes="h1"/>
-				<TextBlock Text="Version auswählen" Classes="muted" Margin="0,4,0,0"/>
+				<TextBlock Text="Version auswÃ¤hlen" Classes="muted" Margin="0,4,0,0"/>
 			  </StackPanel>
 
 			  <Border Grid.Column="1"
@@ -244,7 +244,7 @@
 
 			</ListBox>
 				</ScrollViewer>
-			<!-- CHANGED: StatusBox enthält jetzt Status + Progress + Button rechts -->
+			<!-- CHANGED: StatusBox enthÃ¤lt jetzt Status + Progress + Button rechts -->
 			<Border Grid.Row="2" Classes="statusBox" Margin="0,10,0,10">
 			  <Grid ColumnDefinitions="*,160" RowDefinitions="Auto,Auto">
 
