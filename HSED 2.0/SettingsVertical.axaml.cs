@@ -11,6 +11,7 @@ public partial class SettingsVertical : Window
     bool NavBarStatus = false;
     private InfoWindow? _infoWindow;
     private WifiWindow? _wifiWindow;
+    private SerialSettingsWindow? _serialSettingsWindow;
 
     private Updater? _updateWindow;
     private UpdaterUSB? _updateUsbWindow;
@@ -119,6 +120,18 @@ public partial class SettingsVertical : Window
                         _wifiWindow.Activate();
                         _wifiWindow.Topmost = true;
                         _wifiWindow.Topmost = false;
+                        break;
+                    case "Serial":
+                        if (_serialSettingsWindow == null)
+                        {
+                            _serialSettingsWindow = new SerialSettingsWindow();
+                            _serialSettingsWindow.Closed += (_, __) => _serialSettingsWindow = null;
+                        }
+
+                        _serialSettingsWindow.Show(this);
+                        _serialSettingsWindow.Activate();
+                        _serialSettingsWindow.Topmost = true;
+                        _serialSettingsWindow.Topmost = false;
                         break;
 
                     case "Update":

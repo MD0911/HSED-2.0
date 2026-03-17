@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.ObjectModel;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using HSED_2._0.ViewModels;
@@ -23,6 +24,7 @@ public partial class OnScreenKeyboard : UserControl
     private KeyboardMode _mode = KeyboardMode.Letters;
     private bool _shift;
     private bool _wired;
+    public TextBox? TargetTextBox { get; set; }
 
     public OnScreenKeyboard()
     {
@@ -57,6 +59,50 @@ public partial class OnScreenKeyboard : UserControl
     private WifiViewModel? GetVm()
         => TopLevel.GetTopLevel(this)?.DataContext as WifiViewModel;
 
+    private TextBox? GetFocusedTextBox()
+        => TargetTextBox ?? TopLevel.GetTopLevel(this)?.FocusManager?.GetFocusedElement() as TextBox;
+
+    private void AppendTextToTarget(string text)
+    {
+        var vm = GetVm();
+        if (vm != null)
+        {
+            vm.AppendKey(text);
+            return;
+        }
+
+        var textBox = GetFocusedTextBox();
+        if (textBox == null)
+            return;
+
+        var currentText = textBox.Text ?? string.Empty;
+        var caretIndex = textBox.CaretIndex;
+        textBox.Text = currentText.Insert(caretIndex, text);
+        textBox.CaretIndex = caretIndex + text.Length;
+    }
+
+    private void BackspaceTarget()
+    {
+        var vm = GetVm();
+        if (vm != null)
+        {
+            vm.Backspace();
+            return;
+        }
+
+        var textBox = GetFocusedTextBox();
+        if (textBox == null)
+            return;
+
+        var currentText = textBox.Text ?? string.Empty;
+        var caretIndex = textBox.CaretIndex;
+        if (caretIndex <= 0 || currentText.Length == 0)
+            return;
+
+        textBox.Text = currentText.Remove(caretIndex - 1, 1);
+        textBox.CaretIndex = caretIndex - 1;
+    }
+
     private void BuildLayout()
     {
         _row1.Clear();
@@ -65,35 +111,29 @@ public partial class OnScreenKeyboard : UserControl
 
         if (_mode == KeyboardMode.Letters)
         {
-            // 11 / 11 / 7
             AddRow(_row1, "q w e r t z u i o p ü");
             AddRow(_row2, "a s d f g h j k l ö ä");
             AddRow(_row3, "y x c v b n m");
         }
         else if (_mode == KeyboardMode.Numbers)
         {
-            // 11 / 11 / 7  (Mobile typisch)
             AddRow(_row1, "1 2 3 4 5 6 7 8 9 0 -");
             AddRow(_row2, "@ # € _ & + ( ) / * :");
-            AddRow(_row3, ". , ? ! ' \" ="); // genau 7
+            AddRow(_row3, ". , ? ! ' \" =");
         }
-        else // Symbols
+        else
         {
-            // 11 / 11 / 7
             AddRow(_row1, "[ ] { } < > ^ ~ | \\ `");
             AddRow(_row2, "° · • ✓ × ÷ § © ® ™");
-            AddRow(_row3, "+ - _ $ € £ ¥"); // genau 7
+            AddRow(_row3, "+ - _ $ € £ ¥");
         }
 
-        // Bottom-left
         if (_modeLeftBtn != null)
             _modeLeftBtn.Content = _mode == KeyboardMode.Letters ? "123" : "ABC";
 
-        // Bottom-right: in Letters -> #+=, sonst -> 123
         if (_modeRightBtn != null)
             _modeRightBtn.Content = _mode == KeyboardMode.Letters ? "#+=" : "123";
     }
-
 
     private void AddRow(ObservableCollection<string> row, string keys)
     {
@@ -116,15 +156,11 @@ public partial class OnScreenKeyboard : UserControl
         if (sender is not Button b) return;
         if (b.Content is not string label) return;
 
-        var vm = GetVm();
-        if (vm == null) return;
-
         if (_mode == KeyboardMode.Letters)
         {
             var toWrite = _shift ? label.ToUpperInvariant() : label.ToLowerInvariant();
-            vm.AppendKey(toWrite);
+            AppendTextToTarget(toWrite);
 
-            // Shift behaves like mobile: one-shot
             if (_shift)
             {
                 _shift = false;
@@ -133,7 +169,7 @@ public partial class OnScreenKeyboard : UserControl
             return;
         }
 
-        vm.AppendKey(label);
+        AppendTextToTarget(label);
     }
 
     private void Shift_Click(object? sender, RoutedEventArgs e)
@@ -144,13 +180,13 @@ public partial class OnScreenKeyboard : UserControl
     }
 
     private void Space_Click(object? sender, RoutedEventArgs e)
-        => GetVm()?.AppendKey(" ");
+        => AppendTextToTarget(" ");
 
     private void Enter_Click(object? sender, RoutedEventArgs e)
-        => GetVm()?.AppendKey("\n");
+        => AppendTextToTarget("\n");
 
     private void Backspace_Click(object? sender, RoutedEventArgs e)
-        => GetVm()?.Backspace();
+        => BackspaceTarget();
 
     private void ModeLeft_Click(object? sender, RoutedEventArgs e)
     {
@@ -159,7 +195,6 @@ public partial class OnScreenKeyboard : UserControl
         BuildLayout();
     }
 
-    // In Letters this shows 😊, but we still use it to switch numbers/symbols like before
     private void ModeRight_Click(object? sender, RoutedEventArgs e)
     {
         if (_mode == KeyboardMode.Letters)
@@ -170,8 +205,6 @@ public partial class OnScreenKeyboard : UserControl
         _shift = false;
         BuildLayout();
     }
-
-
 
     private enum KeyboardMode
     {

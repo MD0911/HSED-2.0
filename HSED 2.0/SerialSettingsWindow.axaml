@@ -1,0 +1,430 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:HSED_2._0.Controls"
+        x:Class="HSED_2._0.SerialSettingsWindow"
+        Width="800"
+        Height="480"
+        Background="#111827"
+        FontFamily="DejaVu Sans"
+        Title="HSED_2._0"
+        CanResize="False"
+        SystemDecorations="None"
+        WindowStartupLocation="Manual">
+
+  <Window.Styles>
+    <Style Selector="TextBlock.h1">
+      <Setter Property="Foreground" Value="White"/>
+      <Setter Property="FontSize" Value="24"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+    </Style>
+
+    <Style Selector="TextBlock.muted">
+      <Setter Property="Foreground" Value="#9ca3af"/>
+      <Setter Property="FontSize" Value="13"/>
+    </Style>
+
+    <Style Selector="TextBlock.label">
+      <Setter Property="Foreground" Value="White"/>
+      <Setter Property="FontSize" Value="16"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+
+    <Style Selector="TextBlock.valueHint">
+      <Setter Property="Foreground" Value="#6b7280"/>
+      <Setter Property="FontSize" Value="12"/>
+    </Style>
+
+    <Style Selector="Border.panel">
+      <Setter Property="CornerRadius" Value="14"/>
+      <Setter Property="Background" Value="#0f172a"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="BorderBrush" Value="#1f2a3b"/>
+    </Style>
+
+    <Style Selector="Border.box">
+      <Setter Property="CornerRadius" Value="12"/>
+      <Setter Property="Background" Value="#111827"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="BorderBrush" Value="#1f2a3b"/>
+      <Setter Property="Padding" Value="12"/>
+    </Style>
+
+    <Style Selector="Button.action">
+      <Setter Property="Height" Value="52"/>
+      <Setter Property="FontSize" Value="16"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+      <Setter Property="Foreground" Value="White"/>
+      <Setter Property="Background" Value="#1d4ed8"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Border CornerRadius="14"
+                  Background="{TemplateBinding Background}">
+            <ContentPresenter Content="{TemplateBinding Content}"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center"
+                              Foreground="{TemplateBinding Foreground}"/>
+          </Border>
+        </ControlTemplate>
+      </Setter>
+    </Style>
+
+    <Style Selector="Button.action:pointerover">
+      <Setter Property="Background" Value="#1e40af"/>
+    </Style>
+
+    <Style Selector="Button.action:pressed">
+      <Setter Property="Background" Value="#1e3a8a"/>
+    </Style>
+
+    <Style Selector="Button.action:disabled">
+      <Setter Property="Opacity" Value="0.45"/>
+    </Style>
+
+    <Style Selector="Button.secondary">
+      <Setter Property="Height" Value="40"/>
+      <Setter Property="FontSize" Value="14"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+      <Setter Property="Foreground" Value="White"/>
+      <Setter Property="Background" Value="#334155"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Border CornerRadius="14"
+                  Background="{TemplateBinding Background}">
+            <ContentPresenter Content="{TemplateBinding Content}"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center"
+                              Foreground="{TemplateBinding Foreground}"/>
+          </Border>
+        </ControlTemplate>
+      </Setter>
+    </Style>
+
+    <Style Selector="TextBox.input">
+      <Setter Property="Height" Value="52"/>
+      <Setter Property="Background" Value="#0b1220"/>
+      <Setter Property="Foreground" Value="White"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="BorderBrush" Value="#1f2a3b"/>
+      <Setter Property="CornerRadius" Value="14"/>
+      <Setter Property="Padding" Value="14,12"/>
+      <Setter Property="FontSize" Value="16"/>
+    </Style>
+
+    <Style Selector="Button.select">
+      <Setter Property="Height" Value="52"/>
+      <Setter Property="FontSize" Value="16"/>
+      <Setter Property="Foreground" Value="White"/>
+      <Setter Property="Background" Value="#0b1220"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="BorderBrush" Value="#1f2a3b"/>
+      <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Border CornerRadius="14"
+                  Background="{TemplateBinding Background}"
+                  BorderBrush="{TemplateBinding BorderBrush}"
+                  BorderThickness="{TemplateBinding BorderThickness}"
+                  Padding="14,12">
+            <ContentPresenter Content="{TemplateBinding Content}"
+                              HorizontalAlignment="Stretch"
+                              VerticalAlignment="Center"/>
+          </Border>
+        </ControlTemplate>
+      </Setter>
+    </Style>
+
+    <Style Selector="Border.dropdownList">
+      <Setter Property="CornerRadius" Value="14"/>
+      <Setter Property="Background" Value="#0b1220"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="BorderBrush" Value="#1f2a3b"/>
+      <Setter Property="Padding" Value="6"/>
+    </Style>
+
+    <Style Selector="Button.dropdownItem">
+      <Setter Property="Height" Value="40"/>
+      <Setter Property="FontSize" Value="15"/>
+      <Setter Property="Foreground" Value="White"/>
+      <Setter Property="Background" Value="#0b1220"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="HorizontalContentAlignment" Value="Left"/>
+      <Setter Property="Padding" Value="12,0"/>
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Border CornerRadius="10"
+                  Background="{TemplateBinding Background}"
+                  Padding="{TemplateBinding Padding}">
+            <ContentPresenter Content="{TemplateBinding Content}"
+                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                              VerticalAlignment="Center"/>
+          </Border>
+        </ControlTemplate>
+      </Setter>
+    </Style>
+
+    <Style Selector="Button.dropdownItem:pointerover">
+      <Setter Property="Background" Value="#1e293b"/>
+    </Style>
+
+    <Style Selector="Border.popupCard">
+      <Setter Property="CornerRadius" Value="18"/>
+      <Setter Property="Background" Value="#0f172a"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="BorderBrush" Value="#334155"/>
+      <Setter Property="BoxShadow" Value="0 18 40 #00000066"/>
+      <Setter Property="Padding" Value="22"/>
+    </Style>
+
+    <Style Selector="TextBlock.popupTitle">
+      <Setter Property="Foreground" Value="White"/>
+      <Setter Property="FontSize" Value="22"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+      <Setter Property="TextAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="TextBlock.popupBody">
+      <Setter Property="Foreground" Value="#d1d5db"/>
+      <Setter Property="FontSize" Value="16"/>
+      <Setter Property="TextAlignment" Value="Center"/>
+      <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+  </Window.Styles>
+
+  <Canvas>
+
+    <Border Canvas.Left="60"
+            Canvas.Top="0"
+            Width="740"
+            Height="480"
+            Background="#111827"/>
+
+    <Border Canvas.Left="665"
+            Canvas.Top="125"
+            Width="740"
+            Height="480"
+            Background="#111827">
+
+      <Border Width="480"
+              Height="740"
+              RenderTransformOrigin="0.5,0.5">
+        <Border.RenderTransform>
+          <RotateTransform Angle="90"/>
+        </Border.RenderTransform>
+
+        <Border Classes="panel" Margin="14" Padding="16">
+
+          <Grid RowDefinitions="Auto,Auto,Auto,*">
+
+            <Grid Grid.Row="0" ColumnDefinitions="*,160">
+              <StackPanel>
+                <TextBlock Text="Seriell" Classes="h1"/>
+                <TextBlock Text="Port und Baudrate bearbeiten" Classes="muted" Margin="0,4,0,0"/>
+              </StackPanel>
+
+              <Button Grid.Column="1"
+                      Width="90"
+                      Margin="100,0,0,0"
+                      Classes="secondary"
+                      Content="Zurück"
+                      Click="Cancel_Click"/>
+            </Grid>
+
+            <Grid Grid.Row="1" ColumnDefinitions="*,220" Margin="0,14,0,0">
+              <Border Classes="box" Margin="0,0,10,0">
+                <StackPanel Spacing="8">
+                  <TextBlock Text="Port" Classes="label"/>
+                  <TextBox x:Name="SerialPortTextBox"
+                           Classes="input"
+                           InputMethod.IsInputMethodEnabled="False"
+                           GotFocus="SerialPortTextBox_GotFocus"
+                           PointerPressed="SerialPortTextBox_PointerPressed"/>
+                  <TextBlock Text="Direkt bearbeitbar" Classes="valueHint"/>
+                </StackPanel>
+              </Border>
+
+              <Button x:Name="ApplyButton"
+                      Grid.Column="1"
+                      Width="120"
+                      Classes="action"
+                      Content="Übernehmen"
+                      Margin="100,0,0,0"
+                      Click="Apply_Click"/>
+            </Grid>
+
+            <Border Grid.Row="2" Classes="box" Margin="0,10,0,0">
+              <StackPanel Spacing="8">
+                <TextBlock Text="Baudrate" Classes="label"/>
+                <Button x:Name="BaudrateButton"
+                        Classes="select"
+                        Click="BaudrateButton_Click">
+                  <Grid ColumnDefinitions="*,Auto">
+                    <TextBlock x:Name="SelectedBaudrateTextBlock"
+                               Text="Baudrate wählen"
+                               Foreground="White"
+                               VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="1"
+                               Text="▼"
+                               Foreground="#9ca3af"
+                               VerticalAlignment="Center"/>
+                  </Grid>
+                </Button>
+                <Border x:Name="BaudrateDropdown"
+                        Classes="dropdownList"
+                        IsVisible="False">
+                  <StackPanel>
+                    <Button Classes="dropdownItem" Content="1200" Click="BaudrateOption_Click"/>
+                    <Button Classes="dropdownItem" Content="2400" Click="BaudrateOption_Click"/>
+                    <Button Classes="dropdownItem" Content="4800" Click="BaudrateOption_Click"/>
+                    <Button Classes="dropdownItem" Content="9600" Click="BaudrateOption_Click"/>
+                    <Button Classes="dropdownItem" Content="19200" Click="BaudrateOption_Click"/>
+                    <Button Classes="dropdownItem" Content="38400" Click="BaudrateOption_Click"/>
+                    <Button Classes="dropdownItem" Content="57600" Click="BaudrateOption_Click"/>
+                    <Button Classes="dropdownItem" Content="115200" Click="BaudrateOption_Click"/>
+                  </StackPanel>
+                </Border>
+                <TextBlock Text="Gängige Baudraten" Classes="valueHint"/>
+              </StackPanel>
+            </Border>
+
+            <Border Grid.Row="3"
+                    x:Name="KeyboardHost"
+                    Margin="0,18,0,0"
+                    IsVisible="False">
+              <controls:OnScreenKeyboard x:Name="KeyboardControl"/>
+            </Border>
+
+          </Grid>
+
+        </Border>
+      </Border>
+    </Border>
+
+    <Border Background="#1f2937" Width="60" Height="480"/>
+
+    <Border x:Name="Overlap"
+            Background="#1f2937"
+            Width="800"
+            Height="480"
+            Opacity="1"
+            IsVisible="False"/>
+
+    <Border x:Name="ConnectionErrorOverlay"
+            Background="#B3000000"
+            Width="800"
+            Height="480"
+            IsVisible="True">
+      <Grid Margin="24">
+        <Grid Width="420"
+              Height="280"
+              HorizontalAlignment="Center"
+              VerticalAlignment="Center">
+          <Border Classes="popupCard"
+                Width="380"
+                Height="320"
+                Margin="550,-60,0,0"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                RenderTransformOrigin="0.5,0.5">
+          <Border.RenderTransform>
+            <RotateTransform Angle="90"/>
+          </Border.RenderTransform>
+
+          <Grid RowDefinitions="Auto,*,Auto">
+            <TextBlock Grid.Row="0"
+                       Text="Verbindung fehlgeschlagen"
+                       Classes="popupTitle"/>
+
+            <TextBlock Grid.Row="1"
+                       Margin="0,14,0,14"
+                       Text="Die Verbindung zur HSE konnte nicht hergestellt werden. Bitte überprüfen Sie jegliche Kabel und die Einstellungen des Ports und der Baudrate."
+                       Classes="popupBody"
+                       VerticalAlignment="Center"/>
+
+            <Button Grid.Row="2"
+                    Width="150"
+                    HorizontalAlignment="Center"
+                    Classes="action"
+                    Content="Verstanden"
+                    Click="ConnectionErrorPopupOk_Click"/>
+          </Grid>
+          </Border>
+        </Grid>
+      </Grid>
+    </Border>
+
+    <Border x:Name="NavBar" Background="#1f2937" Width="60" Height="480">
+      <StackPanel x:Name="StackPanelNavBar" HorizontalAlignment="Center" Margin="0,25,0,0">
+
+        <Button Background="#1f2937" Tag="Menu" x:Name="ButtonSettings" Width="50" Height="40" Click="Button_Click_Settings">
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <Image Source="Images\Icons\menu-offnen.png" RenderOptions.BitmapInterpolationMode="LowQuality">
+              <Image.RenderTransform>
+                <RotateTransform Angle="90"/>
+              </Image.RenderTransform>
+            </Image>
+            <TextBlock Margin="10,5,0,0" x:Name="SettingsText" IsVisible="False" Foreground="White">Menue</TextBlock>
+          </StackPanel>
+        </Button>
+
+        <Button Background="#1f2937" Tag="Home" x:Name="ButtonSettings7" Width="50" Height="40" Margin="0,5,0,0" Click="Button_Click_Settings">
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <Image Source="Images\Icons\zuhause.png" RenderOptions.BitmapInterpolationMode="LowQuality">
+              <Image.RenderTransform>
+                <RotateTransform Angle="90"/>
+              </Image.RenderTransform>
+            </Image>
+            <TextBlock Margin="10,5,0,0" x:Name="SettingsText7" IsVisible="False" Foreground="White">Home</TextBlock>
+          </StackPanel>
+        </Button>
+
+        <Button Background="#1f2937" Tag="Testrufe" x:Name="ButtonSettings3" Width="50" Height="40" Margin="0,5,0,0" Click="Button_Click_Settings">
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <Image Source="Images\Icons\aufzug.png" RenderOptions.BitmapInterpolationMode="LowQuality">
+              <Image.RenderTransform>
+                <RotateTransform Angle="90"/>
+              </Image.RenderTransform>
+            </Image>
+            <TextBlock Margin="10,5,0,0" x:Name="SettingsText3" IsVisible="False" Foreground="White">Testrufe</TextBlock>
+          </StackPanel>
+        </Button>
+
+        <Button Background="#1f2937" Tag="Ansicht" x:Name="ButtonSettings4" Width="50" Height="40" Margin="0,5,0,0" Click="Button_Click_Settings">
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <Image Source="Images\Icons\stift.png" RenderOptions.BitmapInterpolationMode="LowQuality">
+              <Image.RenderTransform>
+                <RotateTransform Angle="90"/>
+              </Image.RenderTransform>
+            </Image>
+            <TextBlock Margin="10,5,0,0" x:Name="SettingsText4" IsVisible="False" Foreground="White">Terminal</TextBlock>
+          </StackPanel>
+        </Button>
+
+        <Button Background="#1f2937" Tag="SelfDia" x:Name="ButtonSettings6" Width="50" Height="40" Margin="0,5,0,0" Click="Button_Click_Settings">
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <Image Source="Images\Icons\analysieren.png" RenderOptions.BitmapInterpolationMode="LowQuality">
+              <Image.RenderTransform>
+                <RotateTransform Angle="90"/>
+              </Image.RenderTransform>
+            </Image>
+            <TextBlock Margin="10,5,0,0" x:Name="SettingsText6" IsVisible="False" Foreground="White">Self Dia</TextBlock>
+          </StackPanel>
+        </Button>
+
+        <Button Background="#1f2937" Tag="Settings" x:Name="ButtonSettings2" Width="50" Height="40" Margin="0,180,0,0" Click="Button_Click_Settings">
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <Image Source="Images/Icons/die-einstellungen.png" RenderOptions.BitmapInterpolationMode="LowQuality">
+              <Image.RenderTransform>
+                <RotateTransform Angle="90"/>
+              </Image.RenderTransform>
+            </Image>
+            <TextBlock Margin="10,5,0,0" x:Name="SettingsText2" IsVisible="False" Foreground="White">Settings</TextBlock>
+          </StackPanel>
+        </Button>
+
+      </StackPanel>
+    </Border>
+
+  </Canvas>
+</Window>

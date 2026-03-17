@@ -44,6 +44,7 @@ namespace HSED_2._0
         private bool _reconnectPending;
 
         private bool _lastTerminalActive = false;
+        private SerialSettingsWindow? _serialSettingsWindow;
 
 
         // SVG Cache
@@ -231,14 +232,21 @@ namespace HSED_2._0
         {
             if (!_isLogicInitialized)
             {
-                InitializeLogic();
+                if (!InitializeLogic())
+                    return;
             }
             ResumeLogic();
         }
 
 
-        private void InitializeLogic()
+        private bool InitializeLogic()
         {
+            if (!TryPrepareStartupConnection())
+            {
+                ShowConnectionRecoveryUi();
+                return false;
+            }
+
             HseConnect();
             MonetoringCall();
 
@@ -277,6 +285,68 @@ namespace HSED_2._0
                 BuildFixedFloorButtonsFromAnchor();
                 UpdateFixedFloorButtonsVisibility();
             }, DispatcherPriority.Render);
+
+            return true;
+        }
+
+        private bool TryPrepareStartupConnection()
+        {
+            try
+            {
+                _ = SerialPortManager.Instance;
+
+                Pos_Cal = HseCom.SendHse(10101010);
+                gesamteFloors = HseCom.SendHse(1001);
+
+                return Pos_Cal > 0 &&
+                       Pos_Cal != 505 &&
+                       gesamteFloors > 0 &&
+                       gesamteFloors != 505;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Startverbindung konnte nicht vorbereitet werden: " + ex.Message);
+                return false;
+            }
+        }
+
+        public void ShowConnectionRecoveryUi()
+        {
+            Dispatcher.UIThread.Post(() =>
+            {
+                try
+                {
+                    if (_serialSettingsWindow == null)
+                    {
+                        _serialSettingsWindow = new SerialSettingsWindow(showConnectionErrorOnOpen: true);
+                        _serialSettingsWindow.Closed += (_, __) => _serialSettingsWindow = null;
+                        _serialSettingsWindow.Show(this);
+                    }
+                    else
+                    {
+                        if (!_serialSettingsWindow.IsVisible)
+                            _serialSettingsWindow.Show(this);
+
+                        _serialSettingsWindow.ShowConnectionErrorPopup();
+                        _serialSettingsWindow.Activate();
+                    }
+
+                    _serialSettingsWindow.Topmost = true;
+                    _serialSettingsWindow.Topmost = false;
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("Fehler beim Anzeigen der Verbindungshilfe: " + ex.Message);
+                }
+            }, DispatcherPriority.Loaded);
+        }
+
+        public void HideConnectionRecoveryPopup()
+        {
+            Dispatcher.UIThread.Post(() =>
+            {
+                _serialSettingsWindow?.HideConnectionErrorPopup();
+            }, DispatcherPriority.Loaded);
         }
 
 

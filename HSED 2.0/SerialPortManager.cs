@@ -32,9 +32,6 @@ public class SerialPortManager
     private bool firstStart = true;
     public static SerialPortManager Instance => _instance;
 
-    // Statische Referenz für den Fehlerdialog
-
-    private static Window _connectionErrorDialog = null;
     // Klasse: SerialPortManager (neue Felder)
     private Task _processingTask;
 
@@ -66,6 +63,7 @@ public class SerialPortManager
             NewLine = "\r\n"
         };
 
+
         Open();
 
         _cancellationTokenSource = new CancellationTokenSource();
@@ -78,122 +76,22 @@ public class SerialPortManager
     }
 
 
-    /// <summary>
-    /// Zeigt einen persistierenden Fehlerdialog an, falls keine Verbindung zur HSE besteht.
-    /// Der Dialog wird nur einmal angezeigt und kann vom Benutzer nicht geschlossen werden.
-    /// </summary>
     private void ShowConnectionErrorDialog()
-    {
-        // Falls der Dialog schon offen ist, nichts tun
-        if (_connectionErrorDialog != null)
-            return;
-
-        Dispatcher.UIThread.Post(async () =>
-        {
-            var errorDialog = new Window
-            {
-                Title = "Verbindungsfehler",
-                Width = 300,
-                Height = 150,
-                WindowStartupLocation = WindowStartupLocation.CenterScreen,
-                CanResize = false,
-                SystemDecorations = SystemDecorations.None
-            };
-
-            var stackPanel = new StackPanel
-            {
-                Margin = new Thickness(10),
-                Spacing = 10,
-            };
-
-            stackPanel.Children.Add(new TextBlock
-            {
-                Text = "Keine Verbindung zur HSE.",
-                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center
-            });
-            stackPanel.Children.Add(new TextBlock
-            {
-                Text = "Bitte warten...",
-                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
-                FontStyle = Avalonia.Media.FontStyle.Italic
-            });
-            stackPanel.Children.Add(new TextBlock
-            {
-                Text = "Eine Verbindung wird alle 5 Sekunden",
-                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
-                FontStyle = Avalonia.Media.FontStyle.Italic
-            });
-            stackPanel.Children.Add(new TextBlock
-            {
-                Text = "automatisch versucht herzustellen.",
-                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
-                FontStyle = Avalonia.Media.FontStyle.Italic
-            });
-
-            // Button separat erstellen und das Click-Ereignis zuweisen
-            var reconnectButton = new Button
-            {
-                Content = "Manuell verbinden",
-                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center
-            };
-            reconnectButton.Click += (sender, e) => Open();
-            stackPanel.Children.Add(reconnectButton);
-
-            errorDialog.Content = stackPanel;
-
-            // Verhindere, dass der Benutzer das Fenster schließt (z. B. per Alt-F4),
-            // solange keine Verbindung besteht
-            errorDialog.Closing += (s, e) =>
-            {
-                if (_serialPort == null || !_serialPort.IsOpen)
-                {
-                    e.Cancel = true;
-                }
-            };
-
-            _connectionErrorDialog = errorDialog;
-
-            var lifetime = Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime;
-            var owner = lifetime?.MainWindow;
-            if (owner != null && owner.IsVisible)
-            {
-                await errorDialog.ShowDialog(owner);
-            }
-            else
-            {
-                errorDialog.Show();
-            }
-        });
-    }
-
-
-    /// <summary>
-    /// Schließt den Fehlerdialog, falls er offen ist.
-    /// </summary>
-   private void CloseConnectionErrorDialog()
-{
-    if (_connectionErrorDialog != null)
     {
         Dispatcher.UIThread.Post(() =>
         {
-            try
-            {
-                if (_connectionErrorDialog.IsVisible)
-                {
-                    _connectionErrorDialog.Close();
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine("Fehler beim Schließen des Fehlerdialogs: " + ex.Message);
-            }
-            finally
-            {
-                _connectionErrorDialog = null;
-            }
+            MainWindow.Instance?.ShowConnectionRecoveryUi();
         });
     }
-}
+
+
+   private void CloseConnectionErrorDialog()
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            MainWindow.Instance?.HideConnectionRecoveryPopup();
+        });
+    }
 
 
     /// <summary>
