@@ -133,7 +133,6 @@ namespace HSED_2_0
 
             GesamtFloor = (TopFloor - BootFloor) + 1;
             RawGesamtFloor = HseCom.SendHse(1001);
-
             Debug.WriteLine("BootFloor: " + BootFloor);
             Debug.WriteLine("TopFloor: " + TopFloor);
             Debug.WriteLine("GesamtFloor: " + GesamtFloor);

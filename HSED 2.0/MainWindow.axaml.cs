@@ -448,15 +448,58 @@ namespace HSED_2._0
         private readonly Dictionary<int, Button> _fixedInsideByLabel = new();
         private readonly Dictionary<(int, ArrowDir), Button> _fixedArrowByLabel = new();
 
+        private static int DisplayLabelToFloorIndex(int label)
+        {
+            return (label - MonetoringManager.BootFloor) + 1;
+        }
+
+        private static int FloorIndexToDisplayLabel(int floorIndex1Based)
+        {
+            return MonetoringManager.BootFloor + (floorIndex1Based - 1);
+        }
+
+        private static int GetBottomFloorIndex1Based()
+        {
+            byte[] response = HseCom.SendHseCommand(new byte[] { 0x03, 0x01, 0x24, 0x00, 0x00, 0x03 });
+            if (response == null || response.Length <= 10)
+                return 1;
+
+            return response[10] + 1;
+        }
+
+        private static byte[] GetInsideCallDoorBytes(int floorIndex1Based)
+        {
+            // DOORPOS (0x2406): Bit 0 = Tür 1, Bit 1 = Tür 2, Bit 2 = Tür 3
+            byte[] response = HseCom.SendHseCommand(new byte[] { 0x03, 0x01, 0x24, 0x06, (byte)floorIndex1Based, 0x05 });
+            if (response == null || response.Length <= 10)
+                return new byte[] { 0x01 };
+
+            byte doorMask = response[10];
+            var doorBytes = new List<byte>(2);
+
+            if ((doorMask & 0x01) != 0)
+                doorBytes.Add(0x01);
+
+            if ((doorMask & 0x02) != 0)
+                doorBytes.Add(0x02);
+
+            if (doorBytes.Count == 0)
+                doorBytes.Add(0x01);
+
+            return doorBytes.ToArray();
+        }
 
         private (int boot, int count, int top) GetFloorRange()
         {
-            int boot = MonetoringManager.BootFloor;
+            int firstFloorIndex = GetBottomFloorIndex1Based();
             int count = HseCom.SendHse(1001);
             if (count < 1) count = 1;
 
+            int lastFloorIndex = firstFloorIndex + count - 1;
+            int boot = FloorIndexToDisplayLabel(firstFloorIndex);
+            int top = FloorIndexToDisplayLabel(lastFloorIndex);
+
             // clamp in unseren sichtbaren Labelbereich
-            int top = boot + count - 1;
             if (boot < MinFloorLabel) { int d = MinFloorLabel - boot; boot += d; top += d; }
             if (top > MaxFloorLabel) { int d = top - MaxFloorLabel; boot -= d; top -= d; }
 
@@ -1060,14 +1103,33 @@ namespace HSED_2._0
 
         public void DisplayFahrkorbMM()
         {
-           
-            int fahrkorb = ViewModel.CurrentFahrkorb / Pos_Cal;
-            double fahrkorbMeter = fahrkorb / 1000.0;
-            fahrkorbMeter = Math.Ceiling(fahrkorbMeter * 100) / 100;
-            fahrkorb = fahrkorb - 100000;
-            if (fahrkorb < 0) fahrkorb = 0;
-            Hoehe.Text = fahrkorb.ToString() + "mm";
-            
+            int posCal = Pos_Cal;
+            if (posCal <= 0)
+            {
+                Hoehe.Text = "0mm";
+                return;
+            }
+
+            int[] levels = LievViewManager.IngrementEtage;
+            int bottomLevel = 0;
+
+            if (levels != null && levels.Length > 0)
+            {
+                var validLevels = levels.Where(level => level != 0).ToArray();
+                if (validLevels.Length > 0)
+                {
+                    bottomLevel = validLevels.Min();
+                }
+                else
+                {
+                    bottomLevel = levels.Min();
+                }
+            }
+
+            int relativeMm = (ViewModel.CurrentFahrkorb - bottomLevel) / posCal;
+            if (relativeMm < 0) relativeMm = 0;
+
+            Hoehe.Text = relativeMm.ToString() + "mm";
         }
 
         private Button? FindInsideButtonByLabel(int label)
@@ -1118,9 +1180,9 @@ namespace HSED_2._0
             int upState = ViewModel.AufAruftasterquittungZustand;
             if (upIndex > 0)
             {
-                int upLabel = MonetoringManager.BootFloor + (upIndex - 1);
+                int upLabel = FloorIndexToDisplayLabel(upIndex);
                 if (_fixedArrowByLabel.TryGetValue((upLabel, ArrowDir.Up), out var upBtn) && upBtn.Content is Border upCircle)
-                    SetButtonOutlineFixed(upCircle, upState == 1);
+                    SetButtonOutlineFixed(upCircle, HasAnyActiveCallAck(upState));
             }
 
             // Abwärts-Quittung
@@ -1128,9 +1190,9 @@ namespace HSED_2._0
             int downState = ViewModel.AbAruftasterquittungZustand;
             if (downIndex > 0)
             {
-                int downLabel = MonetoringManager.BootFloor + (downIndex - 1);
+                int downLabel = FloorIndexToDisplayLabel(downIndex);
                 if (_fixedArrowByLabel.TryGetValue((downLabel, ArrowDir.Down), out var downBtn) && downBtn.Content is Border downCircle)
-                    SetButtonOutlineFixed(downCircle, downState == 1);
+                    SetButtonOutlineFixed(downCircle, HasAnyActiveCallAck(downState));
             }
         }
 
@@ -1365,8 +1427,7 @@ namespace HSED_2._0
 
         private (int boot, int count, int top) GetFloorRangeSafe()
         {
-            // Boot aus Monitoring (kann anfangs 0 sein)
-            int boot = MonetoringManager.BootFloor;
+            int firstFloorIndex = GetBottomFloorIndex1Based();
 
             // Etagenanzahl vom HSE
             int count = HseCom.SendHse(1001);
@@ -1386,10 +1447,11 @@ namespace HSED_2._0
             const int MIN_LABEL = -20;
             const int MAX_LABEL = 20;
 
-            // Falls boot so groß/klein ist, dass (boot..boot+count-1) außerhalb fällt,
-            // schieben wir den Bereich, damit er ins Raster passt.
+            int boot = FloorIndexToDisplayLabel(firstFloorIndex);
             int top = boot + count - 1;
 
+            // Falls boot so groß/klein ist, dass (boot..top) außerhalb fällt,
+            // schieben wir den Bereich, damit er ins Raster passt.
             if (boot < MIN_LABEL)
             {
                 // nach oben schieben
@@ -1753,12 +1815,16 @@ namespace HSED_2._0
         {
             if (sender is Button b && b.Tag is int zielLabel)
             {
-                int floorIndex1Based = (1 + zielLabel) - MonetoringManager.BootFloor;
+                int floorIndex1Based = DisplayLabelToFloorIndex(zielLabel);
                 if (floorIndex1Based < 1) return;
                 byte floor = (byte)floorIndex1Based;
+                byte[] doors = GetInsideCallDoorBytes(floorIndex1Based);
 
-                SerialPortManager.Instance.SendWithoutResponse(new byte[]
-                { 0x04, 0x01, 0x05, floor, 0x01, 0x00, 0x01, 0x01 });
+                foreach (byte door in doors)
+                {
+                    SerialPortManager.Instance.SendWithoutResponse(new byte[]
+                    { 0x04, 0x01, 0x05, floor, 0x01, 0x00, door, 0x01 });
+                }
             }
         }
 
@@ -1769,7 +1835,7 @@ namespace HSED_2._0
                 int zielLabel = t.Item1;
                 var dir = t.Item2;
 
-                int floorIndex1Based = (1 + zielLabel) - MonetoringManager.BootFloor;
+                int floorIndex1Based = DisplayLabelToFloorIndex(zielLabel);
                 if (floorIndex1Based < 1) return;
                 byte floor = (byte)floorIndex1Based;
 
@@ -1824,6 +1890,12 @@ namespace HSED_2._0
         private static readonly SolidColorBrush BorderGreen = new(Color.Parse("#22c55e"));
         private static readonly SolidColorBrush BorderGray = new(Color.Parse("#d1d5db"));
 
+        private static bool HasAnyActiveCallAck(int state)
+        {
+            // Rufquittungen werden als Bitfeld pro Tür übertragen.
+            return (state & 0xFF) != 0;
+        }
+
         private void SetButtonOutlineFixed(Border circle, bool active)
         {
             circle.BorderBrush = active ? BorderGreen : BorderGray;
@@ -1859,9 +1931,9 @@ namespace HSED_2._0
             int zustand = ViewModel.InnenruftasterquittungZustand; // 1 aktiv, 0 aus
             if (index <= 0) return;
 
-            int label = MonetoringManager.BootFloor + (index - 1);
+            int label = FloorIndexToDisplayLabel(index);
             if (_fixedInsideByLabel.TryGetValue(label, out var btn) && btn.Content is Border circle)
-                SetButtonOutlineFixed(circle, zustand == 1);
+                SetButtonOutlineFixed(circle, HasAnyActiveCallAck(zustand));
         }
 
 
@@ -1874,7 +1946,7 @@ namespace HSED_2._0
                 int zielLabel = t.Item1;
                 var dir = t.Item2;
 
-                int calculatedEtage = (1 + zielLabel) - MonetoringManager.BootFloor;
+                int calculatedEtage = DisplayLabelToFloorIndex(zielLabel);
                 if (calculatedEtage < 1) return;
                 byte floor = (byte)calculatedEtage;
 
@@ -1888,12 +1960,16 @@ namespace HSED_2._0
         {
             if (sender is Button b && int.TryParse(b.Content?.ToString(), out int zielLabel))
             {
-                int calculatedEtage = (1 + zielLabel) - MonetoringManager.BootFloor;
+                int calculatedEtage = DisplayLabelToFloorIndex(zielLabel);
                 if (calculatedEtage < 1) return;
                 byte floor = (byte)calculatedEtage;
+                byte[] doors = GetInsideCallDoorBytes(calculatedEtage);
 
-                SerialPortManager.Instance.SendWithoutResponse(new byte[]
-                { 0x04, 0x01, 0x05, floor, 0x01, 0x00, 0x01, 0x01 });
+                foreach (byte door in doors)
+                {
+                    SerialPortManager.Instance.SendWithoutResponse(new byte[]
+                    { 0x04, 0x01, 0x05, floor, 0x01, 0x00, door, 0x01 });
+                }
             }
         }
 
