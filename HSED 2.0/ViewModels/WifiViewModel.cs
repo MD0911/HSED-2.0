@@ -54,6 +54,17 @@ public sealed class WifiViewModel : ViewModelBase
         }
     }
 
+    private bool _isScanning;
+    public bool IsScanning
+    {
+        get => _isScanning;
+        set
+        {
+            _isScanning = value;
+            OnPropertyChanged();
+        }
+    }
+
     private bool _isKeyboardVisible;
     public bool IsKeyboardVisible
     {
@@ -98,6 +109,7 @@ public sealed class WifiViewModel : ViewModelBase
 
     private async Task ScanAsync()
     {
+        IsScanning = true;
         StatusText = "Scan läuft";
         try
         {
@@ -122,6 +134,10 @@ public sealed class WifiViewModel : ViewModelBase
         catch (Exception ex)
         {
             StatusText = $"Scan Fehler: {ex.Message}";
+        }
+        finally
+        {
+            IsScanning = false;
         }
     }
 

@@ -236,7 +236,7 @@
 					<TextBlock Foreground="White" FontSize="15" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center">X</TextBlock>
 				</Button>
 				<Button Canvas.Left="435" Canvas.Top="-25" CornerRadius="90" Width="30" Height="30" Background="#facc15" Click="Button_Click_1">
-					<TextBlock Foreground="White" FontSize="15" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center">–</TextBlock>
+					<Image Name="FensterSizeButton" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,1,0,0" Width="14" Height="14" Source=""></Image>
 				</Button>
 			</Canvas>
 

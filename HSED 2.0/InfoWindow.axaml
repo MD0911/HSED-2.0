@@ -1,0 +1,172 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="HSED_2._0.InfoWindow"
+        Width="800"
+        Height="480"
+        Background="#111827"
+        FontFamily="DejaVu Sans"
+        Title="HSED_2._0"
+        CanResize="False"
+        SystemDecorations="None"
+        WindowStartupLocation="Manual">
+
+  <Window.Styles>
+    <Style Selector="TextBlock.h1">
+      <Setter Property="Foreground" Value="White"/>
+      <Setter Property="FontSize" Value="24"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+    </Style>
+
+    <Style Selector="TextBlock.muted">
+      <Setter Property="Foreground" Value="#9ca3af"/>
+      <Setter Property="FontSize" Value="14"/>
+    </Style>
+
+    <Style Selector="TextBlock.sectionTitle">
+      <Setter Property="Foreground" Value="White"/>
+      <Setter Property="FontSize" Value="18"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+    </Style>
+
+    <Style Selector="TextBlock.keyText">
+      <Setter Property="Foreground" Value="#9ca3af"/>
+      <Setter Property="FontSize" Value="13"/>
+    </Style>
+
+    <Style Selector="TextBlock.valueText">
+      <Setter Property="Foreground" Value="White"/>
+      <Setter Property="FontSize" Value="16"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+
+    <Style Selector="Border.panel">
+      <Setter Property="CornerRadius" Value="14"/>
+      <Setter Property="Background" Value="#0f172a"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="BorderBrush" Value="#1f2a3b"/>
+    </Style>
+
+    <Style Selector="Border.sectionCard">
+      <Setter Property="CornerRadius" Value="12"/>
+      <Setter Property="Background" Value="#111827"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="BorderBrush" Value="#1f2a3b"/>
+      <Setter Property="Padding" Value="14"/>
+    </Style>
+
+    <Style Selector="Border.sectionBadge">
+      <Setter Property="CornerRadius" Value="999"/>
+      <Setter Property="Padding" Value="10,4"/>
+      <Setter Property="Background" Value="#172554"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="BorderBrush" Value="#1d4ed8"/>
+    </Style>
+  </Window.Styles>
+
+  <Canvas>
+    <Border Canvas.Left="60" Width="740" Height="480" Background="#111827"/>
+
+    <Border Canvas.Left="665" Canvas.Top="125" Width="740" Height="480" Background="#111827">
+      <Border Width="480" Height="740" RenderTransformOrigin="0.5,0.5">
+        <Border.RenderTransform>
+          <RotateTransform Angle="90"/>
+        </Border.RenderTransform>
+
+        <Border Classes="panel" Margin="14" Padding="16">
+          <Grid RowDefinitions="Auto,*">
+            <StackPanel Grid.Row="0">
+              <TextBlock Text="Informationen" Classes="h1"/>
+              <TextBlock Text="Informationen über das HSE-Touch" Classes="muted" Margin="0,4,0,0"/>
+            </StackPanel>
+
+            <ScrollViewer Grid.Row="1"
+                          Margin="0,14,0,0"
+                          HorizontalScrollBarVisibility="Disabled"
+                          VerticalScrollBarVisibility="Auto">
+              <StackPanel x:Name="InfoItemsPanel" Spacing="12"/>
+            </ScrollViewer>
+          </Grid>
+        </Border>
+      </Border>
+    </Border>
+
+    <Border Background="#1f2937" Width="60" Height="480"/>
+
+    <Border x:Name="Overlap"
+            Background="#1f2937"
+            Width="800"
+            Height="480"
+            Opacity="1"
+            IsVisible="False"/>
+
+    <Border x:Name="NavBar" Background="#1f2937" Width="60" Height="480">
+      <StackPanel x:Name="StackPanelNavBar" HorizontalAlignment="Center" Margin="0,25,0,0">
+        <Button Background="#1f2937" Tag="Menu" x:Name="ButtonSettings" Width="50" Height="40" Click="Button_Click_Settings">
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <Image Source="Images\Icons\menu-offnen.png" RenderOptions.BitmapInterpolationMode="LowQuality">
+              <Image.RenderTransform>
+                <RotateTransform Angle="90"/>
+              </Image.RenderTransform>
+            </Image>
+            <TextBlock Margin="10,5,0,0" x:Name="SettingsText" IsVisible="False" Foreground="White">Menue</TextBlock>
+          </StackPanel>
+        </Button>
+
+        <Button Background="#1f2937" Tag="Home" x:Name="ButtonSettings7" Width="50" Height="40" Margin="0,5,0,0" Click="Button_Click_Settings">
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <Image Source="Images\Icons\zuhause.png" RenderOptions.BitmapInterpolationMode="LowQuality">
+              <Image.RenderTransform>
+                <RotateTransform Angle="90"/>
+              </Image.RenderTransform>
+            </Image>
+            <TextBlock Margin="10,5,0,0" x:Name="SettingsText7" IsVisible="False" Foreground="White">Home</TextBlock>
+          </StackPanel>
+        </Button>
+
+        <Button Background="#1f2937" Tag="Testrufe" x:Name="ButtonSettings3" Width="50" Height="40" Margin="0,5,0,0" Click="Button_Click_Settings">
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <Image Source="Images\Icons\aufzug.png" RenderOptions.BitmapInterpolationMode="LowQuality">
+              <Image.RenderTransform>
+                <RotateTransform Angle="90"/>
+              </Image.RenderTransform>
+            </Image>
+            <TextBlock Margin="10,5,0,0" x:Name="SettingsText3" IsVisible="False" Foreground="White">Testrufe</TextBlock>
+          </StackPanel>
+        </Button>
+
+        <Button Background="#1f2937" Tag="Ansicht" x:Name="ButtonSettings4" Width="50" Height="40" Margin="0,5,0,0" Click="Button_Click_Settings">
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <Image Source="Images\Icons\stift.png" RenderOptions.BitmapInterpolationMode="LowQuality">
+              <Image.RenderTransform>
+                <RotateTransform Angle="90"/>
+              </Image.RenderTransform>
+            </Image>
+            <TextBlock Margin="10,5,0,0" x:Name="SettingsText4" IsVisible="False" Foreground="White">Terminal</TextBlock>
+          </StackPanel>
+        </Button>
+
+        <Button Background="#1f2937" Tag="SelfDia" x:Name="ButtonSettings6" Width="50" Height="40" Margin="0,5,0,0" Click="Button_Click_Settings">
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <Image Source="Images\Icons\analysieren.png" RenderOptions.BitmapInterpolationMode="LowQuality">
+              <Image.RenderTransform>
+                <RotateTransform Angle="90"/>
+              </Image.RenderTransform>
+            </Image>
+            <TextBlock Margin="10,5,0,0" x:Name="SettingsText6" IsVisible="False" Foreground="White">Self Dia</TextBlock>
+          </StackPanel>
+        </Button>
+
+        <Button Background="#1f2937" Tag="Settings" x:Name="ButtonSettings2" Width="50" Height="40" Margin="0,180,0,0" Click="Button_Click_Settings">
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <Image Source="Images/Icons/die-einstellungen.png" RenderOptions.BitmapInterpolationMode="LowQuality">
+              <Image.RenderTransform>
+                <RotateTransform Angle="90"/>
+              </Image.RenderTransform>
+            </Image>
+            <TextBlock Margin="10,5,0,0" x:Name="SettingsText2" IsVisible="False" Foreground="White">Settings</TextBlock>
+          </StackPanel>
+        </Button>
+      </StackPanel>
+    </Border>
+  </Canvas>
+</Window>

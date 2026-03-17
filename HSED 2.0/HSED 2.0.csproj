@@ -187,6 +187,7 @@
 		<None Remove="Images\Icons\die-einstellungen.png" />
 		<None Remove="Images\Icons\enter-taste.png" />
 		<None Remove="Images\Icons\menu-offnen.png" />
+		<None Remove="Images\Icons\minimieren.png" />
 		<None Remove="Images\Icons\pfeil-Hoch.png" />
 		<None Remove="Images\Icons\pfeil-runter.png" />
 		<None Remove="Images\Icons\refresh.png" />
@@ -252,6 +253,9 @@
 		<AvaloniaResource Include="Images\Icons\info.png">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</AvaloniaResource>
+		<Content Include="Images\Icons\maximieren.png">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
 		<AvaloniaResource Include="Images\Icons\update.png">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</AvaloniaResource>
@@ -669,6 +673,9 @@
 		<Content Include="Images\BackgroundGradient.png">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
+		<Content Include="Images\Icons\minimieren.png">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
 		<Content Include="LinuxScripts\usb_update_hsed.sh">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
@@ -743,6 +750,9 @@
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
 		<None Update="config.json">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="info.json">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
 	</ItemGroup>

@@ -12,8 +12,11 @@ namespace HSED_2_0
     {
         public static Terminal Instance { get; private set; }
 
-        private readonly TerminalManager terminalManager = new TerminalManager();
 
+
+        private readonly TerminalManager terminalManager = new TerminalManager();
+        Bitmap minimieren = new Bitmap("Images/Icons/minimieren.png");
+        Bitmap maximieren = new Bitmap("Images/Icons/maximieren.png");
         // ========== Fensterpositionen ==========
         // Normale Startposition (nicht gezoomt)
         private const int NORMAL_SPAWN_X = 340;
@@ -48,6 +51,8 @@ namespace HSED_2_0
         public Terminal()
         {
             InitializeComponent();
+
+            FensterSizeButton.Source = maximieren;
 
             // Cache direkt einmalig aufbauen (nach InitializeComponent!)
             BuildUiCache();
@@ -208,7 +213,11 @@ namespace HSED_2_0
                 // Canvas-Margin für Zoom
                 MainCanvas.Margin = new Thickness(ZOOM_MARGIN_LEFT, ZOOM_MARGIN_TOP);
 
+                FensterSizeButton.Width = 18;
+                FensterSizeButton.Height = 18;
+                FensterSizeButton.Source = minimieren;
                 _isZoomed = true;
+                
             }
             else
             {
@@ -228,7 +237,11 @@ namespace HSED_2_0
                 // Canvas-Margin auf die Normal-Konstanten
                 MainCanvas.Margin = new Thickness(NORMAL_MARGIN_LEFT, NORMAL_MARGIN_TOP);
 
+                FensterSizeButton.Width= 14;
+                FensterSizeButton.Height= 14;
+                FensterSizeButton.Source = maximieren;
                 _isZoomed = false;
+
             }
         }
     }

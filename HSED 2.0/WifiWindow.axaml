@@ -143,7 +143,7 @@
                       Height="30"
                       Margin="100,0,0,0"
                       Classes="action"
-                      Content="Scan"
+                      Content="Refresh"
                       Command="{Binding ScanCommand}"/>
             </Grid>
 
@@ -185,8 +185,24 @@
 
             </ListBox>
 
-            <Border Grid.Row="2" Classes="statusBox" Margin="0,10,0,0">
-              <TextBlock Text="{Binding StatusText}" Classes="muted"/>
+            <Border Grid.Row="2" Classes="statusBox" Margin="0,-6,0,0">
+              <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                <Canvas Width="18" Height="18" IsVisible="{Binding IsScanning}">
+                  <Ellipse x:Name="ScanSpinner"
+                           Width="18"
+                           Height="18"
+                           Stroke="#9ca3af"
+                           StrokeThickness="2"
+                           StrokeDashArray="2,6"
+                           RenderTransformOrigin="0.5,0.5"
+                           IsVisible="{Binding IsScanning}">
+                    <Ellipse.RenderTransform>
+                      <RotateTransform Angle="0"/>
+                    </Ellipse.RenderTransform>
+                  </Ellipse>
+                </Canvas>
+                <TextBlock Text="{Binding StatusText}" Classes="muted" VerticalAlignment="Center"/>
+              </StackPanel>
             </Border>
 
           </Grid>

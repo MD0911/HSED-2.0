@@ -9,6 +9,7 @@ namespace HSED_2._0;
 public partial class SettingsVertical : Window
 {
     bool NavBarStatus = false;
+    private InfoWindow? _infoWindow;
     private WifiWindow? _wifiWindow;
 
     private Updater? _updateWindow;
@@ -95,6 +96,18 @@ public partial class SettingsVertical : Window
                     case "Menu":
                         this.Hide();
                         break;
+                    case "Info":
+                        if (_infoWindow == null)
+                        {
+                            _infoWindow = new InfoWindow();
+                            _infoWindow.Closed += (_, __) => _infoWindow = null;
+                        }
+
+                        _infoWindow.Show(this);
+                        _infoWindow.Activate();
+                        _infoWindow.Topmost = true;
+                        _infoWindow.Topmost = false;
+                        break;
                     case "Wifi":
                         if (_wifiWindow == null)
                         {
@@ -174,7 +187,7 @@ public partial class SettingsVertical : Window
                         }
                         else
                         {
-                            Terminal.Instance.Close(); // löst Closed aus, setzt Instance = null
+                            Terminal.Instance.Close(); // lÃ¶st Closed aus, setzt Instance = null
                         }
                         break;
 

@@ -8,6 +8,10 @@ PSK="${2:-}"
 
 j() { printf "%s" "$1" | sed 's/\\/\\\\/g; s/"/\\"/g; s/\r//g'; }
 
+have_nmcli() {
+  command -v nmcli >/dev/null 2>&1 && nmcli general status >/dev/null 2>&1
+}
+
 emit() {
   ok="$1"           # true/false
   msg="$2"          # "Verbunden" oder "Fehler beim Verbinden"
@@ -38,6 +42,40 @@ fi
 
 if ! ip link show "$IFACE" >/dev/null 2>&1; then
   emit false "Fehler beim Verbinden" "iface_not_found" "$SSID" ""
+  exit 2
+fi
+
+if have_nmcli; then
+  nmcli radio wifi on >/dev/null 2>&1 || true
+  nmcli device set "$IFACE" managed yes >/dev/null 2>&1 || true
+
+  if [ -n "$PSK" ]; then
+    NM_OUT="$(nmcli --wait 30 device wifi connect "$SSID" password "$PSK" ifname "$IFACE" 2>&1 || true)"
+  else
+    NM_OUT="$(nmcli --wait 30 device wifi connect "$SSID" ifname "$IFACE" 2>&1 || true)"
+  fi
+
+  STATE="$(nmcli -t -g GENERAL.STATE device show "$IFACE" 2>/dev/null | head -n1 || true)"
+  IP="$(nmcli -t -g IP4.ADDRESS device show "$IFACE" 2>/dev/null | head -n1 || true)"
+  IP="${IP%%/*}"
+
+  case "$STATE" in
+    100*|100\ *)
+      if [ -n "$IP" ]; then
+        emit true "Verbunden" "ok" "$SSID" "$IP"
+        exit 0
+      fi
+      emit false "Fehler beim Verbinden" "no_ip_after_completed" "$SSID" ""
+      exit 2
+      ;;
+  esac
+
+  if echo "$NM_OUT" | grep -qi "Secrets were required"; then
+    emit false "Fehler beim Verbinden" "invalid_psk" "$SSID" ""
+    exit 2
+  fi
+
+  emit false "Fehler beim Verbinden" "nmcli_connect_failed" "$SSID" ""
   exit 2
 fi
 

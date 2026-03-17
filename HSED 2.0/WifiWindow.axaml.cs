@@ -1,8 +1,12 @@
 using System;
+using System.ComponentModel;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Shapes;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
+using Avalonia.Media;
+using Avalonia.Threading;
 using HSED_2._0.Models;
 using HSED_2._0.ViewModels;
 
@@ -12,23 +16,87 @@ public partial class WifiWindow : Window
 {
     private bool _opening;
     private bool _navBarOpen = false;
+    private readonly DispatcherTimer _spinnerTimer = new() { Interval = TimeSpan.FromMilliseconds(80) };
+    private Ellipse? _scanSpinner;
+    private WifiViewModel? _viewModel;
+    private double _spinnerAngle;
 
     public WifiWindow()
     {
         InitializeComponent();
         Position = new PixelPoint(0, 0);
         DataContext = new WifiViewModel();
+        _viewModel = DataContext as WifiViewModel;
+        _scanSpinner = this.FindControl<Ellipse>("ScanSpinner");
+        _spinnerTimer.Tick += SpinnerTimer_Tick;
 
         // Falls du nicht schon im XAML "SelectionChanged" verdrahtet hast,
         // kannst du es hier sicher tun. (Schadet nicht, wenn XAML es bereits hat.)
         var list = this.FindControl<ListBox>("WifiList");
         if (list != null)
             list.SelectionChanged += WifiList_SelectionChanged;
+
+        if (_viewModel != null)
+            _viewModel.PropertyChanged += WifiViewModel_PropertyChanged;
     }
 
     private void InitializeComponent()
     {
         AvaloniaXamlLoader.Load(this);
+    }
+
+    protected override void OnOpened(EventArgs e)
+    {
+        base.OnOpened(e);
+
+        if (DataContext is WifiViewModel vm)
+            vm.ScanCommand.Execute(null);
+    }
+
+    protected override void OnClosed(EventArgs e)
+    {
+        _spinnerTimer.Stop();
+
+        if (_viewModel != null)
+            _viewModel.PropertyChanged -= WifiViewModel_PropertyChanged;
+
+        base.OnClosed(e);
+    }
+
+    private void WifiViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(WifiViewModel.IsScanning) && sender is WifiViewModel vm)
+            UpdateSpinnerState(vm.IsScanning);
+    }
+
+    private void UpdateSpinnerState(bool isScanning)
+    {
+        if (_scanSpinner == null)
+            return;
+
+        if (isScanning)
+        {
+            _spinnerAngle = 0;
+            ApplySpinnerRotation();
+            _spinnerTimer.Start();
+            return;
+        }
+
+        _spinnerTimer.Stop();
+        _spinnerAngle = 0;
+        ApplySpinnerRotation();
+    }
+
+    private void SpinnerTimer_Tick(object? sender, EventArgs e)
+    {
+        _spinnerAngle = (_spinnerAngle + 24) % 360;
+        ApplySpinnerRotation();
+    }
+
+    private void ApplySpinnerRotation()
+    {
+        if (_scanSpinner?.RenderTransform is RotateTransform rotateTransform)
+            rotateTransform.Angle = _spinnerAngle;
     }
 
     private async void WifiList_SelectionChanged(object? sender, SelectionChangedEventArgs e)
@@ -67,10 +135,10 @@ public partial class WifiWindow : Window
         }
         finally
         {
-            // Wichtig: zurücksetzen, damit man wieder klicken kann
+            // Wichtig: zurÃ¼cksetzen, damit man wieder klicken kann
             vm.SelectedNetwork = null;
 
-            // Zusätzlich ListBox Selection leeren, sonst feuert es manchmal nicht erneut
+            // ZusÃ¤tzlich ListBox Selection leeren, sonst feuert es manchmal nicht erneut
             if (sender is ListBox lb)
                 lb.SelectedItem = null;
 
@@ -99,7 +167,7 @@ public partial class WifiWindow : Window
                 Hide();
                 break;
 
-                // weitere Cases kannst du später wieder aktivieren
+                // weitere Cases kannst du spÃ¤ter wieder aktivieren
         }
     }
 
@@ -107,7 +175,7 @@ public partial class WifiWindow : Window
     {
         if (!_navBarOpen)
         {
-            NavBar.Width = 160; // statt +=100, damit es nie „driftet“
+            NavBar.Width = 160; // statt +=100, damit es nie â€ždriftetâ€œ
             StackPanelNavBar.HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left;
             StackPanelNavBar.Margin = new Thickness(10, 25, 0, 0);
 
@@ -135,7 +203,7 @@ public partial class WifiWindow : Window
         }
         else
         {
-            NavBar.Width = 60; // statt -=100, damit es nie „driftet“
+            NavBar.Width = 60; // statt -=100, damit es nie â€ždriftetâ€œ
             StackPanelNavBar.HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center;
             StackPanelNavBar.Margin = new Thickness(0, 25, 0, 0);
 
