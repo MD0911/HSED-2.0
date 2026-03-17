@@ -655,6 +655,20 @@ namespace HSED_2_0.ViewModels
             }
         }
 
+        private bool _skfActive;
+        public bool SKFActive
+        {
+            get => _skfActive;
+            set
+            {
+                if (_skfActive != value)
+                {
+                    _skfActive = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         private int _rawCurrentFloor;
         public int RawCurrentFloor
         {

@@ -372,6 +372,25 @@ namespace HSED_2_0
                 }
             }
 
+            if (Art == 2653)
+            {
+                try
+                {
+                    byte[] date = SendHseCommand(new byte[] { 0x03, 0x01, 0x26, 0x053, 0x00, 0x05 });
+                    if (date == null || date.Length <= 10)
+                        return 505;
+                    int temp = date[10];
+                    Debug.WriteLine("Gesamtes Telegramm VFANG: " + BitConverter.ToString(date));
+                    Debug.WriteLine("VFANG EINZELAbfrage: " + temp);
+                    return temp;
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Fehler (3001): {ex.Message}\n{ex.StackTrace}");
+                    return 505;
+                }
+            }
+
             // Art 10101010: Pos_Calc
             if (Art == 10101010)
             {

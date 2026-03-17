@@ -827,16 +827,46 @@ namespace HSED_2_0
 
         public static void setSKF(byte[] zustand)
         {
+            if (MainWindow.Instance.ViewModel.SKFActive)
+            {
+                int skf = zustand[4];
+                Debug.WriteLine("SKF: " + skf);
+                Debug.WriteLine(zustand);
+
+                // Aktualisiere das ViewModel im UI-Thread:
+                Dispatcher.UIThread.Post(() =>
+                {
+                    if (MainWindow.Instance?.ViewModel != null)
+                    {
+                        MainWindow.Instance.ViewModel.SKF = skf;
+                    }
+                });
+            }
+        }
+
+        public static void setSKFActive(byte[] zustand)
+        {
             int skf = zustand[4];
-            Debug.WriteLine("SKF: " + skf);
-            Debug.WriteLine(zustand);
+            Debug.WriteLine("SKFActive: " + skf);
+            bool SkfActive = false;
+
+            if (skf == 0)
+            {
+                SkfActive = false;
+            }
+            else if (skf == 1) 
+            { 
+                SkfActive = true;
+            }
+
+
 
             // Aktualisiere das ViewModel im UI-Thread:
             Dispatcher.UIThread.Post(() =>
             {
                 if (MainWindow.Instance?.ViewModel != null)
                 {
-                    MainWindow.Instance.ViewModel.SKF = skf;
+                    MainWindow.Instance.ViewModel.SKFActive = SkfActive;
                 }
             });
         }
@@ -1197,6 +1227,11 @@ namespace HSED_2_0
             {
                 Debug.WriteLine("SKF. Änderung erkannt.");
                 setSKF(response);
+            }
+            else if (response[0] == 0x26 && response[1] == 0x53)
+            {
+                Debug.WriteLine("SKF. Aktiv/Nicht Aktiv.");
+                setSKFActive(response);
             }
             else if (response[0] == 0x63 && response[1] == 0x10 && response.Length >= 3 && response[2] == 0x01)
             {

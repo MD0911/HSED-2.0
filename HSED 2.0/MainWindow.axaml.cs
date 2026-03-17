@@ -941,7 +941,23 @@ namespace HSED_2._0
 
         public void DisplaySKF()
         {
-            VFang.Background = (ViewModel.SKF == 0) ? BrushGreen : BrushGray;
+            if (ViewModel.SKFActive)
+            {
+                VFang.CornerRadius = new CornerRadius(5);
+                VFang.Height = 15;
+                VFang.Width = 25;
+                VFang.Margin = new Thickness(0, 0, 0, 0);
+
+                VFang.Background = (ViewModel.SKF == 1) ? BrushGreen : BrushGray;
+            }
+            else
+            {
+                VFang.Margin = new Thickness(0, 5, 0, 0);
+                VFang.Height = 5;
+                VFang.Width = 15;
+                VFang.CornerRadius = new CornerRadius(0);
+            }
+
         }
 
         private TextBlock GetAssignedOrAllocate(int doorIndex, int state)
@@ -1509,6 +1525,7 @@ namespace HSED_2._0
             ViewModel.CurrentStateTueur1 = HseCom.SendHse(1006);
             ViewModel.CurrentStateTueur2 = HseCom.SendHse(1016);
             ViewModel.CurrentFahrtZahler = HseCom.SendHse(2145);
+            ViewModel.SKFActive = HseCom.SendHse(2653) == 1;
 
             setDOPs();
 
