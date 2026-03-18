@@ -256,6 +256,9 @@ public partial class UpdaterUSB : Window
                     case "Home":
                         WindowNavigationService.NavigateHome(this);
                         break;
+                    case "SelfDia":
+                        _ = TouchDisplayRefreshService.RequestRefreshAsync(this);
+                        break;
                 }
             }
         }

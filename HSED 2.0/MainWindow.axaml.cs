@@ -591,7 +591,7 @@ namespace HSED_2._0
                 BorderThickness = new Thickness(1.5),
                 Child = new TextBlock
                 {
-                    Text = dir == ArrowDir.Up ? "▲" : "▼",
+                    Text = dir == ArrowDir.Up ? "\u2191" : "\u2193",
                     FontSize = 16,
                     Foreground = Brushes.Black,
                     HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
@@ -1294,7 +1294,7 @@ namespace HSED_2._0
             int t = ViewModel.CurrentTemp;
             if (t == _lastTemp) return;
             _lastTemp = t;
-            Temp.Text = t + "°C";
+            Temp.Text = $"{t}\u00B0C";
         }
         public void DisplayFloor()
         {
@@ -1337,27 +1337,36 @@ namespace HSED_2._0
 
         public void DisplayZustand()
         {
-            switch (ViewModel.CurrentZustand)
+            var snapshot = LiftStateTracker.GetSnapshot();
+            if (!snapshot.PrimaryState.HasValue)
             {
-                case 4:
-                    Zustand.Text = "Stillstand";
-                    Zustand.Foreground = new SolidColorBrush(Colors.White);
-                    DoorOverlayFinish = true;
-                    break;
-                case 5:
-                    Zustand.Text = "Fährt";
-                    Zustand.Foreground = new SolidColorBrush(Color.Parse("#22c55e"));
-                    DoorOverlayFinish = true;
-                    break;
-                case 6:
-                    Zustand.Text = "Einfahrt";
-                    Zustand.Foreground = new SolidColorBrush(Color.Parse("#facc15"));
-                    DoorOverlayFinish = false;
-                    break;
-                case 17:
-                    Zustand.Text = "SK Fehlt";
-                    Zustand.Foreground = new SolidColorBrush(Color.Parse("#ef4444"));
-                    break;
+                Zustand.Text = string.Empty;
+                Zustand2.Text = string.Empty;
+                Zustand3.Text = string.Empty;
+                Zustand4.Text = string.Empty;
+                DoorOverlayFinish = true;
+                return;
+            }
+
+            var primaryState = LiftStateCatalog.GetPresentation(snapshot.PrimaryState.Value);
+            Zustand.Text = primaryState.Text;
+            Zustand.Foreground = primaryState.Brush;
+            DoorOverlayFinish = primaryState.DoorOverlayFinished;
+
+            var additionalTargets = new[] { Zustand2, Zustand3, Zustand4 };
+            for (int index = 0; index < additionalTargets.Length; index++)
+            {
+                var target = additionalTargets[index];
+                if (index < snapshot.AdditionalStates.Count)
+                {
+                    var additionalState = LiftStateCatalog.GetPresentation(snapshot.AdditionalStates[index]);
+                    target.Text = additionalState.Text;
+                    target.Foreground = additionalState.Brush;
+                }
+                else
+                {
+                    target.Text = string.Empty;
+                }
             }
         }
 
@@ -1615,7 +1624,8 @@ namespace HSED_2._0
                 DOP2.Width = 25; DOP2.Height = 15; DOP2.CornerRadius = new CornerRadius(5);
                 DCL2.Width = 25; DCL2.Height = 15; DCL2.CornerRadius = new CornerRadius(5);
             }
-
+            ViewModel.CurrentZustand = HseCom.SendHse(1005);
+            LiftStateTracker.RegisterState(ViewModel.CurrentZustand);
             if (!ViewModel.DOPNA3)
             {
                 DOP3.Width = 15; DOP3.Height = 5; DOP3.CornerRadius = new CornerRadius(0);
@@ -1935,7 +1945,7 @@ namespace HSED_2._0
                 VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center,
                 Child = new TextBlock
                 {
-                    Text = dir == ArrowDir.Up ? "▲" : "▼",
+                    Text = dir == ArrowDir.Up ? "\u2191" : "\u2193",
                     FontSize = 16,
                     Foreground = Brushes.Black,
                     HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
@@ -1963,6 +1973,9 @@ namespace HSED_2._0
         }
 
         private SettingsVertical? _settingsWindow;
+        private bool _isSoftRefreshInProgress;
+        private DispatcherTimer? _softRefreshSpinnerTimer;
+        private double _softRefreshSpinnerAngle;
 
         private void OpenSettings()
         {
@@ -1983,6 +1996,120 @@ namespace HSED_2._0
             // Linux-Workaround: kurz Topmost toggeln, damit es wirklich über dem MainWindow landet
             _settingsWindow.Topmost = true;
             _settingsWindow.Topmost = false;
+        }
+
+        public async Task PerformSoftRefreshAsync()
+        {
+            if (_isSoftRefreshInProgress)
+                return;
+
+            _isSoftRefreshInProgress = true;
+            ShowSoftRefreshOverlay();
+
+            try
+            {
+                await Task.Delay(75);
+
+                await Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    StopLogic();
+                    ResetStateForSoftRefresh();
+                    _isLogicInitialized = false;
+                    StartLogic();
+                }, DispatcherPriority.Background);
+
+                await Task.Delay(250);
+            }
+            finally
+            {
+                HideSoftRefreshOverlay();
+                _isSoftRefreshInProgress = false;
+            }
+        }
+
+        private void ResetStateForSoftRefresh()
+        {
+            _reconnectPending = false;
+            DoorOverlayFinish = false;
+            _overlaySized = false;
+            _buildingOverlay = false;
+            _floorButtonsGenerated = false;
+            _lastBootFloor = int.MinValue;
+            _lastTopLabel = int.MinValue;
+            _lastOverlayW = -1;
+            _lastOverlayH = -1;
+            _lastFahrkorbSource = null;
+            _lastOverlay1 = null;
+            _lastOverlay2 = null;
+            _lastOverlay3 = null;
+            _lastTemp = int.MinValue;
+            _lastSpeed = int.MinValue;
+            _lastFloor = int.MinValue;
+            _lastTime = null;
+            _lastDate = null;
+            _springX = 0;
+            _springV = 0;
+            _visY = 0;
+            _velY = 0;
+            _rawPrevTarget = 0;
+            _rawCurrTarget = 0;
+            _rawPrevTime = 0;
+            _rawCurrTime = 0;
+
+            FloorButtonsOverlay.Children.Clear();
+            _insideButtons.Clear();
+            _insideCenters.Clear();
+            _arrowCenters.Clear();
+            _fixedInsideByFloorIndex.Clear();
+            _fixedArrowByFloorIndex.Clear();
+            tuerZuordnung.Clear();
+
+            FahrkorbOverlay1.Source = null;
+            FahrkorbOverlay2.Source = null;
+            FahrkorbOverlay3.Source = null;
+        }
+
+        private void ShowSoftRefreshOverlay()
+        {
+            SoftRefreshOverlay.IsVisible = true;
+            StartSoftRefreshSpinner();
+        }
+
+        private void HideSoftRefreshOverlay()
+        {
+            StopSoftRefreshSpinner();
+            SoftRefreshOverlay.IsVisible = false;
+        }
+
+        private void StartSoftRefreshSpinner()
+        {
+            if (SoftRefreshSpinner.RenderTransform is RotateTransform rotateTransform)
+                rotateTransform.Angle = 0;
+
+            _softRefreshSpinnerAngle = 0;
+
+            if (_softRefreshSpinnerTimer == null)
+            {
+                _softRefreshSpinnerTimer = new DispatcherTimer
+                {
+                    Interval = TimeSpan.FromMilliseconds(40)
+                };
+
+                _softRefreshSpinnerTimer.Tick += (_, __) =>
+                {
+                    _softRefreshSpinnerAngle = (_softRefreshSpinnerAngle + 14) % 360;
+
+                    if (SoftRefreshSpinner.RenderTransform is RotateTransform rotate)
+                        rotate.Angle = _softRefreshSpinnerAngle;
+                };
+            }
+
+            _softRefreshSpinnerTimer.Start();
+        }
+
+        private void StopSoftRefreshSpinner()
+        {
+            _softRefreshSpinnerTimer?.Stop();
         }
 
         public void DisplayInnenruftasterquittung()
@@ -2092,6 +2219,9 @@ namespace HSED_2._0
                             break;
                         case "Settings":
                             OpenSettings();
+                            break;
+                        case "SelfDia":
+                            _ = TouchDisplayRefreshService.RequestRefreshAsync(this);
                             break;
                         /* case "Testrufe":
                              _cachedTestrufeWindow.Show();

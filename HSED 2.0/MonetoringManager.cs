@@ -343,6 +343,7 @@ namespace HSED_2_0
 
 
             Debug.WriteLine("Zustand: " + newZustand);
+            LiftStateTracker.RegisterState(newZustand);
             // Aktualisiere das ViewModel im UI-Thread:
             Dispatcher.UIThread.Post(() =>
             {

@@ -72,7 +72,7 @@ namespace HSED_2._0
             // Aktueller Wert der ProgressBar
             double currentValue = progressBar.Value;
 
-            // Schrittgröße für die Animation (kann angepasst werden)
+            // Schrittgrï¿½ï¿½e fï¿½r die Animation (kann angepasst werden)
             double step = 0.1 * Math.Sign(targetValue - currentValue);
 
             // Animationsschleife
@@ -80,7 +80,7 @@ namespace HSED_2._0
             {
                 currentValue += step;
                 progressBar.Value = currentValue;
-                await Task.Delay(15); // Verzögerung zwischen den Schritten für eine flüssige Animation
+                await Task.Delay(15); // Verzï¿½gerung zwischen den Schritten fï¿½r eine flï¿½ssige Animation
             }
 
             // Endwert setzen, um Ungenauigkeiten zu vermeiden
@@ -200,7 +200,7 @@ namespace HSED_2._0
                 }
                 else
                 {
-                    skBorders[i].Background = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.GreenYellow); // Beispiel für gesetzten Zustand
+                    skBorders[i].Background = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.GreenYellow); // Beispiel fï¿½r gesetzten Zustand
                 }
             }
 
@@ -229,15 +229,15 @@ namespace HSED_2._0
                     Tuer1.Foreground = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.White);
                     break;
                 case 50:
-                    Tuer1.Text = "Tür öffnet";
+                    Tuer1.Text = "Tï¿½r ï¿½ffnet";
                     Tuer1.Foreground = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.Yellow);
                     break;
                 case 48:
-                    Tuer1.Text = "Tür geöffnet";
+                    Tuer1.Text = "Tï¿½r geï¿½ffnet";
                     Tuer1.Foreground = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.GreenYellow);
                     break;
                 case 32:
-                    Tuer1.Text = "Tür schließt";
+                    Tuer1.Text = "Tï¿½r schlieï¿½t";
                     Tuer1.Foreground = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.Yellow);
                     break;
                 case 96:
@@ -245,15 +245,15 @@ namespace HSED_2._0
                     Tuer1.Foreground = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.Orange);
                     break;
                 case 97:
-                    Tuer1.Text = "Tür geöffnet";
+                    Tuer1.Text = "Tï¿½r geï¿½ffnet";
                     Tuer1.Foreground = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.GreenYellow);
                     break;
                 case 224:
-                    Tuer1.Text = "Türfehler";
+                    Tuer1.Text = "Tï¿½rfehler";
                     Tuer1.Foreground = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.Red);
                     break;
                 case 112:
-                    Tuer1.Text = "Tür gestoppt";
+                    Tuer1.Text = "Tï¿½r gestoppt";
                     Tuer1.Foreground = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.Red);
                     break;
             }
@@ -265,15 +265,15 @@ namespace HSED_2._0
                     Tuer2.Foreground = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.White);
                     break;
                 case 50:
-                    Tuer2.Text = "Tür öffnet";
+                    Tuer2.Text = "Tï¿½r ï¿½ffnet";
                     Tuer2.Foreground = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.Yellow);
                     break;
                 case 48:
-                    Tuer2.Text = "Tür geöffnet";
+                    Tuer2.Text = "Tï¿½r geï¿½ffnet";
                     Tuer2.Foreground = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.GreenYellow);
                     break;
                 case 32:
-                    Tuer2.Text = "Tür schließt";
+                    Tuer2.Text = "Tï¿½r schlieï¿½t";
                     Tuer2.Foreground = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.Yellow);
                     break;
                 case 96:
@@ -281,39 +281,23 @@ namespace HSED_2._0
                     Tuer2.Foreground = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.Orange);
                     break;
                 case 97:
-                    Tuer2.Text = "Tür geöffnet";
+                    Tuer2.Text = "Tï¿½r geï¿½ffnet";
                     Tuer2.Foreground = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.GreenYellow);
                     break;
                 case 224:
-                    Tuer2.Text = "Türfehler";
+                    Tuer2.Text = "Tï¿½rfehler";
                     Tuer2.Foreground = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.Red);
                     break;
                 case 112:
-                    Tuer2.Text = "Tür gestoppt";
+                    Tuer2.Text = "Tï¿½r gestoppt";
                     Tuer2.Foreground = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.Red);
                     break;
             }
-
-
-            switch (AZustand)
-            {
-                case 4:
-                    Zustand.Text = "Stillstand";
-                    Zustand.Foreground = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.White);
-                    break;
-                case 5:
-                    Zustand.Text = "Fährt";
-                    Zustand.Foreground = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.GreenYellow);
-                    break;
-                case 6:
-                    Zustand.Text = "Einfahrt";
-                    Zustand.Foreground = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.Yellow);
-                    break;
-                case 17:
-                    Zustand.Text = "SK Fehlt";
-                    Zustand.Foreground = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Colors.Red);
-                    break;
-            }
+            LiftStateTracker.RegisterState(AZustand);
+            var snapshot = LiftStateTracker.GetSnapshot();
+            var state = LiftStateCatalog.GetPresentation(snapshot.PrimaryState ?? AZustand);
+            Zustand.Text = state.Text;
+            Zustand.Foreground = state.Brush;
             EtageProgressBar.Value = currentfloor +1;
             //AnimateProgressBar(HseCom.SendHse(1004));
 
@@ -402,6 +386,9 @@ namespace HSED_2._0
                             var newWindowHome = new MainWindow();
                             newWindowHome.Show();
                             this.Close();
+                            break;
+                        case "SelfDia":
+                            _ = TouchDisplayRefreshService.RequestRefreshAsync(this);
                             break;
                         case "Codes":
                             var newWindowCode = new Code();
@@ -645,3 +632,4 @@ namespace HSED_2._0
         }
     }
     }
+

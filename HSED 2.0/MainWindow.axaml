@@ -514,7 +514,7 @@
 
 				<Button Background="#1f2937" Tag="SelfDia" x:Name="ButtonSettings6" Width="50" Height="40" Margin="0,5,0,0" Click="Button_Click_Settings">
 					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-						<Image Source="Images\Icons\analysieren.png" RenderOptions.BitmapInterpolationMode="LowQuality">
+						<Image Source="Images\Icons\refresh.png" RenderOptions.BitmapInterpolationMode="LowQuality">
 							<Image.RenderTransform>
 								<RotateTransform Angle="90"/>
 							</Image.RenderTransform>
@@ -536,6 +536,61 @@
 
 			</StackPanel>
 		</Border>
+
+		<Grid x:Name="SoftRefreshOverlay"
+			  Width="800"
+			  Height="480"
+			  IsVisible="False"
+			  Background="#B3000000"
+			  Panel.ZIndex="200">
+			<Border Width="360"
+					Height="180"
+					Background="#1f2937"
+					BorderBrush="#2b3546"
+					BorderThickness="1"
+					CornerRadius="18"
+					Padding="22"
+					HorizontalAlignment="Center"
+					VerticalAlignment="Center">
+				<Border.RenderTransform>
+					<RotateTransform Angle="90"/>
+				</Border.RenderTransform>
+
+				<StackPanel Spacing="12" VerticalAlignment="Center">
+					<Border Width="58"
+							Height="58"
+							CornerRadius="29"
+							Background="#0f172a"
+							BorderBrush="#334155"
+							BorderThickness="1"
+							HorizontalAlignment="Center">
+						<TextBlock x:Name="SoftRefreshSpinner"
+								   Text="⟳"
+								   FontSize="32"
+								   Foreground="White"
+								   HorizontalAlignment="Center"
+								   VerticalAlignment="Center">
+							<TextBlock.RenderTransform>
+								<RotateTransform Angle="0"/>
+							</TextBlock.RenderTransform>
+						</TextBlock>
+					</Border>
+
+					<TextBlock Text="Touch-Display wird neu initialisiert"
+							   Foreground="White"
+							   FontSize="22"
+							   FontWeight="Bold"
+							   HorizontalAlignment="Center"
+							   TextAlignment="Center"/>
+					<TextBlock Text="Die Daten werden neu von der HSE angefragt. Bitte kurz warten."
+							   Foreground="#9ca3af"
+							   FontSize="14"
+							   HorizontalAlignment="Center"
+							   TextAlignment="Center"
+							   TextWrapping="Wrap"/>
+				</StackPanel>
+			</Border>
+		</Grid>
 
 	</Canvas>
 </Window>

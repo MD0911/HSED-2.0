@@ -119,7 +119,7 @@ namespace HSED_2_0
 
             Task.Run(async () =>
             {
-                await RefreshTerminalConfigurationAsync(_cts.Token);
+                await InitializeTerminalConfigurationAsync(_cts.Token);
 
                 if (_cts.Token.IsCancellationRequested)
                     return;
@@ -652,6 +652,81 @@ namespace HSED_2_0
                 return;
 
             ApplyTerminalConfiguration(line, columns);
+        }
+
+        public static void RequestColumnsForCurrentTerminalMode(bool zoomEnabled)
+        {
+            int desiredColumns = zoomEnabled ? 35 : 16;
+
+            Task.Run(() =>
+            {
+                try
+                {
+                    int rawLineSelector = CurrentLineSelectorRaw;
+                    if (rawLineSelector < 0 || rawLineSelector > 2)
+                        rawLineSelector = HseCom.ReadTerminalLine();
+
+                    if (rawLineSelector < 0 || rawLineSelector > 2)
+                    {
+                        Debug.WriteLine(
+                            $"[Terminal] Konnte Leitung fuer Spaltenumschaltung nicht lesen. Gewuenscht={desiredColumns}");
+                        return;
+                    }
+
+                    Debug.WriteLine(
+                        $"[Terminal] Fordere {desiredColumns} Zeichen fuer Leitung raw={rawLineSelector}, angezeigt={NormalizeDisplayLine(rawLineSelector)} an");
+
+                    bool writeSucceeded = HseCom.WriteTerminalColumnsForLine(rawLineSelector, desiredColumns);
+                    if (!writeSucceeded)
+                        return;
+
+                    ApplyTerminalConfiguration(rawLineSelector, desiredColumns);
+                    _ = SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x01, 0x03 });
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"[Terminal] Fehler beim Umschalten der Zeichenzahl: {ex.Message}");
+                }
+            });
+        }
+
+        private async Task InitializeTerminalConfigurationAsync(CancellationToken token)
+        {
+            try
+            {
+                int rawLineSelector = await Task.Run(HseCom.ReadTerminalLine, token);
+                if (token.IsCancellationRequested)
+                    return;
+
+                if (rawLineSelector < 0 || rawLineSelector > 2)
+                {
+                    await RefreshTerminalConfigurationAsync(token);
+                    return;
+                }
+
+                Debug.WriteLine(
+                    $"[Terminal] Startinitialisierung: setze 16 Zeichen fuer Leitung raw={rawLineSelector}, angezeigt={NormalizeDisplayLine(rawLineSelector)}");
+
+                bool writeSucceeded = await Task.Run(() => HseCom.WriteTerminalColumnsForLine(rawLineSelector, DefaultCols), token);
+                if (token.IsCancellationRequested)
+                    return;
+
+                if (writeSucceeded)
+                {
+                    ApplyTerminalConfiguration(rawLineSelector, DefaultCols);
+                    return;
+                }
+
+                await RefreshTerminalConfigurationAsync(token);
+            }
+            catch (OperationCanceledException)
+            {
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Terminal-Startkonfiguration konnte nicht gesetzt werden: " + ex.Message);
+                await RefreshTerminalConfigurationAsync(token);
+            }
         }
 
         private async Task RefreshTerminalConfigurationAsync(CancellationToken token)

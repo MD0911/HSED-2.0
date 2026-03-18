@@ -167,6 +167,9 @@ public partial class WifiWindow : Window
             case "Home":
                 WindowNavigationService.NavigateHome(this);
                 break;
+            case "SelfDia":
+                _ = TouchDisplayRefreshService.RequestRefreshAsync(this);
+                break;
 
                 // weitere Cases kannst du spÃ¤ter wieder aktivieren
         }

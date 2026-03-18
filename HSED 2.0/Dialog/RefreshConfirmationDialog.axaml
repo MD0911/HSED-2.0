@@ -1,0 +1,81 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="HSED_2._0.RefreshConfirmationDialog"
+        Width="240"
+        Height="520"
+        Background="Transparent"
+        CanResize="False"
+        SystemDecorations="None"
+        WindowStartupLocation="CenterOwner">
+
+  <Window.Styles>
+    <Style Selector="Border.dialogCard">
+      <Setter Property="CornerRadius" Value="18"/>
+      <Setter Property="Background" Value="#1f2937"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="BorderBrush" Value="#2b3546"/>
+      <Setter Property="BoxShadow" Value="0 14 40 #00000066"/>
+      <Setter Property="Padding" Value="18"/>
+    </Style>
+
+    <Style Selector="TextBlock.dTitle">
+      <Setter Property="Foreground" Value="White"/>
+      <Setter Property="FontSize" Value="22"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+      <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+
+    <Style Selector="TextBlock.dSub">
+      <Setter Property="Foreground" Value="#9ca3af"/>
+      <Setter Property="FontSize" Value="14"/>
+      <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+
+    <Style Selector="Button.choice">
+      <Setter Property="Width" Value="120"/>
+      <Setter Property="Height" Value="58"/>
+      <Setter Property="CornerRadius" Value="16"/>
+      <Setter Property="Background" Value="#0f172a"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="BorderBrush" Value="#2b3546"/>
+      <Setter Property="Foreground" Value="White"/>
+      <Setter Property="FontSize" Value="20"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+      <Setter Property="Padding" Value="0"/>
+    </Style>
+
+    <Style Selector="Button.choice:pointerover">
+      <Setter Property="Background" Value="#243246"/>
+    </Style>
+
+    <Style Selector="Button.choice:pressed">
+      <Setter Property="Background" Value="#1b2636"/>
+    </Style>
+  </Window.Styles>
+
+  <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+    <Border Classes="dialogCard" Width="430" Height="210">
+      <Border.RenderTransform>
+        <RotateTransform Angle="90"/>
+      </Border.RenderTransform>
+
+      <Grid RowDefinitions="Auto,Auto,Auto">
+        <StackPanel Spacing="6">
+          <TextBlock Text="Touch-Display neu initialisieren?" Classes="dTitle"/>
+          <TextBlock Text="Die Anzeige wird intern neu aufgebaut. Dabei werden die Daten erneut von der HSE angefragt und das Touch-Display wie nach einem Neustart neu initialisiert, ohne dass sich die App schließt." Classes="dSub"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="2"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Center"
+                    Spacing="14"
+                    Margin="0,18,0,0">
+          <Button Classes="choice" Click="Confirm_Click">Ja</Button>
+          <Button Classes="choice" Click="Cancel_Click">Nein</Button>
+        </StackPanel>
+      </Grid>
+    </Border>
+  </Grid>
+</Window>

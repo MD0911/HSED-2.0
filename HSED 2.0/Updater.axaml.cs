@@ -325,6 +325,9 @@ public partial class Updater : Window
                     case "Home":
                         WindowNavigationService.NavigateHome(this);
                         break;
+                    case "SelfDia":
+                        _ = TouchDisplayRefreshService.RequestRefreshAsync(this);
+                        break;
 
 
                         /* case "Testrufe":

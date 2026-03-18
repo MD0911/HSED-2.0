@@ -270,7 +270,7 @@
 
         <Button Background="#1f2937" Tag="SelfDia" x:Name="ButtonSettings6" Width="50" Height="40" Margin="0,5,0,0" Click="Button_Click_Settings">
           <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-            <Image Source="Images\Icons\analysieren.png" RenderOptions.BitmapInterpolationMode="LowQuality">
+            <Image Source="Images\Icons\refresh.png" RenderOptions.BitmapInterpolationMode="LowQuality">
               <Image.RenderTransform>
                 <RotateTransform Angle="90"/>
               </Image.RenderTransform>

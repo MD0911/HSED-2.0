@@ -189,7 +189,7 @@ namespace HSED_2._0
 
         public void DisplayTemp()
         {
-            Temp.Text = ViewModel.CurrentTemp + "°C";
+            Temp.Text = ViewModel.CurrentTemp + "ï¿½C";
         }
 
         public void DisplayFloor()
@@ -218,25 +218,16 @@ namespace HSED_2._0
 
         public void DisplayZustand()
         {
-            switch (ViewModel.CurrentZustand)
+            var snapshot = LiftStateTracker.GetSnapshot();
+            if (!snapshot.PrimaryState.HasValue)
             {
-                case 4:
-                    Zustand.Text = "Stillstand";
-                    Zustand.Foreground = new SolidColorBrush(Colors.White);
-                    break;
-                case 5:
-                    Zustand.Text = "Fährt";
-                    Zustand.Foreground = new SolidColorBrush(Colors.GreenYellow);
-                    break;
-                case 6:
-                    Zustand.Text = "Einfahrt";
-                    Zustand.Foreground = new SolidColorBrush(Colors.Yellow);
-                    break;
-                case 17:
-                    Zustand.Text = "SK Fehlt";
-                    Zustand.Foreground = new SolidColorBrush(Colors.Red);
-                    break;
+                Zustand.Text = string.Empty;
+                return;
             }
+
+            var state = LiftStateCatalog.GetPresentation(snapshot.PrimaryState.Value);
+            Zustand.Text = state.Text;
+            Zustand.Foreground = state.Brush;
         }
 
         public void DisplayLast()
@@ -362,6 +353,7 @@ namespace HSED_2._0
             //EtageProgressBar.Maximum = gesamteFloors - 1;
 
             ViewModel.CurrentZustand = HseCom.SendHse(1005);
+            LiftStateTracker.RegisterState(ViewModel.CurrentZustand);
             ViewModel.CurrentStateTueur1 = HseCom.SendHse(1006);
             ViewModel.CurrentStateTueur2 = HseCom.SendHse(1016);
             ViewModel.CurrentFahrtZahler = HseCom.SendHse(2145);
@@ -451,7 +443,9 @@ namespace HSED_2._0
                 {
                     switch (tag)
                     {
-                       
+                        case "SelfDia":
+                            _ = TouchDisplayRefreshService.RequestRefreshAsync(this);
+                            break;
                         case "Codes":
                             new Code().Show();
                             break;

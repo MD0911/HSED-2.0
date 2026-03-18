@@ -209,6 +209,66 @@ namespace HSED_2_0
             return ReadUnsigned8Value(0x03, 0x24, 0xB5, (byte)line);
         }
 
+        public static bool WriteTerminalColumnsForLine(int line, int columns)
+        {
+            if (line < 0 || line > 2)
+                return false;
+
+            byte normalizedColumns = columns switch
+            {
+                28 => 28,
+                26 => 26,
+                35 => 35,
+                _ => 16
+            };
+
+            try
+            {
+                byte[] request = new byte[]
+                {
+                    0x0A, 0x04,
+                    0x24, 0xB5,
+                    (byte)line,
+                    DataTypes.D_UNSIGNED8,
+                    normalizedColumns
+                };
+
+                byte[] framedRequest = BuildFramedTelegram(request);
+                Debug.WriteLine(
+                    $"[Terminal][DFUE] Sende Schreibanfrage: Art=0x0A04, Index=0x24B5, Sub=0x{line:X2}, Typ=0x{DataTypes.D_UNSIGNED8:X2}, " +
+                    $"Wert={normalizedColumns}, Payload={BitConverter.ToString(request).Replace("-", " ")}, " +
+                    $"Telegramm={BitConverter.ToString(framedRequest).Replace("-", " ")}");
+
+                byte[] response = SerialPortManager.Instance.SendCommand(request, 0x0A, 0x14);
+                if (response == null || response.Length <= 10)
+                {
+                    Debug.WriteLine(
+                        $"[Terminal][DFUE] Keine oder zu kurze Antwort fuer Schreibanfrage 0x24B5/{line:X2}. " +
+                        $"Gesendet={BitConverter.ToString(framedRequest).Replace("-", " ")}, " +
+                        $"Antwort={(response == null ? "<null>" : BitConverter.ToString(response).Replace("-", " "))}");
+                    return false;
+                }
+
+                Debug.WriteLine($"[Terminal][DFUE] Schreibantwort roh: {BitConverter.ToString(response).Replace("-", " ")}");
+
+                byte result = response[10];
+                if (result != 0x00)
+                {
+                    Debug.WriteLine(
+                        $"[Terminal][DFUE] Steuerung hat Schreibanfrage 0x24B5/{line:X2} mit Fehler quittiert: 0x{result:X2}");
+                    return false;
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(
+                    $"[Terminal][DFUE] Fehler beim Schreiben von 0x24B5/0x{line:X2} auf {normalizedColumns}: {ex.Message}");
+                return false;
+            }
+        }
+
         public static int SendHse(int Art)
         {
             // Art 1001: Berechnung der Etagenanzahl

@@ -178,6 +178,9 @@ public partial class SettingsVertical : Window
 
                             break;
                         }
+                    case "SelfDia":
+                        _ = TouchDisplayRefreshService.RequestRefreshAsync(this);
+                        break;
 
 
                     /* case "Testrufe":
@@ -189,10 +192,7 @@ public partial class SettingsVertical : Window
                          new Code().Show();
                          break;
                      case "SelfDia":
-                         var newWindowSelfDia = new MainVertical();
-                         newWindowSelfDia.Show();
-                         StopLogic();
-                         MainWindow.Instance.Close();
+                         _ = TouchDisplayRefreshService.RequestRefreshAsync(this);
                          break;*/
                     case "Ansicht":
                         if (Terminal.Instance == null)

@@ -134,6 +134,9 @@ public partial class WifiPasswordWindow : Window
                         Close();
                         Dispatcher.UIThread.Post(() => WindowNavigationService.NavigateHome());
                         break;
+                    case "SelfDia":
+                        _ = TouchDisplayRefreshService.RequestRefreshAsync(this);
+                        break;
 
                         /*
                         case "Testrufe":

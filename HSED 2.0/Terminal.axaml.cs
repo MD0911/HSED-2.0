@@ -69,6 +69,7 @@ namespace HSED_2_0
             SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x01, 0x03, 0x00, 0x1B });
 
             terminalManager.Start();
+            TerminalManager.RequestColumnsForCurrentTerminalMode(zoomEnabled: false);
             Instance = this;
 
             this.Closed += (_, __) =>
@@ -305,6 +306,7 @@ namespace HSED_2_0
                 FensterSizeButton.Height = 18;
                 FensterSizeButton.Source = minimieren;
                 _isZoomed = true;
+                TerminalManager.RequestColumnsForCurrentTerminalMode(zoomEnabled: true);
                 
             }
             else
@@ -329,6 +331,7 @@ namespace HSED_2_0
                 FensterSizeButton.Height= 14;
                 FensterSizeButton.Source = maximieren;
                 _isZoomed = false;
+                TerminalManager.RequestColumnsForCurrentTerminalMode(zoomEnabled: false);
 
             }
         }

@@ -80,7 +80,9 @@ namespace HSED_2._0
 
                     switch (buttonTag)
                     {
-                        
+                        case "SelfDia":
+                            _ = TouchDisplayRefreshService.RequestRefreshAsync(this);
+                            break;
 
                         case "Home":
                             //var newWindowHome = new MainWindow();
