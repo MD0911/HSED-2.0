@@ -510,6 +510,7 @@ namespace HSED_2._0
         private const double ArrowVisualSize = 28.0;
         private const double HitboxSizeFixed = 56.0;
         private const double ArrowStackGap = 6.0;
+        private const double ArrowVerticalOffset = -8.0;
 
         // Etikettenbereich (nur für Sichtbarkeit/Clamps)
         private const int MinFloorLabel = -20;
@@ -675,7 +676,7 @@ namespace HSED_2._0
                 {
                     var downBtn = MakeFixedArrowButton(floorIndex1Based, ArrowDir.Down);
                     Canvas.SetLeft(downBtn, ArrowCenterX - HitboxSizeFixed / 2);
-                    Canvas.SetTop(downBtn, yCenter - HitboxSizeFixed / 2);
+                    Canvas.SetTop(downBtn, yCenter + ArrowVerticalOffset - HitboxSizeFixed / 2);
                     FloorButtonsOverlay.Children.Add(downBtn);
                     _fixedArrowByFloorIndex[(floorIndex1Based, ArrowDir.Down)] = downBtn;
                 }
@@ -683,15 +684,15 @@ namespace HSED_2._0
                 {
                     var upBtn = MakeFixedArrowButton(floorIndex1Based, ArrowDir.Up);
                     Canvas.SetLeft(upBtn, ArrowCenterX - HitboxSizeFixed / 2);
-                    Canvas.SetTop(upBtn, yCenter - HitboxSizeFixed / 2);
+                    Canvas.SetTop(upBtn, yCenter + ArrowVerticalOffset - HitboxSizeFixed / 2);
                     FloorButtonsOverlay.Children.Add(upBtn);
                     _fixedArrowByFloorIndex[(floorIndex1Based, ArrowDir.Up)] = upBtn;
                 }
                 else
                 {
                     double stack = ArrowVisualSize + ArrowStackGap;
-                    double upY = yCenter - stack / 2.0;
-                    double dnY = yCenter + stack / 2.0;
+                    double upY = yCenter + ArrowVerticalOffset - stack / 2.0;
+                    double dnY = yCenter + ArrowVerticalOffset + stack / 2.0;
 
                     var upBtn = MakeFixedArrowButton(floorIndex1Based, ArrowDir.Up);
                     Canvas.SetLeft(upBtn, ArrowCenterX - HitboxSizeFixed / 2);
@@ -1977,6 +1978,29 @@ namespace HSED_2._0
         private DispatcherTimer? _softRefreshSpinnerTimer;
         private double _softRefreshSpinnerAngle;
 
+        private sealed class SoftRefreshSnapshot
+        {
+            public int PosCal { get; set; }
+            public int GesamteFloors { get; set; }
+            public int[] LevelIncrement { get; set; } = new int[99];
+            public int Fabriknummer { get; set; }
+            public int CurrentZustand { get; set; }
+            public int CurrentStateTuer1 { get; set; }
+            public int CurrentStateTuer2 { get; set; }
+            public int CurrentFahrtZahler { get; set; }
+            public bool SkfActive { get; set; }
+            public byte TotalDoor { get; set; }
+            public int CurrentTemp { get; set; }
+            public int CurrentLastKg { get; set; }
+            public int[] SkValues { get; set; } = new int[4];
+            public int CurrentFloor { get; set; }
+            public int Betriebsstunden { get; set; }
+            public float LastKorbPosition { get; set; }
+            public LievViewManager? LievViewManager { get; set; }
+            public Bitmap? SharedSvgBitmap { get; set; }
+            public Bitmap? SharedSvgBitmapAlternative { get; set; }
+        }
+
         private void OpenSettings()
         {
             if (_settingsWindow == null)
@@ -2014,11 +2038,22 @@ namespace HSED_2._0
                 {
                     StopLogic();
                     ResetStateForSoftRefresh();
-                    _isLogicInitialized = false;
-                    StartLogic();
                 }, DispatcherPriority.Background);
 
-                await Task.Delay(250);
+                var snapshot = await Task.Run(CreateSoftRefreshSnapshot);
+                if (snapshot == null)
+                {
+                    await Dispatcher.UIThread.InvokeAsync(ShowConnectionRecoveryUi, DispatcherPriority.Background);
+                    return;
+                }
+
+                await Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    ApplySoftRefreshSnapshot(snapshot);
+                    ResumeLogic();
+                }, DispatcherPriority.Background);
+
+                await WaitForSoftRefreshReadyAsync();
             }
             finally
             {
@@ -2047,6 +2082,11 @@ namespace HSED_2._0
             _lastFloor = int.MinValue;
             _lastTime = null;
             _lastDate = null;
+            ViewModel.CurrentFloor = 0;
+            ViewModel.CurrentTemp = 0;
+            ViewModel.CurrentFahrtZahler = 0;
+            ViewModel.CurrentBStunden = 0;
+            ViewModel.PositionY = 0;
             _springX = 0;
             _springV = 0;
             _visY = 0;
@@ -2110,6 +2150,218 @@ namespace HSED_2._0
         private void StopSoftRefreshSpinner()
         {
             _softRefreshSpinnerTimer?.Stop();
+        }
+
+        private SoftRefreshSnapshot? CreateSoftRefreshSnapshot()
+        {
+            try
+            {
+                _ = SerialPortManager.Instance;
+
+                int posCal = HseCom.SendHse(10101010);
+                int gesamteFloors = HseCom.SendHse(1001);
+
+                if (posCal <= 0 || posCal == 505 || gesamteFloors <= 0 || gesamteFloors == 505)
+                    return null;
+
+                MonetoringManager.startMonetoring();
+                SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x05, 0x01, 0x01 });
+
+                var levelIncrement = new int[99];
+                for (int i = 0; i < gesamteFloors; i++)
+                {
+                    int etage = i + 1;
+                    byte[] levelsPos = HseCom.SendHseCommand(new byte[] { 0x03, 0x01, 0x24, 0x29, (byte)etage });
+                    if (levelsPos != null && levelsPos.Length > 13)
+                        levelIncrement[i] = BitConverter.ToInt32(new byte[] { levelsPos[10], levelsPos[11], levelsPos[12], levelsPos[13] }, 0);
+                }
+
+                int fabriknummer = 0;
+                byte[] fabriknummerResponse = HseCom.SendHseCommand(new byte[] { 0x03, 0x01, 0x24, 0x02 });
+                if (fabriknummerResponse != null && fabriknummerResponse.Length > 13)
+                    fabriknummer = BitConverter.ToInt32(new byte[] { fabriknummerResponse[10], fabriknummerResponse[11], fabriknummerResponse[12], fabriknummerResponse[13] }, 0);
+
+                int currentZustand = HseCom.SendHse(1005);
+                int currentStateTuer1 = HseCom.SendHse(1006);
+                int currentStateTuer2 = HseCom.SendHse(1016);
+                int currentFahrtZahler = HseCom.SendHse(2145);
+                bool skfActive = HseCom.SendHse(2653) == 1;
+                int currentTemp = HseCom.SendHse(3001);
+                int currentFloor = HseCom.SendHse(1002);
+
+                int currentLastKg = 0;
+                byte[] last = HseCom.SendHseCommand(new byte[] { 0x03, 0x01, 0x64, 0x80, 0x00 });
+                if (last != null && last.Length > 11)
+                    currentLastKg = BitConverter.ToInt16(new byte[] { last[10], last[11] }, 0);
+
+                int[] skValues = new int[4];
+                byte[] sk = HseCom.SendHseCommand(new byte[] { 0x03, 0x01, 0x21, 0x02, 0x00, 0x05 });
+                if (sk != null && sk.Length > 10)
+                {
+                    byte skByte = sk[10];
+                    for (int i = 0; i < 4; i++)
+                        skValues[i] = (skByte & (1 << i)) != 0 ? 1 : 0;
+                }
+
+                byte totalDoor = 1;
+                byte[] totalDoorResponse = HseCom.SendHseCommand(new byte[] { 0x03, 0x01, 0x20, 0x00 });
+                if (totalDoorResponse != null && totalDoorResponse.Length > 10)
+                    totalDoor = totalDoorResponse[10];
+
+                var lievViewManager = new LievViewManager();
+                lievViewManager.PrepareSchacht();
+
+                int renderWidth = 300;
+                int renderHeight = (int)Math.Round(lievViewManager.TotalHeight);
+
+                return new SoftRefreshSnapshot
+                {
+                    PosCal = posCal,
+                    GesamteFloors = gesamteFloors,
+                    LevelIncrement = levelIncrement,
+                    Fabriknummer = fabriknummer,
+                    CurrentZustand = currentZustand,
+                    CurrentStateTuer1 = currentStateTuer1,
+                    CurrentStateTuer2 = currentStateTuer2,
+                    CurrentFahrtZahler = currentFahrtZahler,
+                    SkfActive = skfActive,
+                    TotalDoor = totalDoor,
+                    CurrentTemp = currentTemp,
+                    CurrentLastKg = currentLastKg,
+                    SkValues = skValues,
+                    CurrentFloor = currentFloor,
+                    Betriebsstunden = MonetoringManager.Betriebsstunden,
+                    LastKorbPosition = MonetoringManager.LastKorbPosition,
+                    LievViewManager = lievViewManager,
+                    SharedSvgBitmap = RenderSvgToBitmap(lievViewManager.ComposedSvg, renderWidth, renderHeight),
+                    SharedSvgBitmapAlternative = RenderSvgToBitmap(lievViewManager.ComposedSvgAlternative, renderWidth, renderHeight)
+                };
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Fehler beim Soft-Refresh-Snapshot: " + ex.Message);
+                return null;
+            }
+        }
+
+        private void ApplySoftRefreshSnapshot(SoftRefreshSnapshot snapshot)
+        {
+            Pos_Cal = snapshot.PosCal;
+            gesamteFloors = snapshot.GesamteFloors;
+            IncrementMultiple = 2 / Pos_Cal;
+            Fabriknummer = snapshot.Fabriknummer;
+
+            Array.Clear(LevelIncrement, 0, LevelIncrement.Length);
+            Array.Copy(snapshot.LevelIncrement, LevelIncrement, Math.Min(LevelIncrement.Length, snapshot.LevelIncrement.Length));
+
+            _lievViewManager = snapshot.LievViewManager ?? new LievViewManager();
+            SharedSvgBitmap = snapshot.SharedSvgBitmap!;
+            SharedSvgBitmapAlternative = snapshot.SharedSvgBitmapAlternative!;
+            SvgImageControl.Source = SharedSvgBitmap;
+            SvgImageControlAlternative.Source = SharedSvgBitmapAlternative;
+
+            ViewModel.CurrentZustand = snapshot.CurrentZustand;
+            LiftStateTracker.RegisterState(ViewModel.CurrentZustand);
+            ViewModel.CurrentStateTueur1 = snapshot.CurrentStateTuer1;
+            ViewModel.CurrentStateTueur2 = snapshot.CurrentStateTuer2;
+            ViewModel.CurrentFahrtZahler = snapshot.CurrentFahrtZahler;
+            ViewModel.SKFActive = snapshot.SkfActive;
+            ViewModel.CurrentTemp = snapshot.CurrentTemp;
+            ViewModel.CurrentFloor = snapshot.CurrentFloor;
+            ViewModel.CurrentSK1 = snapshot.SkValues[0];
+            ViewModel.CurrentSK2 = snapshot.SkValues[1];
+            ViewModel.CurrentSK3 = snapshot.SkValues[2];
+            ViewModel.CurrentSK4 = snapshot.SkValues[3];
+            ViewModel.CurrentBStunden = snapshot.Betriebsstunden;
+            ViewModel.PositionY = IsValidPosition(snapshot.LastKorbPosition) ? snapshot.LastKorbPosition : 0;
+
+            TotalDoor = snapshot.TotalDoor;
+            _visY = ViewModel.PositionY;
+            _velY = 0.0;
+
+            FN.Text = Fabriknummer.ToString();
+            Last.Text = snapshot.CurrentLastKg.ToString() + "Kg";
+
+            setDOPs();
+            ApplyTotalDoorUi(snapshot.TotalDoor);
+
+            _monetoringManager = new MonetoringManager();
+            _monetoringManager.Start();
+
+            _isLogicInitialized = true;
+            SetupLiveViewScrollBounds();
+
+            Dispatcher.UIThread.Post(() =>
+            {
+                CacheOverlayTransforms();
+            }, DispatcherPriority.Loaded);
+
+            Dispatcher.UIThread.Post(() =>
+            {
+                FloorButtonsOverlay.Background = Brushes.Transparent;
+            }, DispatcherPriority.Loaded);
+
+            Dispatcher.UIThread.Post(() =>
+            {
+                BuildFixedFloorButtonsFromAnchor();
+                UpdateFixedFloorButtonsVisibility();
+            }, DispatcherPriority.Render);
+        }
+
+        private void ApplyTotalDoorUi(byte totalDoor)
+        {
+            if (totalDoor == 3)
+            {
+                D1.Foreground = new SolidColorBrush(Colors.White);
+                D2.Foreground = new SolidColorBrush(Colors.White);
+                D3.Foreground = new SolidColorBrush(Colors.White);
+            }
+            else if (totalDoor == 2)
+            {
+                D1.Foreground = new SolidColorBrush(Colors.White);
+                D2.Foreground = new SolidColorBrush(Colors.White);
+                D3.Foreground = new SolidColorBrush(Colors.Transparent);
+
+                DOP3.Height = 0; DOP3.Width = 15; DOP3.CornerRadius = new CornerRadius(0);
+                DCL3.Height = 0; DCL3.Width = 15; DCL3.CornerRadius = new CornerRadius(0);
+                DREV3.Height = 0; DREV3.Width = 15; DREV3.CornerRadius = new CornerRadius(0);
+                DLS3.Height = 0; DLS3.Width = 15; DLS3.CornerRadius = new CornerRadius(0);
+            }
+            else if (totalDoor == 1)
+            {
+                D1.Foreground = new SolidColorBrush(Colors.White);
+                D2.Foreground = new SolidColorBrush(Colors.Transparent);
+                D3.Foreground = new SolidColorBrush(Colors.Transparent);
+
+                DOP2.Height = 0; DOP2.Width = 15; DOP2.CornerRadius = new CornerRadius(0);
+                DCL2.Height = 0; DCL2.Width = 15; DCL2.CornerRadius = new CornerRadius(0);
+                DREV2.Height = 0; DREV2.Width = 15; DREV2.CornerRadius = new CornerRadius(0);
+                DLS2.Height = 0; DLS2.Width = 15; DLS2.CornerRadius = new CornerRadius(0);
+
+                DOP3.Height = 0; DOP3.Width = 15; DOP3.CornerRadius = new CornerRadius(0);
+                DCL3.Height = 0; DCL3.Width = 15; DCL3.CornerRadius = new CornerRadius(0);
+                DREV3.Height = 0; DREV3.Width = 15; DREV3.CornerRadius = new CornerRadius(0);
+                DLS3.Height = 0; DLS3.Width = 15; DLS3.CornerRadius = new CornerRadius(0);
+            }
+        }
+
+        private async Task WaitForSoftRefreshReadyAsync()
+        {
+            var timeoutAt = DateTime.UtcNow.AddSeconds(12);
+
+            while (DateTime.UtcNow < timeoutAt)
+            {
+                if (_isLogicInitialized &&
+                    _updateTimer?.IsEnabled == true &&
+                    ViewModel.CurrentFloor > 0 &&
+                    Pos_Cal > 0 &&
+                    gesamteFloors > 0)
+                {
+                    return;
+                }
+
+                await Task.Delay(100);
+            }
         }
 
         public void DisplayInnenruftasterquittung()

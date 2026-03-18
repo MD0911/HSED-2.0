@@ -61,13 +61,20 @@
         <RotateTransform Angle="90"/>
       </Border.RenderTransform>
 
-      <Grid RowDefinitions="Auto,Auto,Auto">
-        <StackPanel Spacing="6">
-          <TextBlock Text="Touch-Display neu initialisieren?" Classes="dTitle"/>
-          <TextBlock Text="Die Anzeige wird intern neu aufgebaut. Dabei werden die Daten erneut von der HSE angefragt und das Touch-Display wie nach einem Neustart neu initialisiert, ohne dass sich die App schließt." Classes="dSub"/>
+      <Grid RowDefinitions="*,Auto">
+        <StackPanel Spacing="6" VerticalAlignment="Center" HorizontalAlignment="Center">
+          <TextBlock Text="Touch-Display neu initialisieren?"
+                     Classes="dTitle"
+                     TextAlignment="Center"
+                     HorizontalAlignment="Center"/>
+          <TextBlock Text="Die Anzeige wird intern neu aufgebaut. Dabei werden die Daten erneut von der HSE angefragt und das Touch-Display wie nach einem Neustart neu initialisiert, ohne dass sich die App schließt."
+                     Classes="dSub"
+                     Width="290"
+                     TextAlignment="Center"
+                     HorizontalAlignment="Center"/>
         </StackPanel>
 
-        <StackPanel Grid.Row="2"
+        <StackPanel Grid.Row="1"
                     Orientation="Horizontal"
                     HorizontalAlignment="Center"
                     Spacing="14"
