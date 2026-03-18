@@ -238,20 +238,10 @@ namespace HSED_2_0
             {
                 try
                 {
-                    byte[] bottomfloor = SendHseCommand(new byte[] { 0x03, 0x01, 0x24, 0x07, 0x01, 0x03 });
-                    if (bottomfloor == null || bottomfloor.Length <= 11)
-                        return 505;
-                    int topFloor = bottomfloor[10];
-                    byte[] bottomfloorName = new byte[2];
-                    bottomfloorName[0] = bottomfloor[11];
-                    bottomfloorName[1] = bottomfloor[10];
-                    string asciiString = Encoding.ASCII.GetString(bottomfloorName);
-                    int bootFloor = Convert.ToInt32(asciiString);
                     byte[] currentfloor = SendHseCommand(new byte[] { 0x03, 0x01, 0x21, 0x01, 0x01, 0x05 });
                     if (currentfloor == null || currentfloor.Length <= 10)
                         return 505;
-                    int IcurrentFloor = currentfloor[10];
-                    IcurrentFloor += bootFloor;
+                    int IcurrentFloor = currentfloor[10] + 1;
                     Debug.WriteLine("Einzelabfrage Etage: " + IcurrentFloor);
                     return IcurrentFloor;
                 }
@@ -292,20 +282,10 @@ namespace HSED_2_0
             {
                 try
                 {
-                    byte[] bottomfloor = SendHseCommand(new byte[] { 0x03, 0x01, 0x24, 0x07, 0x01, 0x03 });
-                    if (bottomfloor == null || bottomfloor.Length <= 11)
-                        return 505;
-                    int topFloor = bottomfloor[10];
-                    byte[] bottomfloorName = new byte[2];
-                    bottomfloorName[0] = bottomfloor[11];
-                    bottomfloorName[1] = bottomfloor[10];
-                    string asciiString = Encoding.ASCII.GetString(bottomfloorName);
-                    int bootFloor = Convert.ToInt32(asciiString);
                     byte[] currentfloor = SendHseCommand(new byte[] { 0x03, 0x01, 0x21, 0x01, 0x01, 0x05 });
                     if (currentfloor == null || currentfloor.Length <= 10)
                         return 505;
-                    int IcurrentFloor = currentfloor[10];
-                    return IcurrentFloor;
+                    return currentfloor[10];
                 }
                 catch (Exception ex)
                 {

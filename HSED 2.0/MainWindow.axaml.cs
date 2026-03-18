@@ -515,8 +515,17 @@ namespace HSED_2._0
         private const int MinFloorLabel = -20;
         private const int MaxFloorLabel = 20;
 
-        private readonly Dictionary<int, Button> _fixedInsideByLabel = new();
-        private readonly Dictionary<(int, ArrowDir), Button> _fixedArrowByLabel = new();
+        private readonly Dictionary<int, Button> _fixedInsideByFloorIndex = new();
+        private readonly Dictionary<(int, ArrowDir), Button> _fixedArrowByFloorIndex = new();
+
+        private static int GetBottomFloorIndex1Based()
+        {
+            byte[] response = HseCom.SendHseCommand(new byte[] { 0x03, 0x01, 0x24, 0x00, 0x00, 0x03 });
+            if (response == null || response.Length <= 10)
+                return 1;
+
+            return response[10] + 1;
+        }
 
         private static int DisplayLabelToFloorIndex(int label)
         {
@@ -526,15 +535,6 @@ namespace HSED_2._0
         private static int FloorIndexToDisplayLabel(int floorIndex1Based)
         {
             return MonetoringManager.BootFloor + (floorIndex1Based - 1);
-        }
-
-        private static int GetBottomFloorIndex1Based()
-        {
-            byte[] response = HseCom.SendHseCommand(new byte[] { 0x03, 0x01, 0x24, 0x00, 0x00, 0x03 });
-            if (response == null || response.Length <= 10)
-                return 1;
-
-            return response[10] + 1;
         }
 
         private static byte[] GetInsideCallDoorBytes(int floorIndex1Based)
@@ -559,27 +559,17 @@ namespace HSED_2._0
             return doorBytes.ToArray();
         }
 
-        private (int boot, int count, int top) GetFloorRange()
+        private (int firstFloorIndex, int count, int lastFloorIndex) GetFloorRange()
         {
             int firstFloorIndex = GetBottomFloorIndex1Based();
             int count = HseCom.SendHse(1001);
             if (count < 1) count = 1;
 
             int lastFloorIndex = firstFloorIndex + count - 1;
-            int boot = FloorIndexToDisplayLabel(firstFloorIndex);
-            int top = FloorIndexToDisplayLabel(lastFloorIndex);
-
-            // clamp in unseren sichtbaren Labelbereich
-            if (boot < MinFloorLabel) { int d = MinFloorLabel - boot; boot += d; top += d; }
-            if (top > MaxFloorLabel) { int d = top - MaxFloorLabel; boot -= d; top -= d; }
-
-            boot = Math.Clamp(boot, MinFloorLabel, MaxFloorLabel);
-            top = Math.Clamp(top, MinFloorLabel, MaxFloorLabel);
-            count = Math.Max(1, top - boot + 1);
-            return (boot, count, top);
+            return (firstFloorIndex, count, lastFloorIndex);
         }
 
-        private Button MakeFixedArrowButton(int floorLabel, ArrowDir dir)
+        private Button MakeFixedArrowButton(int floorIndex1Based, ArrowDir dir)
         {
             var btn = new Button
             {
@@ -588,7 +578,7 @@ namespace HSED_2._0
                 Background = Brushes.Transparent,
                 BorderThickness = new Thickness(0),
                 Padding = new Thickness(0),
-                Tag = (floorLabel, dir)
+                Tag = (floorIndex1Based, dir)
             };
 
             var arrowVisual = new Border
@@ -627,15 +617,15 @@ namespace HSED_2._0
         private void BuildFixedFloorButtonsFromAnchor()
         {
             FloorButtonsOverlay.Children.Clear();
-            _fixedInsideByLabel.Clear();
-            _fixedArrowByLabel.Clear();
+            _fixedInsideByFloorIndex.Clear();
+            _fixedArrowByFloorIndex.Clear();
 
-            var (boot, count, top) = GetFloorRange();
+            var (firstFloorIndex, count, lastFloorIndex) = GetFloorRange();
 
             // von oben nach unten (top -> boot)
-            for (int label = top; label >= boot; label--)
+            for (int floorIndex1Based = lastFloorIndex; floorIndex1Based >= firstFloorIndex; floorIndex1Based--)
             {
-                int row = top - label;                 // 0,1,2,...
+                int row = lastFloorIndex - floorIndex1Based;
                 double yCenter = TopAnchorY + row * Pitch;
 
                 // Innenruf (runde Taste)
@@ -646,7 +636,7 @@ namespace HSED_2._0
                     Background = Brushes.Transparent,
                     BorderThickness = new Thickness(0),
                     Padding = new Thickness(0),
-                    Tag = label
+                    Tag = floorIndex1Based
                 };
 
                 var insideVisual = new Border
@@ -659,7 +649,7 @@ namespace HSED_2._0
                     BorderThickness = new Thickness(1.5),
                     Child = new TextBlock
                     {
-                        Text = label.ToString(),
+                        Text = MonetoringManager.GetFloorDisplayText(floorIndex1Based),
                         FontSize = 12,
                         Foreground = Brushes.Black,
                         HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
@@ -675,27 +665,27 @@ namespace HSED_2._0
                 Canvas.SetLeft(insideBtn, InsideCenterX - HitboxSizeFixed / 2);
                 Canvas.SetTop(insideBtn, yCenter - HitboxSizeFixed / 2);
                 FloorButtonsOverlay.Children.Add(insideBtn);
-                _fixedInsideByLabel[label] = insideBtn;
+                _fixedInsideByFloorIndex[floorIndex1Based] = insideBtn;
 
                 // Außenruf-Pfeile (oben nur ▼, unten nur ▲, sonst gestapelt)
-                bool isTop = (label == top);
-                bool isBottom = (label == boot);
+                bool isTop = floorIndex1Based == lastFloorIndex;
+                bool isBottom = floorIndex1Based == firstFloorIndex;
 
                 if (isTop)
                 {
-                    var downBtn = MakeFixedArrowButton(label, ArrowDir.Down);
+                    var downBtn = MakeFixedArrowButton(floorIndex1Based, ArrowDir.Down);
                     Canvas.SetLeft(downBtn, ArrowCenterX - HitboxSizeFixed / 2);
                     Canvas.SetTop(downBtn, yCenter - HitboxSizeFixed / 2);
                     FloorButtonsOverlay.Children.Add(downBtn);
-                    _fixedArrowByLabel[(label, ArrowDir.Down)] = downBtn;
+                    _fixedArrowByFloorIndex[(floorIndex1Based, ArrowDir.Down)] = downBtn;
                 }
                 else if (isBottom)
                 {
-                    var upBtn = MakeFixedArrowButton(label, ArrowDir.Up);
+                    var upBtn = MakeFixedArrowButton(floorIndex1Based, ArrowDir.Up);
                     Canvas.SetLeft(upBtn, ArrowCenterX - HitboxSizeFixed / 2);
                     Canvas.SetTop(upBtn, yCenter - HitboxSizeFixed / 2);
                     FloorButtonsOverlay.Children.Add(upBtn);
-                    _fixedArrowByLabel[(label, ArrowDir.Up)] = upBtn;
+                    _fixedArrowByFloorIndex[(floorIndex1Based, ArrowDir.Up)] = upBtn;
                 }
                 else
                 {
@@ -703,17 +693,17 @@ namespace HSED_2._0
                     double upY = yCenter - stack / 2.0;
                     double dnY = yCenter + stack / 2.0;
 
-                    var upBtn = MakeFixedArrowButton(label, ArrowDir.Up);
+                    var upBtn = MakeFixedArrowButton(floorIndex1Based, ArrowDir.Up);
                     Canvas.SetLeft(upBtn, ArrowCenterX - HitboxSizeFixed / 2);
                     Canvas.SetTop(upBtn, upY - HitboxSizeFixed / 2);
                     FloorButtonsOverlay.Children.Add(upBtn);
-                    _fixedArrowByLabel[(label, ArrowDir.Up)] = upBtn;
+                    _fixedArrowByFloorIndex[(floorIndex1Based, ArrowDir.Up)] = upBtn;
 
-                    var dnBtn = MakeFixedArrowButton(label, ArrowDir.Down);
+                    var dnBtn = MakeFixedArrowButton(floorIndex1Based, ArrowDir.Down);
                     Canvas.SetLeft(dnBtn, ArrowCenterX - HitboxSizeFixed / 2);
                     Canvas.SetTop(dnBtn, dnY - HitboxSizeFixed / 2);
                     FloorButtonsOverlay.Children.Add(dnBtn);
-                    _fixedArrowByLabel[(label, ArrowDir.Down)] = dnBtn;
+                    _fixedArrowByFloorIndex[(floorIndex1Based, ArrowDir.Down)] = dnBtn;
                 }
             }
         }
@@ -1250,8 +1240,7 @@ namespace HSED_2._0
             int upState = ViewModel.AufAruftasterquittungZustand;
             if (upIndex > 0)
             {
-                int upLabel = FloorIndexToDisplayLabel(upIndex);
-                if (_fixedArrowByLabel.TryGetValue((upLabel, ArrowDir.Up), out var upBtn) && upBtn.Content is Border upCircle)
+                if (_fixedArrowByFloorIndex.TryGetValue((upIndex, ArrowDir.Up), out var upBtn) && upBtn.Content is Border upCircle)
                     SetButtonOutlineFixed(upCircle, HasAnyActiveCallAck(upState));
             }
 
@@ -1260,8 +1249,7 @@ namespace HSED_2._0
             int downState = ViewModel.AbAruftasterquittungZustand;
             if (downIndex > 0)
             {
-                int downLabel = FloorIndexToDisplayLabel(downIndex);
-                if (_fixedArrowByLabel.TryGetValue((downLabel, ArrowDir.Down), out var downBtn) && downBtn.Content is Border downCircle)
+                if (_fixedArrowByFloorIndex.TryGetValue((downIndex, ArrowDir.Down), out var downBtn) && downBtn.Content is Border downCircle)
                     SetButtonOutlineFixed(downCircle, HasAnyActiveCallAck(downState));
             }
         }
@@ -1313,7 +1301,7 @@ namespace HSED_2._0
             int f = ViewModel.CurrentFloor;
             if (f == _lastFloor) return;
             _lastFloor = f;
-            Etage.Text = f.ToString();
+            Etage.Text = MonetoringManager.GetFloorDisplayTextFromRawFloor(ViewModel.RawCurrentFloor);
         }
 
         public void DisplayFahrtZahler()
@@ -1495,7 +1483,7 @@ namespace HSED_2._0
             GetViewportTransform().Y = _viewportOffsetY;
         }
 
-        private (int boot, int count, int top) GetFloorRangeSafe()
+        private (int firstFloorIndex, int count, int lastFloorIndex) GetFloorRangeSafe()
         {
             int firstFloorIndex = GetBottomFloorIndex1Based();
 
@@ -1517,6 +1505,7 @@ namespace HSED_2._0
             const int MIN_LABEL = -20;
             const int MAX_LABEL = 20;
 
+            int lastFloorIndex = firstFloorIndex + count - 1;
             int boot = FloorIndexToDisplayLabel(firstFloorIndex);
             int top = boot + count - 1;
 
@@ -1776,19 +1765,22 @@ namespace HSED_2._0
 
         private void UpdateFixedFloorButtonsVisibility()
         {
-            var (boot, count, top) = GetFloorRange();
+            var (firstFloorIndex, count, lastFloorIndex) = GetFloorRange();
 
-            for (int label = MinFloorLabel; label <= MaxFloorLabel; label++)
+            for (int floorIndex1Based = firstFloorIndex; floorIndex1Based <= lastFloorIndex; floorIndex1Based++)
             {
-                bool inRange = (label >= boot && label <= top);
+                bool inRange = true;
+                int label = floorIndex1Based;
+                int top = lastFloorIndex;
+                int boot = firstFloorIndex;
 
-                if (_fixedInsideByLabel.TryGetValue(label, out var inside))
-                    inside.IsVisible = inRange;
+                if (_fixedInsideByFloorIndex.TryGetValue(floorIndex1Based, out var inside))
+                    inside.IsVisible = true;
 
-                if (_fixedArrowByLabel.TryGetValue((label, ArrowDir.Up), out var upBtn))
+                if (_fixedArrowByFloorIndex.TryGetValue((floorIndex1Based, ArrowDir.Up), out var upBtn))
                     upBtn.IsVisible = inRange && (label != top);    // oberste: kein ▲
 
-                if (_fixedArrowByLabel.TryGetValue((label, ArrowDir.Down), out var downBtn))
+                if (_fixedArrowByFloorIndex.TryGetValue((floorIndex1Based, ArrowDir.Down), out var downBtn))
                     downBtn.IsVisible = inRange && (label != boot); // unterste: kein ▼
             }
         }
@@ -1883,9 +1875,8 @@ namespace HSED_2._0
 
         private void Innenruf_Click_Fixed(object? sender, RoutedEventArgs e)
         {
-            if (sender is Button b && b.Tag is int zielLabel)
+            if (sender is Button b && b.Tag is int floorIndex1Based)
             {
-                int floorIndex1Based = DisplayLabelToFloorIndex(zielLabel);
                 if (floorIndex1Based < 1) return;
                 byte floor = (byte)floorIndex1Based;
                 byte[] doors = GetInsideCallDoorBytes(floorIndex1Based);
@@ -1902,10 +1893,9 @@ namespace HSED_2._0
         {
             if (sender is Button b && b.Tag is ValueTuple<int, ArrowDir> t)
             {
-                int zielLabel = t.Item1;
+                int floorIndex1Based = t.Item1;
                 var dir = t.Item2;
 
-                int floorIndex1Based = DisplayLabelToFloorIndex(zielLabel);
                 if (floorIndex1Based < 1) return;
                 byte floor = (byte)floorIndex1Based;
 
@@ -2001,8 +1991,7 @@ namespace HSED_2._0
             int zustand = ViewModel.InnenruftasterquittungZustand; // 1 aktiv, 0 aus
             if (index <= 0) return;
 
-            int label = FloorIndexToDisplayLabel(index);
-            if (_fixedInsideByLabel.TryGetValue(label, out var btn) && btn.Content is Border circle)
+            if (_fixedInsideByFloorIndex.TryGetValue(index, out var btn) && btn.Content is Border circle)
                 SetButtonOutlineFixed(circle, HasAnyActiveCallAck(zustand));
         }
 

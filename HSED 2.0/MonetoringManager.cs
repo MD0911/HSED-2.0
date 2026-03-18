@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using System.Text;
+using System.Collections.Generic;
 using Avalonia.Threading;
 using HSED_2_0.ViewModels;
 using HSED_2._0;
@@ -30,6 +31,7 @@ namespace HSED_2_0
         public static int CurrentSK4 { get; private set; }
         public static int CurrentLast { get; private set; }
         public static int CurrentZustand { get; private set; }
+        private static readonly Dictionary<int, string> _floorSigns = new();
 
 
         // ===== Throttle nur für Fahrkorbposition (0x63 0x83) =====
@@ -101,41 +103,65 @@ namespace HSED_2_0
         /// </summary>
         public static void startMonetoring()
         {
-            byte[] bottomfloorResponse = HseCom.SendHseCommand(new byte[] { 0x03, 0x01, 0x24, 0x07, 0x01, 0x03 });
-            byte[] topfloorResponse = HseCom.SendHseCommand(new byte[] { 0x03, 0x01, 0x24, 0x01, 0x01, 0x03 });
+            byte[] bootFloorResponse = HseCom.SendHseCommand(new byte[] { 0x03, 0x01, 0x24, 0x00, 0x00, 0x03 });
+            byte[] topfloorResponse = HseCom.SendHseCommand(new byte[] { 0x03, 0x01, 0x24, 0x01, 0x00, 0x03 });
 
-            if (bottomfloorResponse == null || bottomfloorResponse.Length <= 11 ||
-                topfloorResponse == null || topfloorResponse.Length <= 11)
+            if (bootFloorResponse == null || bootFloorResponse.Length <= 10 ||
+                topfloorResponse == null || topfloorResponse.Length <= 10)
             {
                 Debug.WriteLine("Fehler beim Abfragen von BootFloor/TopFloor.");
                 return;
             }
 
-            // Annahme: TopFloor-Wert steht an Position 10
+            BootFloor = bootFloorResponse[10];
             TopFloor = topfloorResponse[10];
-            Debug.WriteLine("TopFloor (Rohwert): " + TopFloor);
 
-            // BootFloor: Bytes an Position 11 und 10 als ASCII
-            byte[] bottomfloorName = new byte[2];
-            bottomfloorName[0] = bottomfloorResponse[11];
-            bottomfloorName[1] = bottomfloorResponse[10];
-            string asciiString = Encoding.ASCII.GetString(bottomfloorName);
-            Debug.WriteLine("ASCII BootFloor: " + asciiString);
-            try
-            {
-                BootFloor = Convert.ToInt32(asciiString);
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine("Fehler bei der Umrechnung des BootFloor: " + ex.Message);
-                BootFloor = 0;
-            }
-
-            GesamtFloor = (TopFloor - BootFloor) + 1;
             RawGesamtFloor = HseCom.SendHse(1001);
+            GesamtFloor = RawGesamtFloor > 0 ? RawGesamtFloor : (TopFloor - BootFloor) + 1;
+            LoadFloorSigns();
             Debug.WriteLine("BootFloor: " + BootFloor);
             Debug.WriteLine("TopFloor: " + TopFloor);
+            Debug.WriteLine("RawGesamtFloor: " + RawGesamtFloor);
             Debug.WriteLine("GesamtFloor: " + GesamtFloor);
+        }
+
+        private static void LoadFloorSigns()
+        {
+            _floorSigns.Clear();
+
+            int floorCount = RawGesamtFloor > 0 ? RawGesamtFloor : GesamtFloor;
+            for (int floorIndex1Based = 1; floorIndex1Based <= floorCount; floorIndex1Based++)
+            {
+                byte[] response = HseCom.SendHseCommand(new byte[] { 0x03, 0x01, 0x24, 0x07, (byte)floorIndex1Based, 0x03 });
+                _floorSigns[floorIndex1Based] = DecodeFloorSign(response);
+            }
+        }
+
+        private static string DecodeFloorSign(byte[] response)
+        {
+            if (response == null || response.Length <= 11)
+                return string.Empty;
+
+            byte[] floorName = new byte[2];
+            floorName[0] = response[11];
+            floorName[1] = response[10];
+            return Encoding.ASCII.GetString(floorName).TrimEnd('\0', ' ');
+        }
+
+        public static string GetFloorDisplayText(int floorIndex1Based)
+        {
+            if (floorIndex1Based <= 0)
+                return string.Empty;
+
+            if (_floorSigns.TryGetValue(floorIndex1Based, out string sign) && !string.IsNullOrWhiteSpace(sign))
+                return sign;
+
+            return (BootFloor + floorIndex1Based - 1).ToString();
+        }
+
+        public static string GetFloorDisplayTextFromRawFloor(int rawFloor)
+        {
+            return GetFloorDisplayText(rawFloor + 1);
         }
 
         /// <summary>
@@ -228,7 +254,7 @@ namespace HSED_2_0
             int rawFloor = currentFloorResponse[4];
             Debug.WriteLine("Rohwert: " + rawFloor);
             Debug.WriteLine("BootFloor: " + BootFloor);
-            CurrentFloor = rawFloor + BootFloor;
+            CurrentFloor = rawFloor + 1;
             Debug.WriteLine($"setCurrentFloor: raw = {rawFloor}, BootFloor = {BootFloor}, CurrentFloor = {CurrentFloor}");
 
             // Aktualisiere das ViewModel im UI-Thread:
@@ -476,16 +502,7 @@ namespace HSED_2_0
         {
             // ===== Konfiguration =====
             const float yStep = 95f;     // Abstand zwischen Etagen (Pixel)
-            float yOffsetPx;  // GLOBALER OFFSET (Pixel): + nach unten, - nach oben
-
-            if (BootFloor >= 0)
-            {
-                yOffsetPx = -95f; // Kein Offset
-            }
-            else
-            {
-                yOffsetPx = 0;
-            }
+            const float yOffsetPx = 0f;
 
                 // 1) Eingangsprüfungen
                 if (zustand == null || zustand.Length < 8)
