@@ -145,7 +145,8 @@ namespace HSED_2_0
             byte[] floorName = new byte[2];
             floorName[0] = response[11];
             floorName[1] = response[10];
-            return Encoding.ASCII.GetString(floorName).TrimEnd('\0', ' ');
+            string sign = Encoding.ASCII.GetString(floorName);
+            return sign.Trim('\0', ' ', '\t', '\r', '\n');
         }
 
         public static string GetFloorDisplayText(int floorIndex1Based)
