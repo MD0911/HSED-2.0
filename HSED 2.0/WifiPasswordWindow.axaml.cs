@@ -2,6 +2,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
+using Avalonia.Threading;
 using HSED_2._0.ViewModels;
 
 namespace HSED_2._0;
@@ -62,7 +63,7 @@ public partial class WifiPasswordWindow : Window
             vm.StatusText = "Verbinde...";
             await vm.ConnectNowAsync();
 
-            // Erfolg -> Fenster schließen
+            // Erfolg -> Fenster schlieÃŸen
             Close();
         }
         catch
@@ -71,11 +72,6 @@ public partial class WifiPasswordWindow : Window
             // Fenster bleibt offen
             vm.IsKeyboardVisible = true;
         }
-    }
-
-    private void Close_Click(object? sender, RoutedEventArgs e)
-    {
-        Close();
     }
 
     private void Button_Click_Settings(object? sender, RoutedEventArgs e)
@@ -131,10 +127,12 @@ public partial class WifiPasswordWindow : Window
             {
                 switch (buttonTag)
                 {
-                    case "Settings":
-                    case "Menu":
-                        (Owner as Window)?.Hide();   // SettingsVertical verstecken, falls Owner gesetzt ist
-                        this.Hide();                 // Updater verstecken
+                    case "Back":
+                        Close();
+                        break;
+                    case "Home":
+                        Close();
+                        Dispatcher.UIThread.Post(() => WindowNavigationService.NavigateHome());
                         break;
 
                         /*

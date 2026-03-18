@@ -178,7 +178,7 @@ public partial class SerialSettingsWindow : Window
     {
         if (_selectedBaudrateTextBlock != null)
             _selectedBaudrateTextBlock.Text = string.IsNullOrWhiteSpace(_selectedBaudrate)
-                ? "Baudrate wählen"
+                ? "Baudrate w\u00e4hlen"
                 : _selectedBaudrate;
     }
 
@@ -201,11 +201,6 @@ public partial class SerialSettingsWindow : Window
 
         SetBaudrateDropdownVisible(false);
         SetKeyboardVisible(true);
-    }
-
-    private void Cancel_Click(object? sender, RoutedEventArgs e)
-    {
-        Close();
     }
 
     public void ShowConnectionErrorPopup()
@@ -248,10 +243,11 @@ public partial class SerialSettingsWindow : Window
 
         switch (buttonTag)
         {
-            case "Settings":
-            case "Menu":
-                (Owner as Window)?.Hide();
-                Hide();
+            case "Back":
+                WindowNavigationService.ReturnToSettings(this);
+                break;
+            case "Home":
+                WindowNavigationService.NavigateHome(this);
                 break;
         }
     }

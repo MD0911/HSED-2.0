@@ -209,10 +209,11 @@ public partial class InfoWindow : Window
 
         switch (buttonTag)
         {
-            case "Settings":
-            case "Menu":
-                (Owner as Window)?.Show();
-                Hide();
+            case "Back":
+                WindowNavigationService.ReturnToSettings(this);
+                break;
+            case "Home":
+                WindowNavigationService.NavigateHome(this);
                 break;
         }
     }

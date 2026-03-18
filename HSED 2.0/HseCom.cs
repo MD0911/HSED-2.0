@@ -124,6 +124,91 @@ namespace HSED_2_0
             return SerialPortManager.Instance.SendCommand(data);
         }
 
+        public static int ReadUnsigned8Value(byte telegramArtLow, byte indexHigh, byte indexLow, byte subIndex)
+        {
+            try
+            {
+                byte[] request = new byte[] { 0x0E, telegramArtLow, indexHigh, indexLow, subIndex, DataTypes.D_UNSIGNED8 };
+                byte[] framedRequest = BuildFramedTelegram(request);
+                Debug.WriteLine(
+                    $"[Terminal][DFUE] Sende Leseanfrage: Art=0x0E{telegramArtLow:X2}, " +
+                    $"Index=0x{indexHigh:X2}{indexLow:X2}, Sub=0x{subIndex:X2}, Typ=0x{DataTypes.D_UNSIGNED8:X2}, " +
+                    $"Payload={BitConverter.ToString(request).Replace("-", " ")}, " +
+                    $"Telegramm={BitConverter.ToString(framedRequest).Replace("-", " ")}");
+
+                byte[] response = telegramArtLow switch
+                {
+                    0x02 => SerialPortManager.Instance.SendCommand(request, 0x0E, 0x12),
+                    0x03 => SerialPortManager.Instance.SendCommand(request, 0x0E, 0x12, 0x13),
+                    _ => SendHseCommand(request)
+                };
+                if (response == null || response.Length <= 10)
+                {
+                    Debug.WriteLine(
+                        $"[Terminal][DFUE] Keine oder zu kurze Antwort fuer Art=0x0E{telegramArtLow:X2}, " +
+                        $"Index=0x{indexHigh:X2}{indexLow:X2}, Sub=0x{subIndex:X2}. " +
+                        $"Gesendet={BitConverter.ToString(framedRequest).Replace("-", " ")}, " +
+                        $"Antwort={(response == null ? "<null>" : BitConverter.ToString(response).Replace("-", " "))}");
+                    return -1;
+                }
+
+                Debug.WriteLine($"[Terminal][DFUE] Antwort roh: {BitConverter.ToString(response).Replace("-", " ")}");
+
+                if (response[6] != indexHigh || response[7] != indexLow || response[8] != subIndex)
+                {
+                    Debug.WriteLine(
+                        $"[Terminal][DFUE] Antwort passt nicht zu Anfrage. Erwartet Index=0x{indexHigh:X2}{indexLow:X2}, Sub=0x{subIndex:X2}; " +
+                        $"erhalten Index=0x{response[6]:X2}{response[7]:X2}, Sub=0x{response[8]:X2}");
+                    return -1;
+                }
+
+                if (response[9] != DataTypes.D_UNSIGNED8)
+                {
+                    Debug.WriteLine(
+                        $"[Terminal][DFUE] Unerwarteter Datentyp in Antwort fuer 0x{indexHigh:X2}{indexLow:X2}/0x{subIndex:X2}: " +
+                        $"0x{response[9]:X2}");
+                    return -1;
+                }
+
+                Debug.WriteLine(
+                    $"[Terminal][DFUE] Ausgewerteter Wert fuer 0x{indexHigh:X2}{indexLow:X2}/0x{subIndex:X2}: {response[10]}");
+
+                return response[10];
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(
+                    $"[Terminal][DFUE] Fehler beim Lesen von 0x{indexHigh:X2}{indexLow:X2}/0x{subIndex:X2}: {ex.Message}");
+                return -1;
+            }
+        }
+
+        private static byte[] BuildFramedTelegram(byte[] data)
+        {
+            byte[] command = new byte[data.Length + 6];
+            command[0] = 0x95;
+            command[1] = 0x9A;
+            command[2] = 0x00;
+            command[3] = (byte)(data.Length + 6);
+            Array.Copy(data, 0, command, 4, data.Length);
+            command[data.Length + 4] = CalculateCRC(data);
+            command[data.Length + 5] = 0x85;
+            return command;
+        }
+
+        public static int ReadTerminalLine()
+        {
+            return ReadUnsigned8Value(0x02, 0x26, 0x57, 0x00);
+        }
+
+        public static int ReadTerminalColumnsForLine(int line)
+        {
+            if (line < 0 || line > 2)
+                return -1;
+
+            return ReadUnsigned8Value(0x03, 0x24, 0xB5, (byte)line);
+        }
+
         public static int SendHse(int Art)
         {
             // Art 1001: Berechnung der Etagenanzahl

@@ -101,7 +101,7 @@ public partial class Updater : Window
         {
             if (ReleaseList.SelectedItem is not ReleaseItem selected)
             {
-                Status("Bitte zuerst eine Version ausw‰hlen");
+                Status("Bitte zuerst eine Version ausw√§hlen");
                 return;
             }
 
@@ -114,7 +114,7 @@ public partial class Updater : Window
                 return;
             }
 
-            // Script ausf¸hrbar machen
+            // Script ausf√ºhrbar machen
             var chmodExit = await RunProcessAsync("/bin/chmod", $"+x \"{scriptPath}\"");
             if (chmodExit != 0)
             {
@@ -124,11 +124,11 @@ public partial class Updater : Window
 
             // Script starten und WARTEN
             var args = $"\"{scriptPath}\" --version \"{selected.Tag}\"";
-            Status("Update l‰uft... bitte Ger‰t nicht ausschalten.\nLog: /tmp/hsed_update.log");
+            Status("Update l√§uft... bitte Ger√§t nicht ausschalten.\nLog: /tmp/hsed_update.log");
 
             var exit = await RunProcessAsync("/bin/bash", args);
 
-            // Wenn wir hier landen, hat es NICHT rebootet (sonst w‰re die App weg)
+            // Wenn wir hier landen, hat es NICHT rebootet (sonst w√§re die App weg)
             Status($"Update Script beendet (ExitCode {exit}).\nSiehe Log: /tmp/hsed_update.log");
         }
         catch (Exception ex)
@@ -258,7 +258,7 @@ public partial class Updater : Window
         if (sender is not Avalonia.Controls.ScrollViewer sv) return;
 
         // Wheel Y (normal vertikal) wird in X umgeleitet
-        var delta = e.Delta.Y * 40; // Faktor nach Gef¸hl
+        var delta = e.Delta.Y * 40; // Faktor nach Gef√ºhl
         sv.Offset = sv.Offset.WithX(sv.Offset.X - delta);
 
         e.Handled = true;
@@ -319,10 +319,11 @@ public partial class Updater : Window
             {
                 switch (buttonTag)
                 {
-                    case "Settings":
-                    case "Menu":
-                        (Owner as Window)?.Hide();   // SettingsVertical verstecken, falls Owner gesetzt ist
-                        this.Hide();                 // Updater verstecken
+                    case "Back":
+                        WindowNavigationService.ReturnToSettings(this);
+                        break;
+                    case "Home":
+                        WindowNavigationService.NavigateHome(this);
                         break;
 
 

@@ -76,7 +76,7 @@
           <Grid RowDefinitions="Auto,*">
             <StackPanel Grid.Row="0">
               <TextBlock Text="Informationen" Classes="h1"/>
-              <TextBlock Text="Informationen über das HSE-Touch" Classes="muted" Margin="0,4,0,0"/>
+              <TextBlock Text="Allgemeine Informationen über die HSE." Classes="muted" Margin="0,4,0,0"/>
             </StackPanel>
 
             <ScrollViewer Grid.Row="1"
@@ -156,14 +156,14 @@
           </StackPanel>
         </Button>
 
-        <Button Background="#1f2937" Tag="Settings" x:Name="ButtonSettings2" Width="50" Height="40" Margin="0,180,0,0" Click="Button_Click_Settings">
+        <Button Background="#1f2937" Tag="Back" x:Name="ButtonSettings2" Width="50" Height="40" Margin="0,180,0,0" Click="Button_Click_Settings">
           <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-            <Image Source="Images/Icons/die-einstellungen.png" RenderOptions.BitmapInterpolationMode="LowQuality">
+            <Image Source="Images/Icons/enter-taste.png" RenderOptions.BitmapInterpolationMode="LowQuality">
               <Image.RenderTransform>
                 <RotateTransform Angle="90"/>
               </Image.RenderTransform>
             </Image>
-            <TextBlock Margin="10,5,0,0" x:Name="SettingsText2" IsVisible="False" Foreground="White">Settings</TextBlock>
+            <TextBlock Margin="10,5,0,0" x:Name="SettingsText2" IsVisible="False" Foreground="White">Zurück</TextBlock>
           </StackPanel>
         </Button>
       </StackPanel>

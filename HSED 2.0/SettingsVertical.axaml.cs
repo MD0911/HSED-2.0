@@ -91,6 +91,9 @@ public partial class SettingsVertical : Window
             {
                 switch (buttonTag)
                 {
+                    case "Home":
+                        WindowNavigationService.NavigateHome(this);
+                        break;
                     case "Settings":
                         this.Hide();
                         break;

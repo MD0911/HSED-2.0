@@ -5,12 +5,16 @@ using Avalonia.Media.Imaging;
 using HSED_2._0;
 using System;
 using System.Diagnostics;
+using Avalonia.Layout;
 
 namespace HSED_2_0
 {
     public partial class Terminal : Window
     {
         public static Terminal Instance { get; private set; }
+
+        private const int Rows = 4;
+        private const int MaxCols = 35;
 
 
 
@@ -44,8 +48,9 @@ namespace HSED_2_0
         private const double ZoomFactor = 1.4;
 
         // Klasse: Terminal
-        private readonly Image[,] _cellImages = new Image[4, 28];
-        private readonly Image[,] _cursorImages = new Image[4, 28];
+        private readonly Grid[,] _cellContainers = new Grid[Rows, MaxCols];
+        private readonly Image[,] _cellImages = new Image[Rows, MaxCols];
+        private readonly Image[,] _cursorImages = new Image[Rows, MaxCols];
         private bool _uiCacheInitialized = false;
 
         public Terminal()
@@ -56,6 +61,7 @@ namespace HSED_2_0
 
             // Cache direkt einmalig aufbauen (nach InitializeComponent!)
             BuildUiCache();
+            ImageGrid.SizeChanged += (_, __) => UpdateColumnSeparator();
 
             this.Position = new PixelPoint(NORMAL_SPAWN_X, NORMAL_SPAWN_Y);
             _originalPosition = this.Position;
@@ -76,14 +82,15 @@ namespace HSED_2_0
                 _uiCacheInitialized = false;
 
                 // Optional: Referenzen freigeben (sauber für GC)
-                for (int r = 0; r < 4; r++)
+                for (int r = 0; r < Rows; r++)
                 {
-                    for (int c = 0; c < 28; c++)
-                    {
-                        _cellImages[r, c] = null;
-                        _cursorImages[r, c] = null;
-                    }
+                for (int c = 0; c < MaxCols; c++)
+                {
+                    _cellContainers[r, c] = null;
+                    _cellImages[r, c] = null;
+                    _cursorImages[r, c] = null;
                 }
+            }
 
                 // MainWindow sofort aktualisieren
                 MainWindow.Instance?.ForceRefreshOverlaidUi();
@@ -103,16 +110,33 @@ namespace HSED_2_0
             if (_uiCacheInitialized)
                 return;
 
-            for (int row = 1; row <= 4; row++)
+            ImageGrid.Children.Clear();
+
+            for (int row = 1; row <= Rows; row++)
             {
-                for (int col = 1; col <= 28; col++)
+                for (int col = 1; col <= MaxCols; col++)
                 {
-                    _cellImages[row - 1, col - 1] = this.FindControl<Image>($"Cell_{row}_{col}");
-                    _cursorImages[row - 1, col - 1] = this.FindControl<Image>($"Cursor_{row}_{col}");
+                    var host = new Grid
+                    {
+                        HorizontalAlignment = HorizontalAlignment.Stretch,
+                        VerticalAlignment = VerticalAlignment.Stretch
+                    };
+
+                    var cellImage = new Image { Stretch = Stretch.Uniform };
+                    var cursorImage = new Image { Stretch = Stretch.Uniform };
+
+                    host.Children.Add(cellImage);
+                    host.Children.Add(cursorImage);
+                    ImageGrid.Children.Add(host);
+
+                    _cellContainers[row - 1, col - 1] = host;
+                    _cellImages[row - 1, col - 1] = cellImage;
+                    _cursorImages[row - 1, col - 1] = cursorImage;
                 }
             }
 
             _uiCacheInitialized = true;
+            SetColumnCount(TerminalManager.CurrentColumns);
         }
 
         // Klasse: Terminal
@@ -120,7 +144,7 @@ namespace HSED_2_0
         {
             BuildUiCache();
 
-            if (row < 1 || row > 4 || col < 1 || col > 28)
+            if (row < 1 || row > Rows || col < 1 || col > MaxCols)
                 return;
 
             var img = _cursorImages[row - 1, col - 1];
@@ -135,7 +159,7 @@ namespace HSED_2_0
         {
             BuildUiCache();
 
-            if (row < 1 || row > 4 || col < 1 || col > 28)
+            if (row < 1 || row > Rows || col < 1 || col > MaxCols)
                 return;
 
             var img = _cellImages[row - 1, col - 1];
@@ -143,6 +167,70 @@ namespace HSED_2_0
                 return;
 
             img.Source = bmp;
+        }
+
+        public void SetColumnCount(int columns)
+        {
+            BuildUiCache();
+
+            int normalizedColumns = columns switch
+            {
+                28 => 28,
+                26 => 26,
+                35 => 35,
+                _ => 16
+            };
+
+            ImageGrid.Columns = normalizedColumns;
+
+            for (int row = 0; row < Rows; row++)
+            {
+                for (int col = 0; col < MaxCols; col++)
+                {
+                    bool visible = col < normalizedColumns;
+                    if (_cellContainers[row, col] != null)
+                        _cellContainers[row, col].IsVisible = visible;
+                }
+            }
+
+            UpdateColumnSeparator();
+        }
+
+        public void ClearDisplay()
+        {
+            BuildUiCache();
+
+            for (int row = 0; row < Rows; row++)
+            {
+                for (int col = 0; col < MaxCols; col++)
+                {
+                    if (_cellImages[row, col] != null)
+                        _cellImages[row, col].Source = null;
+
+                    if (_cursorImages[row, col] != null)
+                        _cursorImages[row, col].Source = null;
+                }
+            }
+        }
+
+        private void UpdateColumnSeparator()
+        {
+            if (ColumnSeparatorOverlay == null || ImageGrid == null)
+                return;
+
+            int columns = TerminalManager.CurrentColumns;
+            bool showSeparator = columns >= 28;
+            ColumnSeparatorOverlay.IsVisible = showSeparator;
+
+            if (!showSeparator)
+                return;
+
+            double totalWidth = ImageGrid.Bounds.Width;
+            if (totalWidth <= 0)
+                return;
+
+            double x = (totalWidth / columns) * 26.0;
+            ColumnSeparatorOverlay.Margin = new Thickness(Math.Round(x), 0, 0, 0);
         }
 
 

@@ -1,4 +1,4 @@
-﻿using Avalonia;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Media;
@@ -2098,6 +2098,9 @@ namespace HSED_2._0
                 {
                     switch (buttonTag)
                     {
+                        case "Home":
+                            WindowNavigationService.NavigateHome(this);
+                            break;
                         case "Settings":
                             OpenSettings();
                             break;

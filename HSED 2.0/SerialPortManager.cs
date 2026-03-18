@@ -156,7 +156,7 @@ public class SerialPortManager
 
 
 
-    public async Task SendWithoutResponse(byte[] data)
+    public Task SendWithoutResponse(byte[] data)
     {
         byte[] command = new byte[data.Length + 6];
         command[0] = 0x95;
@@ -174,18 +174,23 @@ public class SerialPortManager
         
 
         // Prüfe, ob der Port offen ist, andernfalls zeige Fehlerdialog
-        if (!_serialPort.IsOpen)
+        lock (_lock)
         {
-            ShowConnectionErrorDialog();
-            return;
-        }
-        else
-        {
-            // Falls der Port wieder offen ist, schließe den Fehlerdialog
-            CloseConnectionErrorDialog();
+            if (!_serialPort.IsOpen)
+            {
+                ShowConnectionErrorDialog();
+                return Task.CompletedTask;
+            }
+            else
+            {
+                // Falls der Port wieder offen ist, schließe den Fehlerdialog
+                CloseConnectionErrorDialog();
+            }
+
+            _serialPort.Write(command, 0, command.Length);
         }
 
-        await _serialPort.BaseStream.WriteAsync(command, 0, command.Length);
+        return Task.CompletedTask;
     }
 
     public void Open()
@@ -309,6 +314,21 @@ public class SerialPortManager
     // Klasse: SerialPortManager
     public byte[] SendCommand(byte[] data)
     {
+        byte expectedByte1 = data[0];
+        byte expectedByte2 = (byte)(data[1] + 0x10);
+        return SendCommandInternal(data, expectedByte1, new[] { expectedByte2 });
+    }
+
+    public byte[] SendCommand(byte[] data, byte expectedByte1, params byte[] expectedByte2Candidates)
+    {
+        if (expectedByte2Candidates == null || expectedByte2Candidates.Length == 0)
+            expectedByte2Candidates = new[] { (byte)(data[1] + 0x10) };
+
+        return SendCommandInternal(data, expectedByte1, expectedByte2Candidates);
+    }
+
+    private byte[] SendCommandInternal(byte[] data, byte expectedByte1, byte[] expectedByte2Candidates)
+    {
         lock (_lock)
         {
             Interlocked.Increment(ref _waitingForResponse);
@@ -341,9 +361,6 @@ public class SerialPortManager
                 _serialPort.Write(command, 0, command.Length);
                 Debug.WriteLine("Befehl gesendet, warte auf Antwort...");
 
-                byte expectedByte1 = data[0];
-                byte expectedByte2 = (byte)(data[1] + 0x10);
-
                 int timeoutMs = 2000;
                 int start = Environment.TickCount;
 
@@ -355,7 +372,7 @@ public class SerialPortManager
                         {
                             if (telegram.Length >= 6 &&
                                 telegram[4] == expectedByte1 &&
-                                telegram[5] == expectedByte2)
+                                Array.IndexOf(expectedByte2Candidates, telegram[5]) >= 0)
                             {
                                 return telegram;
                             }

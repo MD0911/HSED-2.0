@@ -32,7 +32,9 @@ public partial class OnScreenKeyboard : UserControl
 
         AttachedToVisualTree += (_, __) =>
         {
-            if (_wired) return;
+            if (_wired)
+                return;
+
             _wired = true;
 
             _row1Items = this.FindControl<ItemsControl>("Row1Items");
@@ -42,9 +44,10 @@ public partial class OnScreenKeyboard : UserControl
             _modeRightBtn = this.FindControl<Button>("ModeRightBtn");
 
             if (_row1Items == null || _row2Items == null || _row3Items == null)
+            {
                 throw new NullReferenceException(
-                    "ItemsControls nicht gefunden. Prüfe x:Name=\"Row1Items\", \"Row2Items\", \"Row3Items\"."
-                );
+                    "ItemsControls nicht gefunden. Pr\u00fcfe x:Name=\"Row1Items\", \"Row2Items\", \"Row3Items\".");
+            }
 
             _row1Items.ItemsSource = _row1;
             _row2Items.ItemsSource = _row2;
@@ -111,21 +114,21 @@ public partial class OnScreenKeyboard : UserControl
 
         if (_mode == KeyboardMode.Letters)
         {
-            AddRow(_row1, "q w e r t z u i o p ü");
-            AddRow(_row2, "a s d f g h j k l ö ä");
+            AddRow(_row1, "q w e r t z u i o p \u00fc");
+            AddRow(_row2, "a s d f g h j k l \u00f6 \u00e4");
             AddRow(_row3, "y x c v b n m");
         }
         else if (_mode == KeyboardMode.Numbers)
         {
             AddRow(_row1, "1 2 3 4 5 6 7 8 9 0 -");
-            AddRow(_row2, "@ # € _ & + ( ) / * :");
+            AddRow(_row2, "@ # \u20ac _ & + ( ) / * :");
             AddRow(_row3, ". , ? ! ' \" =");
         }
         else
         {
             AddRow(_row1, "[ ] { } < > ^ ~ | \\ `");
-            AddRow(_row2, "° · • ✓ × ÷ § © ® ™");
-            AddRow(_row3, "+ - _ $ € £ ¥");
+            AddRow(_row2, "\u00b0 \u00b7 \u2022 \u2713 \u00d7 \u00f7 \u00a7 \u00a9 \u00ae \u2122");
+            AddRow(_row3, "+ - _ $ \u20ac \u00a3 \u00a5");
         }
 
         if (_modeLeftBtn != null)
@@ -143,7 +146,8 @@ public partial class OnScreenKeyboard : UserControl
 
     private string FormatKeyForDisplay(string k)
     {
-        if (_mode != KeyboardMode.Letters) return k;
+        if (_mode != KeyboardMode.Letters)
+            return k;
 
         if (_shift)
             return k.Length == 1 ? k.ToUpperInvariant() : k;
@@ -153,8 +157,11 @@ public partial class OnScreenKeyboard : UserControl
 
     private void Key_Click(object? sender, RoutedEventArgs e)
     {
-        if (sender is not Button b) return;
-        if (b.Content is not string label) return;
+        if (sender is not Button b)
+            return;
+
+        if (b.Content is not string label)
+            return;
 
         if (_mode == KeyboardMode.Letters)
         {
@@ -166,6 +173,7 @@ public partial class OnScreenKeyboard : UserControl
                 _shift = false;
                 BuildLayout();
             }
+
             return;
         }
 
@@ -174,7 +182,9 @@ public partial class OnScreenKeyboard : UserControl
 
     private void Shift_Click(object? sender, RoutedEventArgs e)
     {
-        if (_mode != KeyboardMode.Letters) return;
+        if (_mode != KeyboardMode.Letters)
+            return;
+
         _shift = !_shift;
         BuildLayout();
     }

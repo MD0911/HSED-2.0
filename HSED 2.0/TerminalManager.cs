@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using Avalonia.Media.Imaging;
+using System.Runtime.CompilerServices;
 
 namespace HSED_2_0
 {
@@ -22,7 +23,7 @@ namespace HSED_2_0
         private static int _pendingCursorCol = -1;
 
         // Pending Cells
-        private static readonly byte[,] _pendingCellValues = new byte[Rows, Cols];
+        private static readonly byte[,] _pendingCellValues = new byte[Rows, MaxCols];
 
         // UI Flush Timer
         private static DispatcherTimer? _uiFlushTimer;
@@ -52,19 +53,29 @@ namespace HSED_2_0
 
         // WICHTIG: 4 Zeilen x 28 Spalten
         private const int Rows = 4;
-        private const int Cols = 28;
+        private const int DefaultCols = 16;
+        private const int MaxCols = 35;
 
         // Puffer für Bildzellen
 
 
 
-        private static readonly byte[] _snapshotBuffer = new byte[Rows * Cols];
+        private static readonly byte[] _snapshotBuffer = new byte[Rows * MaxCols];
+
+        private static int _currentCols = DefaultCols;
+        private static int _currentLine = 1;
+        private static int _currentLineSelectorRaw = 0;
+        private static int _pendingColumns = DefaultCols;
 
 
         private CancellationTokenSource _cts;
 
 
         public static TerminalManager terminalInstance { get; } = new TerminalManager();
+
+        public static int CurrentColumns => Volatile.Read(ref _currentCols);
+        public static int CurrentLine => Volatile.Read(ref _currentLine);
+        public static int CurrentLineSelectorRaw => Volatile.Read(ref _currentLineSelectorRaw);
 
 
 
@@ -108,10 +119,15 @@ namespace HSED_2_0
 
             Task.Run(async () =>
             {
+                await RefreshTerminalConfigurationAsync(_cts.Token);
+
+                if (_cts.Token.IsCancellationRequested)
+                    return;
+
                 while (!_cts.Token.IsCancellationRequested)
                 {
                     // Terminalbefehl an Steuerung
-                    SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x01, 0x03 });
+                    await SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x01, 0x03 });
                     try
                     {
                         await Task.Delay(1900, _cts.Token);
@@ -174,22 +190,41 @@ namespace HSED_2_0
             {
                 Interlocked.Increment(ref _rxDisplay);
 
+                int availableCells = Math.Max(0, response.Length - 8);
+                int activeCols = CurrentColumns;
+                int cols = InferColumnsFromDisplayPayloadLength(availableCells, activeCols);
+                int expectedCells = Rows * cols;
+
+                if (cols >= 28 || availableCells != expectedCells || cols != activeCols)
+                {
+                    Debug.WriteLine(
+                        $"[Terminal][Display] Telegramm empfangen: Laenge={response.Length}, Nutzdaten={availableCells}, erwartet={expectedCells}, Spalten={cols}, aktiv={activeCols}");
+                }
+
                 lock (_pendingLock)
                 {
+                    _pendingColumns = cols;
+
                     for (int row = 1; row <= Rows; row++)
                     {
-                        for (int col = 1; col <= Cols; col++)
+                        for (int col = 1; col <= cols; col++)
                         {
-                            int index = (row - 1) * Cols + (col - 1);
+                            int index = (row - 1) * cols + (col - 1);
                             int srcIndex = 6 + index;
-                            if (srcIndex >= response.Length)
-                                continue;
-
-                            byte newValue = response[srcIndex];
+                            byte newValue = srcIndex < response.Length - 2 ? response[srcIndex] : (byte)0x00;
 
                             if (_pendingCellValues[row - 1, col - 1] != newValue)
                             {
                                 _pendingCellValues[row - 1, col - 1] = newValue;
+                                anyChange = true;
+                            }
+                        }
+
+                        for (int col = cols + 1; col <= MaxCols; col++)
+                        {
+                            if (_pendingCellValues[row - 1, col - 1] != 0x00)
+                            {
+                                _pendingCellValues[row - 1, col - 1] = 0x00;
                                 anyChange = true;
                             }
                         }
@@ -204,9 +239,10 @@ namespace HSED_2_0
             {
                 Interlocked.Increment(ref _rxCursor);
 
-                int position = response[7];
-                int newRow = position / Cols + 1;
-                int newCol = (position % Cols) + 1;
+                int position = Math.Max(0, response[7] - 1);
+                int cols = CurrentColumns;
+                int newRow = position / cols + 1;
+                int newCol = (position % cols) + 1;
 
                 lock (_pendingLock)
                 {
@@ -261,6 +297,7 @@ namespace HSED_2_0
 
             int curRow = -1;
             int curCol = -1;
+            int snapshotCols = CurrentColumns;
 
             lock (_pendingLock)
             {
@@ -269,7 +306,8 @@ namespace HSED_2_0
 
                 if (doCells)
                 {
-                    Buffer.BlockCopy(_pendingCellValues, 0, _snapshotBuffer, 0, Rows * Cols * sizeof(byte));
+                    Buffer.BlockCopy(_pendingCellValues, 0, _snapshotBuffer, 0, Rows * MaxCols * sizeof(byte));
+                    snapshotCols = _pendingColumns;
                     _pendingCellsDirty = false;
                 }
 
@@ -300,7 +338,7 @@ namespace HSED_2_0
 
             if (doCells)
             {
-                long applied = ApplyCellsSnapshot_OnUiThread(_snapshotBuffer);
+                long applied = ApplyCellsSnapshot_OnUiThread(_snapshotBuffer, snapshotCols);
                 Interlocked.Increment(ref _uiCellRuns);
                 Interlocked.Add(ref _cellUpdatesApplied, applied);
             }
@@ -324,7 +362,7 @@ namespace HSED_2_0
                 return;
 
             // FIX: Bounds jetzt 1..Rows und 1..Cols
-            if (newRow < 1 || newRow > Rows || newCol < 1 || newCol > Cols)
+            if (newRow < 1 || newRow > Rows || newCol < 1 || newCol > CurrentColumns)
                 return;
 
             // Alten Cursor löschen
@@ -347,19 +385,22 @@ namespace HSED_2_0
         }
 
 
-        private static long ApplyCellsSnapshot_OnUiThread(byte[] snapshot)
+        private static long ApplyCellsSnapshot_OnUiThread(byte[] snapshot, int cols)
         {
             if (!terminalActive || Terminal.Instance == null)
                 return 0;
 
             long updated = 0;
+            int normalizedCols = NormalizeColumns(cols);
 
-            int i = 0;
+            Terminal.Instance.SetColumnCount(normalizedCols);
+
             for (int row = 1; row <= Rows; row++)
             {
-                for (int col = 1; col <= Cols; col++)
+                int rowOffset = (row - 1) * MaxCols;
+                for (int col = 1; col <= normalizedCols; col++)
                 {
-                    byte value = snapshot[i++];
+                    byte value = snapshot[rowOffset + (col - 1)];
                     var bmp = GetAsciiBitmap(value);
                     Terminal.Instance.UpdateCellImage(row, col, bmp);
                     updated++;
@@ -367,6 +408,18 @@ namespace HSED_2_0
             }
 
             return updated;
+        }
+
+        private static int InferColumnsFromDisplayPayloadLength(int availableCells, int fallbackCols)
+        {
+            return availableCells switch
+            {
+                64 => 16,
+                104 => 26,
+                112 => 28,
+                140 => 35,
+                _ => NormalizeColumns(availableCells >= Rows ? availableCells / Rows : fallbackCols)
+            };
         }
 
 
@@ -591,6 +644,156 @@ namespace HSED_2_0
             _lastBlinkRow = -1;
             _lastBlinkCol = -1;
             _blinkState = false;
+        }
+
+        public static void ApplyTerminalCharacterWidthFromMonitoring(int line, int columns)
+        {
+            if (line != CurrentLineSelectorRaw && line != CurrentLine)
+                return;
+
+            ApplyTerminalConfiguration(line, columns);
+        }
+
+        private async Task RefreshTerminalConfigurationAsync(CancellationToken token)
+        {
+            try
+            {
+                int rawLineSelector = await Task.Run(HseCom.ReadTerminalLine, token);
+                if (token.IsCancellationRequested)
+                    return;
+
+                if (rawLineSelector < 0 || rawLineSelector > 2)
+                    rawLineSelector = CurrentLineSelectorRaw;
+
+                Debug.WriteLine(
+                    $"[Terminal] Erkannte Leitung: raw={rawLineSelector}, angezeigt={NormalizeDisplayLine(rawLineSelector)}");
+
+                int columns = await Task.Run(() => HseCom.ReadTerminalColumnsForLine(rawLineSelector), token);
+                if (token.IsCancellationRequested)
+                    return;
+
+                Debug.WriteLine(
+                    $"[Terminal] Gelesene Zeichenbreite fuer Leitung raw={rawLineSelector}, angezeigt={NormalizeDisplayLine(rawLineSelector)}: {columns}");
+
+                ApplyTerminalConfiguration(rawLineSelector, columns);
+            }
+            catch (OperationCanceledException)
+            {
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Terminal-Konfiguration konnte nicht gelesen werden: " + ex.Message);
+            }
+        }
+
+        private static void ApplyTerminalConfiguration(int rawLineSelector, int columns)
+        {
+            int normalizedLine = NormalizeDisplayLine(rawLineSelector);
+            int normalizedColumns = NormalizeColumns(columns);
+            int previousLine = CurrentLine;
+            int previousColumns = CurrentColumns;
+            int previousRawLine = CurrentLineSelectorRaw;
+            bool columnsChanged = previousColumns != normalizedColumns;
+
+            bool changed = false;
+
+            if (CurrentLineSelectorRaw != rawLineSelector)
+            {
+                Volatile.Write(ref _currentLineSelectorRaw, rawLineSelector);
+                changed = true;
+            }
+
+            if (CurrentLine != normalizedLine)
+            {
+                Volatile.Write(ref _currentLine, normalizedLine);
+                changed = true;
+            }
+
+            if (CurrentColumns != normalizedColumns)
+            {
+                Volatile.Write(ref _currentCols, normalizedColumns);
+                changed = true;
+            }
+
+            if (!changed)
+            {
+                Debug.WriteLine(
+                    $"[Terminal] Konfiguration unveraendert: Leitung raw={rawLineSelector}, angezeigt={normalizedLine}, {normalizedColumns} Spalten");
+                return;
+            }
+
+            Debug.WriteLine(
+                $"[Terminal] Konfiguration aktualisiert: Leitung raw {previousRawLine} -> {rawLineSelector}, " +
+                $"angezeigt {previousLine} -> {normalizedLine}, " +
+                $"Spalten {previousColumns} -> {normalizedColumns} (Rohwert: {columns})");
+
+            lock (_pendingLock)
+            {
+                if (columnsChanged)
+                {
+                    Array.Clear(_pendingCellValues, 0, _pendingCellValues.Length);
+                    Array.Clear(_snapshotBuffer, 0, _snapshotBuffer.Length);
+                    _pendingColumns = normalizedColumns;
+                    _pendingCursorRow = -1;
+                    _pendingCursorCol = -1;
+                }
+
+                _pendingCellsDirty = true;
+                _pendingCursorDirty = true;
+
+                if (_pendingCursorCol > normalizedColumns)
+                {
+                    _pendingCursorRow = -1;
+                    _pendingCursorCol = -1;
+                }
+            }
+
+            if (Terminal.Instance != null)
+            {
+                Dispatcher.UIThread.Post(() =>
+                {
+                    Terminal.Instance.SetColumnCount(normalizedColumns);
+                    if (columnsChanged)
+                        Terminal.Instance.ClearDisplay();
+
+                    EnsureUiFlushTimerStarted();
+                });
+            }
+
+            if (columnsChanged)
+            {
+                _cursorRow = -1;
+                _cursorCol = -1;
+                _lastBlinkRow = -1;
+                _lastBlinkCol = -1;
+                _blinkRow = -1;
+                _blinkCol = -1;
+
+                _ = SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x01, 0x03 });
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static int NormalizeDisplayLine(int rawLineSelector)
+        {
+            return rawLineSelector switch
+            {
+                0 => 1,
+                2 => 2,
+                _ => 1
+            };
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static int NormalizeColumns(int columns)
+        {
+            return columns switch
+            {
+                28 => 28,
+                26 => 26,
+                35 => 35,
+                _ => DefaultCols
+            };
         }
 
 

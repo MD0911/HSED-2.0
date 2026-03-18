@@ -27,7 +27,7 @@ public partial class UpdaterUSB : Window
 
         // Optional: Starttexte
         UsbStateText.Text = "Bereit";
-        UsbDetailText.Text = "Drücke auf Update starten. Das Script prüft USB und LinuxArm.rar.";
+        UsbDetailText.Text = "DrÃ¼cke auf Update starten. Das Script prÃ¼ft USB und LinuxArm.rar.";
         StatusText.Text = "";
         UpdateProgress.Value = 0;
         UpdateProgress.IsIndeterminate = false;
@@ -35,7 +35,7 @@ public partial class UpdaterUSB : Window
 
     public void StartUpdaterUSB()
     {
-        // Nichts mehr nötig, Button ist immer aktiv
+        // Nichts mehr nÃ¶tig, Button ist immer aktiv
     }
 
     private async void UpdateButton_Click(object? sender, RoutedEventArgs e)
@@ -50,8 +50,8 @@ public partial class UpdaterUSB : Window
 
         try
         {
-            UsbStateText.Text = "Update läuft";
-            UsbDetailText.Text = "USB wird geprüft und ggf. gemountet...";
+            UsbStateText.Text = "Update lÃ¤uft";
+            UsbDetailText.Text = "USB wird geprÃ¼ft und ggf. gemountet...";
 
             Status("Starte USB Update. Log: /tmp/hsed_usb_update.log");
 
@@ -64,7 +64,7 @@ public partial class UpdaterUSB : Window
                 return;
             }
 
-            // Script ausführbar machen
+            // Script ausfÃ¼hrbar machen
             var chmodExit = await RunProcessAsync("/bin/chmod", $"+x \"{scriptPath}\"");
             if (chmodExit != 0)
             {
@@ -77,12 +77,12 @@ public partial class UpdaterUSB : Window
             // Script starten
             var exit = await RunProcessAsync("/bin/bash", $"\"{scriptPath}\"");
 
-            // Wenn das Gerät rebootet, siehst du das nicht mehr.
+            // Wenn das GerÃ¤t rebootet, siehst du das nicht mehr.
             // Wenn kein reboot: hier Status anzeigen.
             if (exit == 0)
             {
                 UsbStateText.Text = "Fertig";
-                UsbDetailText.Text = "Script beendet. Falls kein Reboot: bitte Log prüfen.";
+                UsbDetailText.Text = "Script beendet. Falls kein Reboot: bitte Log prÃ¼fen.";
                 Status("USB Update erfolgreich beendet. Log: /tmp/hsed_usb_update.log");
             }
             else
@@ -250,10 +250,11 @@ public partial class UpdaterUSB : Window
             {
                 switch (buttonTag)
                 {
-                    case "Settings":
-                    case "Menu":
-                        (Owner as Window)?.Hide();
-                        this.Hide();
+                    case "Back":
+                        WindowNavigationService.ReturnToSettings(this);
+                        break;
+                    case "Home":
+                        WindowNavigationService.NavigateHome(this);
                         break;
                 }
             }

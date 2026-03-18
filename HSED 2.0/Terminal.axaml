@@ -54,7 +54,7 @@
                     Canvas.Left="290"
                     CornerRadius="5"
                     Padding="5">
-				<Grid>
+				<Grid x:Name="DisplayGrid">
 					<!-- Unteres Grid -->
 					<UniformGrid x:Name="ImageGrid" Columns="28" Rows="4">
 						<!-- Row 1 -->
@@ -177,6 +177,14 @@
 						<Image x:Name="Cell_4_27" Margin="0" Stretch="Uniform"/>
 						<Image x:Name="Cell_4_28" Margin="0" Stretch="Uniform"/>
 					</UniformGrid>
+					<Border x:Name="ColumnSeparatorOverlay"
+                            Width="1"
+                            Background="#FFD60A"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Stretch"
+                            UseLayoutRounding="True"
+                            IsVisible="False"
+                            IsHitTestVisible="False"/>
 				</Grid>
 			</Border>
 

@@ -135,10 +135,10 @@ public partial class WifiWindow : Window
         }
         finally
         {
-            // Wichtig: zurücksetzen, damit man wieder klicken kann
+            // Wichtig: zurÃ¼cksetzen, damit man wieder klicken kann
             vm.SelectedNetwork = null;
 
-            // Zusätzlich ListBox Selection leeren, sonst feuert es manchmal nicht erneut
+            // ZusÃ¤tzlich ListBox Selection leeren, sonst feuert es manchmal nicht erneut
             if (sender is ListBox lb)
                 lb.SelectedItem = null;
 
@@ -161,13 +161,14 @@ public partial class WifiWindow : Window
 
         switch (buttonTag)
         {
-            case "Settings":
-            case "Menu":
-                (Owner as Window)?.Hide();
-                Hide();
+            case "Back":
+                WindowNavigationService.ReturnToSettings(this);
+                break;
+            case "Home":
+                WindowNavigationService.NavigateHome(this);
                 break;
 
-                // weitere Cases kannst du später wieder aktivieren
+                // weitere Cases kannst du spÃ¤ter wieder aktivieren
         }
     }
 
@@ -175,7 +176,7 @@ public partial class WifiWindow : Window
     {
         if (!_navBarOpen)
         {
-            NavBar.Width = 160; // statt +=100, damit es nie „driftet“
+            NavBar.Width = 160; // statt +=100, damit es nie â€ždriftetâ€œ
             StackPanelNavBar.HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left;
             StackPanelNavBar.Margin = new Thickness(10, 25, 0, 0);
 
@@ -203,7 +204,7 @@ public partial class WifiWindow : Window
         }
         else
         {
-            NavBar.Width = 60; // statt -=100, damit es nie „driftet“
+            NavBar.Width = 60; // statt -=100, damit es nie â€ždriftetâ€œ
             StackPanelNavBar.HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center;
             StackPanelNavBar.Margin = new Thickness(0, 25, 0, 0);
 

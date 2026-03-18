@@ -32,8 +32,16 @@ namespace HSED_2_0
             Console.WriteLine($"[AsciiLoader] Versuche, Datei zu laden: {path}");
             if (!File.Exists(path))
             {
+                string fallbackPath = Path.Combine(folder, "ASCII20.bmp");
                 Console.WriteLine($"[AsciiLoader] Datei nicht gefunden: {path}");
-                throw new FileNotFoundException($"Die Datei {path} wurde nicht gefunden.");
+
+                if (!File.Exists(fallbackPath))
+                    throw new FileNotFoundException($"Weder {path} noch Fallback {fallbackPath} wurden gefunden.");
+
+                Console.WriteLine($"[AsciiLoader] Verwende Fallback fuer {value:X2}: {fallbackPath}");
+                Bitmap fallbackBmp = new Bitmap(fallbackPath);
+                _cache[value] = fallbackBmp;
+                return fallbackBmp;
             }
 
             Bitmap bmp = new Bitmap(path);

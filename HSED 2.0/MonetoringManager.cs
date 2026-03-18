@@ -1267,6 +1267,13 @@ namespace HSED_2_0
                 Debug.WriteLine("Uhr Änderung erkannt.");
                 setTime(response);
             }
+            else if (response[0] == 0x24 && response[1] == 0xB5 && response.Length >= 5 && response[3] == DataTypes.D_UNSIGNED8)
+            {
+                Debug.WriteLine(
+                    $"[Terminal][Monitoring] 0x24B5 empfangen: Leitung={response[2]}, " +
+                    $"Spalten={response[4]}, aktive Leitung={TerminalManager.CurrentLine}, aktive Spalten={TerminalManager.CurrentColumns}");
+                TerminalManager.ApplyTerminalCharacterWidthFromMonitoring(response[2], response[4]);
+            }
         }
 
         public static void AnalyzeResponse(byte[] response)

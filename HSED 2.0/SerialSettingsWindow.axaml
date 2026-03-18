@@ -5,7 +5,7 @@
         Width="800"
         Height="480"
         Background="#111827"
-        FontFamily="DejaVu Sans"
+        FontFamily="DejaVu Sans, Segoe UI, Arial Unicode MS"
         Title="HSED_2._0"
         CanResize="False"
         SystemDecorations="None"
@@ -222,13 +222,6 @@
                 <TextBlock Text="Seriell" Classes="h1"/>
                 <TextBlock Text="Port und Baudrate bearbeiten" Classes="muted" Margin="0,4,0,0"/>
               </StackPanel>
-
-              <Button Grid.Column="1"
-                      Width="90"
-                      Margin="100,0,0,0"
-                      Classes="secondary"
-                      Content="Zurück"
-                      Click="Cancel_Click"/>
             </Grid>
 
             <Grid Grid.Row="1" ColumnDefinitions="*,220" Margin="0,14,0,0">
@@ -240,7 +233,7 @@
                            InputMethod.IsInputMethodEnabled="False"
                            GotFocus="SerialPortTextBox_GotFocus"
                            PointerPressed="SerialPortTextBox_PointerPressed"/>
-                  <TextBlock Text="Direkt bearbeitbar" Classes="valueHint"/>
+                  <TextBlock Text="Standardwert: /dev/ttyAMA0" Classes="valueHint"/>
                 </StackPanel>
               </Border>
 
@@ -248,7 +241,7 @@
                       Grid.Column="1"
                       Width="120"
                       Classes="action"
-                      Content="Übernehmen"
+                      Content="&#xDC;bernehmen"
                       Margin="100,0,0,0"
                       Click="Apply_Click"/>
             </Grid>
@@ -261,11 +254,11 @@
                         Click="BaudrateButton_Click">
                   <Grid ColumnDefinitions="*,Auto">
                     <TextBlock x:Name="SelectedBaudrateTextBlock"
-                               Text="Baudrate wählen"
+                               Text="Baudrate w&#xE4;hlen"
                                Foreground="White"
                                VerticalAlignment="Center"/>
                     <TextBlock Grid.Column="1"
-                               Text="▼"
+                               Text="v"
                                Foreground="#9ca3af"
                                VerticalAlignment="Center"/>
                   </Grid>
@@ -284,7 +277,7 @@
                     <Button Classes="dropdownItem" Content="115200" Click="BaudrateOption_Click"/>
                   </StackPanel>
                 </Border>
-                <TextBlock Text="Gängige Baudraten" Classes="valueHint"/>
+                <TextBlock Text="Standardwert: 38400" Classes="valueHint"/>
               </StackPanel>
             </Border>
 
@@ -314,7 +307,7 @@
             Background="#B3000000"
             Width="800"
             Height="480"
-            IsVisible="True">
+            IsVisible="False">
       <Grid Margin="24">
         <Grid Width="420"
               Height="280"
@@ -338,7 +331,7 @@
 
             <TextBlock Grid.Row="1"
                        Margin="0,14,0,14"
-                       Text="Die Verbindung zur HSE konnte nicht hergestellt werden. Bitte überprüfen Sie jegliche Kabel und die Einstellungen des Ports und der Baudrate."
+                       Text="Die Verbindung zur HSE konnte nicht hergestellt werden. Bitte &#xFC;berpr&#xFC;fen Sie jegliche Kabel und die Einstellungen des Ports und der Baudrate."
                        Classes="popupBody"
                        VerticalAlignment="Center"/>
 
@@ -412,14 +405,14 @@
           </StackPanel>
         </Button>
 
-        <Button Background="#1f2937" Tag="Settings" x:Name="ButtonSettings2" Width="50" Height="40" Margin="0,180,0,0" Click="Button_Click_Settings">
+        <Button Background="#1f2937" Tag="Back" x:Name="ButtonSettings2" Width="50" Height="40" Margin="0,180,0,0" Click="Button_Click_Settings">
           <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-            <Image Source="Images/Icons/die-einstellungen.png" RenderOptions.BitmapInterpolationMode="LowQuality">
+            <Image Source="Images/Icons/enter-taste.png" RenderOptions.BitmapInterpolationMode="LowQuality">
               <Image.RenderTransform>
                 <RotateTransform Angle="90"/>
               </Image.RenderTransform>
             </Image>
-            <TextBlock Margin="10,5,0,0" x:Name="SettingsText2" IsVisible="False" Foreground="White">Settings</TextBlock>
+            <TextBlock Margin="10,5,0,0" x:Name="SettingsText2" IsVisible="False" Foreground="White">Zurueck</TextBlock>
           </StackPanel>
         </Button>
 
