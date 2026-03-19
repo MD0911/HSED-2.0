@@ -1315,9 +1315,16 @@ namespace HSED_2._0
         {
            
             int currentFloor = MainViewModelInstance.RawCurrentFloor;
+            int localFloorIndex = MonetoringManager.GetLocalFloorArrayIndexFromRawFloor(currentFloor);
             int posCalc = MainWindow.Instance.Pos_Cal;
             int fahrkorb = MainViewModelInstance.CurrentFahrkorb / posCalc;
-            int zielBund = MainWindow.Instance.LevelIncrement[currentFloor] / posCalc;
+            if (localFloorIndex < 0 || localFloorIndex >= MainWindow.Instance.LevelIncrement.Length)
+            {
+                Buendig.Text = "0mm";
+                return;
+            }
+
+            int zielBund = MainWindow.Instance.LevelIncrement[localFloorIndex] / posCalc;
             int diff = fahrkorb - zielBund;
             Debug.WriteLine("Diff: " + diff);
             if (diff < 0 && diff > -100000 || diff > 0 && diff < 100000)
@@ -1577,15 +1584,7 @@ namespace HSED_2._0
 
         public static void LevelPositionDefiner()
         {
-            int gesamtFloor = HseCom.SendHse(1001);
-            for (int i = 0; i < gesamtFloor; i++)
-            {
-
-                int etage = i + 1;
-                byte ZielEtage = (byte)etage;
-                byte[] LevelsPos = HseCom.SendHseCommand(new byte[] { 0x03, 0x01, 0x24, 0x29, ZielEtage });
-                MainWindow.Instance.LevelIncrement[i]  = BitConverter.ToInt32(new byte[] { LevelsPos[10], LevelsPos[11], LevelsPos[12], LevelsPos[13] }, 0);
-            }
+            MonetoringManager.LoadLevelIncrementsInto(MainWindow.Instance.LevelIncrement);
 
             
             /*
@@ -1890,10 +1889,16 @@ namespace HSED_2._0
             {
                 if (floorIndex1Based < 1) return;
                 byte floor = (byte)floorIndex1Based;
-                byte[] doors = GetInsideCallDoorBytes(floorIndex1Based);
+                byte[] doors = MonetoringManager.GetInsideCallDoorBytes(floorIndex1Based);
+                Debug.WriteLine(
+                    $"[Innenruf][Send] FixedButton EtageIndex={floorIndex1Based}, Anzeige='{MonetoringManager.GetFloorDisplayText(floorIndex1Based)}', " +
+                    $"GesendeteTueren={string.Join(",", doors.Select(d => $"0x{d:X2}"))}");
 
                 foreach (byte door in doors)
                 {
+                    Debug.WriteLine(
+                        $"[Innenruf][Send] DFUE=04 01 05 {floor:X2} 01 00 {door:X2} 01, " +
+                        $"EtageIndex={floorIndex1Based}, Anzeige='{MonetoringManager.GetFloorDisplayText(floorIndex1Based)}'");
                     SerialPortManager.Instance.SendWithoutResponse(new byte[]
                     { 0x04, 0x01, 0x05, floor, 0x01, 0x00, door, 0x01 });
                 }
@@ -2168,13 +2173,7 @@ namespace HSED_2._0
                 SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x05, 0x01, 0x01 });
 
                 var levelIncrement = new int[99];
-                for (int i = 0; i < gesamteFloors; i++)
-                {
-                    int etage = i + 1;
-                    byte[] levelsPos = HseCom.SendHseCommand(new byte[] { 0x03, 0x01, 0x24, 0x29, (byte)etage });
-                    if (levelsPos != null && levelsPos.Length > 13)
-                        levelIncrement[i] = BitConverter.ToInt32(new byte[] { levelsPos[10], levelsPos[11], levelsPos[12], levelsPos[13] }, 0);
-                }
+                MonetoringManager.LoadLevelIncrementsInto(levelIncrement);
 
                 int fabriknummer = 0;
                 byte[] fabriknummerResponse = HseCom.SendHseCommand(new byte[] { 0x03, 0x01, 0x24, 0x02 });
@@ -2401,10 +2400,16 @@ namespace HSED_2._0
                 int calculatedEtage = DisplayLabelToFloorIndex(zielLabel);
                 if (calculatedEtage < 1) return;
                 byte floor = (byte)calculatedEtage;
-                byte[] doors = GetInsideCallDoorBytes(calculatedEtage);
+                byte[] doors = MonetoringManager.GetInsideCallDoorBytes(calculatedEtage);
+                Debug.WriteLine(
+                    $"[Innenruf][Send] LegacyButton Label={zielLabel}, EtageIndex={calculatedEtage}, Anzeige='{MonetoringManager.GetFloorDisplayText(calculatedEtage)}', " +
+                    $"GesendeteTueren={string.Join(",", doors.Select(d => $"0x{d:X2}"))}");
 
                 foreach (byte door in doors)
                 {
+                    Debug.WriteLine(
+                        $"[Innenruf][Send] DFUE=04 01 05 {floor:X2} 01 00 {door:X2} 01, " +
+                        $"EtageIndex={calculatedEtage}, Anzeige='{MonetoringManager.GetFloorDisplayText(calculatedEtage)}'");
                     SerialPortManager.Instance.SendWithoutResponse(new byte[]
                     { 0x04, 0x01, 0x05, floor, 0x01, 0x00, door, 0x01 });
                 }

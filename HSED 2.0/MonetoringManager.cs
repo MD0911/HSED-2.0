@@ -32,6 +32,9 @@ namespace HSED_2_0
         public static int CurrentLast { get; private set; }
         public static int CurrentZustand { get; private set; }
         private static readonly Dictionary<int, string> _floorSigns = new();
+        private static readonly Dictionary<int, byte> _doorMasks = new();
+        private static readonly Dictionary<int, byte> _insideCallDoorByFloor = new();
+        private static int _doorCount;
 
 
         // ===== Throttle nur für Fahrkorbposition (0x63 0x83) =====
@@ -118,6 +121,7 @@ namespace HSED_2_0
 
             RawGesamtFloor = HseCom.SendHse(1001);
             GesamtFloor = RawGesamtFloor > 0 ? RawGesamtFloor : (TopFloor - BootFloor) + 1;
+            LoadDoorConfiguration();
             LoadFloorSigns();
             Debug.WriteLine("BootFloor: " + BootFloor);
             Debug.WriteLine("TopFloor: " + TopFloor);
@@ -125,13 +129,197 @@ namespace HSED_2_0
             Debug.WriteLine("GesamtFloor: " + GesamtFloor);
         }
 
+        public static int GetFirstAbsoluteFloorIndex1Based()
+        {
+            return BootFloor + 1;
+        }
+
+        public static int GetLastAbsoluteFloorIndex1Based()
+        {
+            return TopFloor + 1;
+        }
+
+        public static int GetLocalFloorArrayIndexFromRawFloor(int rawFloor)
+        {
+            return rawFloor - BootFloor;
+        }
+
+        public static void LoadLevelIncrementsInto(int[] target)
+        {
+            if (target == null || target.Length == 0)
+                return;
+
+            Array.Clear(target, 0, target.Length);
+
+            int firstAbsoluteFloorIndex = GetFirstAbsoluteFloorIndex1Based();
+            int floorCount = RawGesamtFloor > 0 ? RawGesamtFloor : GesamtFloor;
+
+            for (int i = 0; i < floorCount && i < target.Length; i++)
+            {
+                int floorIndex1Based = firstAbsoluteFloorIndex + i;
+                byte[] response = HseCom.SendHseCommand(new byte[] { 0x03, 0x01, 0x24, 0x29, (byte)floorIndex1Based });
+
+                if (response == null || response.Length <= 13)
+                {
+                    Debug.WriteLine($"Ungültige Antwort für Increment Etage {floorIndex1Based}");
+                    continue;
+                }
+
+                target[i] = BitConverter.ToInt32(new byte[] { response[10], response[11], response[12], response[13] }, 0);
+                Debug.WriteLine($"Increment Etage {floorIndex1Based}: {target[i]}");
+            }
+        }
+
+        private static void LoadDoorConfiguration()
+        {
+            _doorMasks.Clear();
+            _insideCallDoorByFloor.Clear();
+            _doorCount = ReadDoorCount();
+            Debug.WriteLine($"[Innenruf][Mapping] Starte Tuermapping. BootFloor={BootFloor}, TopFloor={TopFloor}, GesamtFloor={GesamtFloor}, DoorCount={_doorCount}");
+
+            int floorCount = RawGesamtFloor > 0 ? RawGesamtFloor : GesamtFloor;
+            int firstAbsoluteFloorIndex = GetFirstAbsoluteFloorIndex1Based();
+
+            for (int i = 0; i < floorCount; i++)
+            {
+                int floorIndex1Based = firstAbsoluteFloorIndex + i;
+                byte doorMask = ReadDoorMask(floorIndex1Based);
+                _doorMasks[floorIndex1Based] = doorMask;
+
+                byte preferredDoor = SelectPreferredDoorByte(doorMask);
+                if (preferredDoor != 0)
+                    _insideCallDoorByFloor[floorIndex1Based] = preferredDoor;
+
+                Debug.WriteLine(
+                    $"[Innenruf][Mapping] EtageIndex={floorIndex1Based}, Anzeige='{GetFloorDisplayText(floorIndex1Based)}', " +
+                    $"DoorMask=0x{doorMask:X2} ({DescribeDoorMask(doorMask)}), GemappteTuer={FormatDoorByte(preferredDoor)}");
+            }
+        }
+
+        private static int ReadDoorCount()
+        {
+            byte[] response = HseCom.SendHseCommand(new byte[] { 0x03, 0x01, 0x20, 0x00, 0x00, 0x05 });
+            if (response == null || response.Length <= 10)
+                return 1;
+
+            int doorCount = response[10];
+            return doorCount switch
+            {
+                < 1 => 1,
+                > 3 => 3,
+                _ => doorCount
+            };
+        }
+
+        private static byte ReadDoorMask(int floorIndex1Based)
+        {
+            byte[] response = HseCom.SendHseCommand(new byte[] { 0x03, 0x01, 0x24, 0x06, (byte)floorIndex1Based, 0x05 });
+            if (response == null || response.Length <= 10)
+                return 0;
+
+            return (byte)(response[10] & 0x07);
+        }
+
+        private static byte SelectPreferredDoorByte(byte doorMask)
+        {
+            if ((doorMask & 0x01) != 0)
+                return 0x01;
+
+            if ((doorMask & 0x02) != 0)
+                return 0x02;
+
+            if ((doorMask & 0x04) != 0)
+                return 0x04;
+
+            return 0;
+        }
+
+        private static string DescribeDoorMask(byte doorMask)
+        {
+            var doors = new List<string>(3);
+
+            if ((doorMask & 0x01) != 0)
+                doors.Add("T1");
+
+            if ((doorMask & 0x02) != 0)
+                doors.Add("T2");
+
+            if ((doorMask & 0x04) != 0)
+                doors.Add("T3");
+
+            return doors.Count == 0 ? "keine" : string.Join(",", doors);
+        }
+
+        private static string FormatDoorByte(byte doorByte)
+        {
+            return doorByte switch
+            {
+                0x01 => "T1",
+                0x02 => "T2",
+                0x04 => "T3",
+                _ => $"0x{doorByte:X2}"
+            };
+        }
+
+        public static byte[] GetInsideCallDoorBytes(int floorIndex1Based)
+        {
+            if (floorIndex1Based <= 0)
+                return new byte[] { 0x01 };
+
+            if (_insideCallDoorByFloor.TryGetValue(floorIndex1Based, out byte mappedDoor) && mappedDoor != 0)
+            {
+                Debug.WriteLine(
+                    $"[Innenruf][Mapping] Cache-Hit EtageIndex={floorIndex1Based}, Anzeige='{GetFloorDisplayText(floorIndex1Based)}', " +
+                    $"DoorMask=0x{(_doorMasks.TryGetValue(floorIndex1Based, out byte cachedMask) ? cachedMask : (byte)0):X2}, GemappteTuer={FormatDoorByte(mappedDoor)}");
+                return new byte[] { mappedDoor };
+            }
+
+            if (!_doorMasks.TryGetValue(floorIndex1Based, out byte doorMask))
+            {
+                doorMask = ReadDoorMask(floorIndex1Based);
+                _doorMasks[floorIndex1Based] = doorMask;
+                Debug.WriteLine(
+                    $"[Innenruf][Mapping] DoorMask spaet gelesen. EtageIndex={floorIndex1Based}, Anzeige='{GetFloorDisplayText(floorIndex1Based)}', " +
+                    $"DoorMask=0x{doorMask:X2} ({DescribeDoorMask(doorMask)})");
+            }
+
+            mappedDoor = SelectPreferredDoorByte(doorMask);
+            if (mappedDoor != 0)
+            {
+                _insideCallDoorByFloor[floorIndex1Based] = mappedDoor;
+                Debug.WriteLine(
+                    $"[Innenruf][Mapping] Mapping nachgezogen. EtageIndex={floorIndex1Based}, Anzeige='{GetFloorDisplayText(floorIndex1Based)}', " +
+                    $"GemappteTuer={FormatDoorByte(mappedDoor)}");
+                return new byte[] { mappedDoor };
+            }
+
+            int fallbackDoorCount = _doorCount;
+            if (fallbackDoorCount < 1)
+                fallbackDoorCount = ReadDoorCount();
+
+            mappedDoor = fallbackDoorCount switch
+            {
+                >= 1 => (byte)0x01,
+                _ => (byte)0x01
+            };
+
+            _insideCallDoorByFloor[floorIndex1Based] = mappedDoor;
+            Debug.WriteLine(
+                $"[Innenruf][Mapping] Keine gueltige DOORPOS. EtageIndex={floorIndex1Based}, Anzeige='{GetFloorDisplayText(floorIndex1Based)}', " +
+                $"DoorMask=0x{doorMask:X2}, Fallback={FormatDoorByte(mappedDoor)}");
+            return new byte[] { mappedDoor };
+        }
+
         private static void LoadFloorSigns()
         {
             _floorSigns.Clear();
 
             int floorCount = RawGesamtFloor > 0 ? RawGesamtFloor : GesamtFloor;
-            for (int floorIndex1Based = 1; floorIndex1Based <= floorCount; floorIndex1Based++)
+            int firstAbsoluteFloorIndex = GetFirstAbsoluteFloorIndex1Based();
+
+            for (int i = 0; i < floorCount; i++)
             {
+                int floorIndex1Based = firstAbsoluteFloorIndex + i;
                 byte[] response = HseCom.SendHseCommand(new byte[] { 0x03, 0x01, 0x24, 0x07, (byte)floorIndex1Based, 0x03 });
                 _floorSigns[floorIndex1Based] = DecodeFloorSign(response);
             }

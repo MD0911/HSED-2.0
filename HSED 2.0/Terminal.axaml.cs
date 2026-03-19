@@ -230,7 +230,7 @@ namespace HSED_2_0
             if (totalWidth <= 0)
                 return;
 
-            double x = (totalWidth / columns) * 26.0;
+            double x = ((totalWidth / columns) * 24.0) - 1.0;
             ColumnSeparatorOverlay.Margin = new Thickness(Math.Round(x), 0, 0, 0);
         }
 

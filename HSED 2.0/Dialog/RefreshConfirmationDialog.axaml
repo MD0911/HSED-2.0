@@ -67,7 +67,7 @@
                      Classes="dTitle"
                      TextAlignment="Center"
                      HorizontalAlignment="Center"/>
-          <TextBlock Text="Die Anzeige wird intern neu aufgebaut. Dabei werden die Daten erneut von der HSE angefragt und das Touch-Display wie nach einem Neustart neu initialisiert, ohne dass sich die App schließt."
+          <TextBlock Text="Die Anzeige wird intern neu aufgebaut. Dabei werden die Daten erneut von der HSE angefragt und das Touch-Display wie nach einem Neustart neu initialisiert."
                      Classes="dSub"
                      Width="290"
                      TextAlignment="Center"

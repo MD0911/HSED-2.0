@@ -47,21 +47,7 @@ namespace HSED_2._0
             int gesamtFloor = MonetoringManager.GesamtFloor;
             // Initialisieren des Arrays, falls nicht schon erfolgt.
             IngrementEtage = new int[gesamtFloor];
-
-            for (int i = 0; i < gesamtFloor; i++)
-            {
-                byte floorIndex1Based = (byte)(i + 1);
-                byte[] increment = HseCom.SendHseCommand(new byte[] { 0x03, 0x01, 0x24, 0x29, floorIndex1Based });
-
-                if (increment == null || increment.Length < 10)
-                {
-                    Debug.WriteLine($"Ungültige Antwort für Etage {floorIndex1Based}");
-                    continue;
-                }
-
-                IngrementEtage[i] = BitConverter.ToInt32(new byte[] { increment[10], increment[11], increment[12], increment[13] });
-                Debug.WriteLine($"Increment Etage {floorIndex1Based}: {IngrementEtage[i]}");
-            }
+            MonetoringManager.LoadLevelIncrementsInto(IngrementEtage);
         }
 
         /// <summary>
