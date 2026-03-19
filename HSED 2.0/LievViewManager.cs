@@ -57,7 +57,7 @@ namespace HSED_2._0
         public void BuildSchachtSvg()
         {
             // Lade das SVG der einzelnen Etage
-            string floorSvgContent = File.ReadAllText(SingleFloorSvgPath);
+            string floorSvgContent = LoadSvgContent(SingleFloorSvgPath);
             XDocument floorSvgDoc = XDocument.Parse(floorSvgContent);
 
             // Bestimme die Höhe der Etage (z.B. aus dem "height"-Attribut oder als Fallback 325)
@@ -70,7 +70,7 @@ namespace HSED_2._0
             XNamespace svgNs = "http://www.w3.org/2000/svg";
 
             // Footer-SVG einlesen (gehört ganz nach unten)
-            string footerSvgContent = File.ReadAllText(SingleFloorSvgPathLetzte);
+            string footerSvgContent = LoadSvgContent(SingleFloorSvgPathLetzte);
             XDocument footerSvgDoc = XDocument.Parse(footerSvgContent);
             double footerHeight = GetFloorHeight(footerSvgDoc); // bei deinen neuen SVGs: 456
 
@@ -138,7 +138,7 @@ namespace HSED_2._0
         /// </summary>
         public void BuildSchachtSvgAlternative()
         {
-            string floorSvgContent = File.ReadAllText(AlternativeSingleFloorSvgPath);
+            string floorSvgContent = LoadSvgContent(AlternativeSingleFloorSvgPath);
             XDocument floorSvgDoc = XDocument.Parse(floorSvgContent);
 
             double floorHeight = GetFloorHeight(floorSvgDoc);
@@ -147,7 +147,7 @@ namespace HSED_2._0
             XNamespace svgNs = "http://www.w3.org/2000/svg";
 
             // Alternativen Footer laden
-            string footerSvgContent = File.ReadAllText(AlternativeSingleFloorSvgLetzte);
+            string footerSvgContent = LoadSvgContent(AlternativeSingleFloorSvgLetzte);
             XDocument footerSvgDoc = XDocument.Parse(footerSvgContent);
             double footerHeight = GetFloorHeight(footerSvgDoc); // bei deinen neuen SVGs: 456
 
@@ -203,6 +203,25 @@ namespace HSED_2._0
             // Optional: Speichere das zusammengesetzte SVG in eine Datei.
             //string outputPath = Path.Combine(AppContext.BaseDirectory, "Output", "SchachtComposed.svg");
            // File.WriteAllText(outputPath, ComposedSvg);
+        }
+
+        private static string LoadSvgContent(string path)
+        {
+            string content = File.ReadAllText(path);
+
+            if (MonetoringManager.IsSetupReadyKnown && !MonetoringManager.IsSetupReady)
+                content = ApplySetupIncompleteTheme(content);
+
+            return content;
+        }
+
+        private static string ApplySetupIncompleteTheme(string svgContent)
+        {
+            return svgContent
+                .Replace("#fff", "#fecaca")
+                .Replace("#b4b4b4", "#ef4444")
+                .Replace("#4e4d4d", "#991b1b")
+                .Replace("#676767", "#b91c1c");
         }
     }
 }

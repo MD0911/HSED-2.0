@@ -17,6 +17,18 @@ internal static class TouchDisplayRefreshService
             if (!confirmed)
                 return;
 
+            await RequestRefreshWithoutConfirmationAsync(owner);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine("Soft-Refresh fehlgeschlagen: " + ex.Message);
+        }
+    }
+
+    public static async Task RequestRefreshWithoutConfirmationAsync(Window owner)
+    {
+        try
+        {
             WindowNavigationService.NavigateHome(owner);
 
             var mainWindow = MainWindow.Instance;
@@ -27,7 +39,7 @@ internal static class TouchDisplayRefreshService
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine("Soft-Refresh fehlgeschlagen: " + ex.Message);
+            System.Diagnostics.Debug.WriteLine("Soft-Refresh ohne Bestätigung fehlgeschlagen: " + ex.Message);
         }
     }
 }

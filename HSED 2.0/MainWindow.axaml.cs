@@ -253,6 +253,16 @@ namespace HSED_2._0
             _lievViewManager = new LievViewManager();
             _lievViewManager.PrepareSchacht();
 
+            if (MonetoringManager.LastRawKorbPosition > 0)
+            {
+                MonetoringManager.ApplySingleReadKorbPosition(MonetoringManager.LastRawKorbPosition);
+                if (IsValidPosition(MonetoringManager.LastKorbPosition))
+                {
+                    ViewModel.PositionY = MonetoringManager.LastKorbPosition;
+                    SyncCarAnimationToCurrentPosition();
+                }
+            }
+
             int renderWidth = 300;
             int renderHeight = (int)Math.Round(_lievViewManager.TotalHeight);
 
@@ -1171,6 +1181,8 @@ namespace HSED_2._0
                 return;
             }
 
+            bool setupIncomplete = MonetoringManager.IsSetupReadyKnown && !MonetoringManager.IsSetupReady;
+
             int[] levels = LievViewManager.IngrementEtage;
             int bottomLevel = 0;
 
@@ -1190,7 +1202,8 @@ namespace HSED_2._0
             int relativeMm = (ViewModel.CurrentFahrkorb - bottomLevel) / posCal;
             if (relativeMm < 0) relativeMm = 0;
 
-            Hoehe.Text = relativeMm.ToString() + "mm";
+            string mmText = relativeMm.ToString() + "mm";
+            Hoehe.Text = setupIncomplete ? $"({mmText})" : mmText;
         }
 
         private Button? FindInsideButtonByLabel(int label)
@@ -1266,9 +1279,31 @@ namespace HSED_2._0
 
         public void DisplaySignal()
         {
-            SGO.Background = ViewModel.SGO ? BrushGreen : BrushGray;
-            SGU.Background = ViewModel.SGU ? BrushGreen : BrushGray;
-            SGM.Background = ViewModel.SGM ? BrushGreen : BrushGray;
+            byte doorZone = ViewModel.DoorZone;
+            bool middleActive = (doorZone & 0x01) != 0;
+            int upperLowerState = (doorZone >> 1) & 0x03;
+
+            SGM.Background = middleActive ? BrushGreen : BrushGray;
+
+            switch (upperLowerState)
+            {
+                case 0:
+                    SGO.Background = BrushGray;
+                    SGU.Background = BrushGray;
+                    break;
+                case 1:
+                    SGO.Background = BrushGreen;
+                    SGU.Background = BrushGray;
+                    break;
+                case 2:
+                    SGO.Background = BrushGray;
+                    SGU.Background = BrushGreen;
+                    break;
+                case 3:
+                    SGO.Background = BrushGreen;
+                    SGU.Background = BrushGreen;
+                    break;
+            }
         }
 
 
@@ -1313,6 +1348,12 @@ namespace HSED_2._0
 
         public void DisplayDiff()
         {
+            if (MonetoringManager.IsSetupReadyKnown && !MonetoringManager.IsSetupReady)
+            {
+                Buendig.Text = "-";
+                return;
+            }
+
            
             int currentFloor = MainViewModelInstance.RawCurrentFloor;
             int localFloorIndex = MonetoringManager.GetLocalFloorArrayIndexFromRawFloor(currentFloor);
@@ -1651,6 +1692,7 @@ namespace HSED_2._0
             LevelPositionDefiner();
             FabrikNummerDefiner();
             FN.Text = MainWindow.Instance.Fabriknummer.ToString();
+            HseCom.PrimeMonitoringSnapshotFromSingleReads();
 
             ViewModel.CurrentZustand = HseCom.SendHse(1005);
             ViewModel.CurrentStateTueur1 = HseCom.SendHse(1006);
@@ -1759,6 +1801,7 @@ namespace HSED_2._0
 
             _visY = ViewModel.PositionY;
             _velY = 0.0;
+            SyncCarAnimationToCurrentPosition();
 
             Dispatcher.UIThread.Post(() =>
             {
@@ -1770,6 +1813,23 @@ namespace HSED_2._0
         private bool IsValidPosition(float value)
         {
             return !float.IsNaN(value) && !float.IsInfinity(value);
+        }
+
+        private void SyncCarAnimationToCurrentPosition()
+        {
+            double y = ViewModel.PositionY;
+            double now = Stopwatch.GetTimestamp() / (double)Stopwatch.Frequency;
+
+            _springX = y;
+            _springV = 0.0;
+            _visY = y;
+            _velY = 0.0;
+            _rawPrevTarget = y;
+            _rawCurrTarget = y;
+            _rawPrevTime = now;
+            _rawCurrTime = now;
+
+            SetCarTransform(-y);
         }
 
 
@@ -1889,16 +1949,10 @@ namespace HSED_2._0
             {
                 if (floorIndex1Based < 1) return;
                 byte floor = (byte)floorIndex1Based;
-                byte[] doors = MonetoringManager.GetInsideCallDoorBytes(floorIndex1Based);
-                Debug.WriteLine(
-                    $"[Innenruf][Send] FixedButton EtageIndex={floorIndex1Based}, Anzeige='{MonetoringManager.GetFloorDisplayText(floorIndex1Based)}', " +
-                    $"GesendeteTueren={string.Join(",", doors.Select(d => $"0x{d:X2}"))}");
+                byte[] doors = GetInsideCallDoorBytes(floorIndex1Based);
 
                 foreach (byte door in doors)
                 {
-                    Debug.WriteLine(
-                        $"[Innenruf][Send] DFUE=04 01 05 {floor:X2} 01 00 {door:X2} 01, " +
-                        $"EtageIndex={floorIndex1Based}, Anzeige='{MonetoringManager.GetFloorDisplayText(floorIndex1Based)}'");
                     SerialPortManager.Instance.SendWithoutResponse(new byte[]
                     { 0x04, 0x01, 0x05, floor, 0x01, 0x00, door, 0x01 });
                 }
@@ -2174,6 +2228,7 @@ namespace HSED_2._0
 
                 var levelIncrement = new int[99];
                 MonetoringManager.LoadLevelIncrementsInto(levelIncrement);
+                HseCom.PrimeMonitoringSnapshotFromSingleReads();
 
                 int fabriknummer = 0;
                 byte[] fabriknummerResponse = HseCom.SendHseCommand(new byte[] { 0x03, 0x01, 0x24, 0x02 });
@@ -2277,6 +2332,7 @@ namespace HSED_2._0
             TotalDoor = snapshot.TotalDoor;
             _visY = ViewModel.PositionY;
             _velY = 0.0;
+            SyncCarAnimationToCurrentPosition();
 
             FN.Text = Fabriknummer.ToString();
             Last.Text = snapshot.CurrentLastKg.ToString() + "Kg";
@@ -2400,16 +2456,10 @@ namespace HSED_2._0
                 int calculatedEtage = DisplayLabelToFloorIndex(zielLabel);
                 if (calculatedEtage < 1) return;
                 byte floor = (byte)calculatedEtage;
-                byte[] doors = MonetoringManager.GetInsideCallDoorBytes(calculatedEtage);
-                Debug.WriteLine(
-                    $"[Innenruf][Send] LegacyButton Label={zielLabel}, EtageIndex={calculatedEtage}, Anzeige='{MonetoringManager.GetFloorDisplayText(calculatedEtage)}', " +
-                    $"GesendeteTueren={string.Join(",", doors.Select(d => $"0x{d:X2}"))}");
+                byte[] doors = GetInsideCallDoorBytes(calculatedEtage);
 
                 foreach (byte door in doors)
                 {
-                    Debug.WriteLine(
-                        $"[Innenruf][Send] DFUE=04 01 05 {floor:X2} 01 00 {door:X2} 01, " +
-                        $"EtageIndex={calculatedEtage}, Anzeige='{MonetoringManager.GetFloorDisplayText(calculatedEtage)}'");
                     SerialPortManager.Instance.SendWithoutResponse(new byte[]
                     { 0x04, 0x01, 0x05, floor, 0x01, 0x00, door, 0x01 });
                 }

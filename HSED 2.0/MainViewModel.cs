@@ -641,6 +641,20 @@ namespace HSED_2_0.ViewModels
             }
         }
 
+        private byte _doorZone;
+        public byte DoorZone
+        {
+            get => _doorZone;
+            set
+            {
+                if (_doorZone != value)
+                {
+                    _doorZone = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         private int _skf;
         public int SKF
         {

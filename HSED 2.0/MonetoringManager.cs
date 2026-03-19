@@ -26,15 +26,16 @@ namespace HSED_2_0
         public static int Betriebsstunden { get; private set; }
 
         public static float LastKorbPosition { get; private set; }
+        public static int LastRawKorbPosition { get; private set; }
         public static int CurrentSK3 { get; private set; }
 
         public static int CurrentSK4 { get; private set; }
         public static int CurrentLast { get; private set; }
         public static int CurrentZustand { get; private set; }
+        public static bool IsSetupReady { get; private set; } = true;
+        public static bool IsSetupReadyKnown { get; private set; }
         private static readonly Dictionary<int, string> _floorSigns = new();
-        private static readonly Dictionary<int, byte> _doorMasks = new();
-        private static readonly Dictionary<int, byte> _insideCallDoorByFloor = new();
-        private static int _doorCount;
+        private static readonly object _setupReadyLock = new();
 
 
         // ===== Throttle nur für Fahrkorbposition (0x63 0x83) =====
@@ -106,6 +107,8 @@ namespace HSED_2_0
         /// </summary>
         public static void startMonetoring()
         {
+            RefreshSetupReadyStateFromParameterRead();
+
             byte[] bootFloorResponse = HseCom.SendHseCommand(new byte[] { 0x03, 0x01, 0x24, 0x00, 0x00, 0x03 });
             byte[] topfloorResponse = HseCom.SendHseCommand(new byte[] { 0x03, 0x01, 0x24, 0x01, 0x00, 0x03 });
 
@@ -121,12 +124,85 @@ namespace HSED_2_0
 
             RawGesamtFloor = HseCom.SendHse(1001);
             GesamtFloor = RawGesamtFloor > 0 ? RawGesamtFloor : (TopFloor - BootFloor) + 1;
-            LoadDoorConfiguration();
             LoadFloorSigns();
             Debug.WriteLine("BootFloor: " + BootFloor);
             Debug.WriteLine("TopFloor: " + TopFloor);
             Debug.WriteLine("RawGesamtFloor: " + RawGesamtFloor);
             Debug.WriteLine("GesamtFloor: " + GesamtFloor);
+        }
+
+        public static void RefreshSetupReadyStateFromParameterRead()
+        {
+            int setupReadyValue = ReadSetupReadyValue();
+            if (setupReadyValue < 0)
+                return;
+
+            UpdateSetupReadyState(setupReadyValue != 0, requestRefreshOnChange: false, "single-read");
+        }
+
+        private static int ReadSetupReadyValue()
+        {
+            byte[] response = HseCom.SendHseCommand(new byte[] { 0x03, 0x01, 0x24, 0x0A, 0x00, 0x05 });
+            if (response == null || response.Length <= 10)
+            {
+                Debug.WriteLine("Setup Beendet konnte nicht gelesen werden.");
+                return -1;
+            }
+
+            byte value = response[10];
+            Debug.WriteLine($"Setup Beendet (0x240A/0x00) Einzelabfrage: {value}");
+            return value;
+        }
+
+        private static void HandleSetupReadyMonitoring(byte[] response)
+        {
+            if (response == null || response.Length < 5)
+                return;
+
+            if (response[3] != DataTypes.D_UNSIGNED8)
+            {
+                Debug.WriteLine($"Setup Beendet mit unerwartetem Datentyp empfangen: 0x{response[3]:X2}");
+                return;
+            }
+
+            byte value = response[4];
+            Debug.WriteLine($"Setup Beendet (0x240A/0x00) Monitoring: {value}");
+            UpdateSetupReadyState(value != 0, requestRefreshOnChange: true, "monitoring");
+        }
+
+        private static void UpdateSetupReadyState(bool isSetupReady, bool requestRefreshOnChange, string source)
+        {
+            bool shouldRefresh = false;
+            bool previousValue = true;
+
+            lock (_setupReadyLock)
+            {
+                bool hadKnownValue = IsSetupReadyKnown;
+                previousValue = IsSetupReady;
+
+                IsSetupReady = isSetupReady;
+                IsSetupReadyKnown = true;
+
+                shouldRefresh = requestRefreshOnChange && hadKnownValue && previousValue != isSetupReady;
+            }
+
+            Debug.WriteLine($"Setup Beendet aktualisiert via {source}: {(isSetupReady ? 1 : 0)}");
+
+            if (shouldRefresh)
+            {
+                Debug.WriteLine($"Setup Beendet wechselte von {(previousValue ? 1 : 0)} auf {(isSetupReady ? 1 : 0)}. Soft-Refresh wird gestartet.");
+                RequestSoftRefreshWithoutConfirmation();
+            }
+        }
+
+        private static void RequestSoftRefreshWithoutConfirmation()
+        {
+            Dispatcher.UIThread.Post(() =>
+            {
+                var mainWindow = MainWindow.Instance;
+                if (mainWindow != null)
+                    _ = TouchDisplayRefreshService.RequestRefreshWithoutConfirmationAsync(mainWindow);
+            });
         }
 
         public static int GetFirstAbsoluteFloorIndex1Based()
@@ -168,146 +244,6 @@ namespace HSED_2_0
                 target[i] = BitConverter.ToInt32(new byte[] { response[10], response[11], response[12], response[13] }, 0);
                 Debug.WriteLine($"Increment Etage {floorIndex1Based}: {target[i]}");
             }
-        }
-
-        private static void LoadDoorConfiguration()
-        {
-            _doorMasks.Clear();
-            _insideCallDoorByFloor.Clear();
-            _doorCount = ReadDoorCount();
-            Debug.WriteLine($"[Innenruf][Mapping] Starte Tuermapping. BootFloor={BootFloor}, TopFloor={TopFloor}, GesamtFloor={GesamtFloor}, DoorCount={_doorCount}");
-
-            int floorCount = RawGesamtFloor > 0 ? RawGesamtFloor : GesamtFloor;
-            int firstAbsoluteFloorIndex = GetFirstAbsoluteFloorIndex1Based();
-
-            for (int i = 0; i < floorCount; i++)
-            {
-                int floorIndex1Based = firstAbsoluteFloorIndex + i;
-                byte doorMask = ReadDoorMask(floorIndex1Based);
-                _doorMasks[floorIndex1Based] = doorMask;
-
-                byte preferredDoor = SelectPreferredDoorByte(doorMask);
-                if (preferredDoor != 0)
-                    _insideCallDoorByFloor[floorIndex1Based] = preferredDoor;
-
-                Debug.WriteLine(
-                    $"[Innenruf][Mapping] EtageIndex={floorIndex1Based}, Anzeige='{GetFloorDisplayText(floorIndex1Based)}', " +
-                    $"DoorMask=0x{doorMask:X2} ({DescribeDoorMask(doorMask)}), GemappteTuer={FormatDoorByte(preferredDoor)}");
-            }
-        }
-
-        private static int ReadDoorCount()
-        {
-            byte[] response = HseCom.SendHseCommand(new byte[] { 0x03, 0x01, 0x20, 0x00, 0x00, 0x05 });
-            if (response == null || response.Length <= 10)
-                return 1;
-
-            int doorCount = response[10];
-            return doorCount switch
-            {
-                < 1 => 1,
-                > 3 => 3,
-                _ => doorCount
-            };
-        }
-
-        private static byte ReadDoorMask(int floorIndex1Based)
-        {
-            byte[] response = HseCom.SendHseCommand(new byte[] { 0x03, 0x01, 0x24, 0x06, (byte)floorIndex1Based, 0x05 });
-            if (response == null || response.Length <= 10)
-                return 0;
-
-            return (byte)(response[10] & 0x07);
-        }
-
-        private static byte SelectPreferredDoorByte(byte doorMask)
-        {
-            if ((doorMask & 0x01) != 0)
-                return 0x01;
-
-            if ((doorMask & 0x02) != 0)
-                return 0x02;
-
-            if ((doorMask & 0x04) != 0)
-                return 0x04;
-
-            return 0;
-        }
-
-        private static string DescribeDoorMask(byte doorMask)
-        {
-            var doors = new List<string>(3);
-
-            if ((doorMask & 0x01) != 0)
-                doors.Add("T1");
-
-            if ((doorMask & 0x02) != 0)
-                doors.Add("T2");
-
-            if ((doorMask & 0x04) != 0)
-                doors.Add("T3");
-
-            return doors.Count == 0 ? "keine" : string.Join(",", doors);
-        }
-
-        private static string FormatDoorByte(byte doorByte)
-        {
-            return doorByte switch
-            {
-                0x01 => "T1",
-                0x02 => "T2",
-                0x04 => "T3",
-                _ => $"0x{doorByte:X2}"
-            };
-        }
-
-        public static byte[] GetInsideCallDoorBytes(int floorIndex1Based)
-        {
-            if (floorIndex1Based <= 0)
-                return new byte[] { 0x01 };
-
-            if (_insideCallDoorByFloor.TryGetValue(floorIndex1Based, out byte mappedDoor) && mappedDoor != 0)
-            {
-                Debug.WriteLine(
-                    $"[Innenruf][Mapping] Cache-Hit EtageIndex={floorIndex1Based}, Anzeige='{GetFloorDisplayText(floorIndex1Based)}', " +
-                    $"DoorMask=0x{(_doorMasks.TryGetValue(floorIndex1Based, out byte cachedMask) ? cachedMask : (byte)0):X2}, GemappteTuer={FormatDoorByte(mappedDoor)}");
-                return new byte[] { mappedDoor };
-            }
-
-            if (!_doorMasks.TryGetValue(floorIndex1Based, out byte doorMask))
-            {
-                doorMask = ReadDoorMask(floorIndex1Based);
-                _doorMasks[floorIndex1Based] = doorMask;
-                Debug.WriteLine(
-                    $"[Innenruf][Mapping] DoorMask spaet gelesen. EtageIndex={floorIndex1Based}, Anzeige='{GetFloorDisplayText(floorIndex1Based)}', " +
-                    $"DoorMask=0x{doorMask:X2} ({DescribeDoorMask(doorMask)})");
-            }
-
-            mappedDoor = SelectPreferredDoorByte(doorMask);
-            if (mappedDoor != 0)
-            {
-                _insideCallDoorByFloor[floorIndex1Based] = mappedDoor;
-                Debug.WriteLine(
-                    $"[Innenruf][Mapping] Mapping nachgezogen. EtageIndex={floorIndex1Based}, Anzeige='{GetFloorDisplayText(floorIndex1Based)}', " +
-                    $"GemappteTuer={FormatDoorByte(mappedDoor)}");
-                return new byte[] { mappedDoor };
-            }
-
-            int fallbackDoorCount = _doorCount;
-            if (fallbackDoorCount < 1)
-                fallbackDoorCount = ReadDoorCount();
-
-            mappedDoor = fallbackDoorCount switch
-            {
-                >= 1 => (byte)0x01,
-                _ => (byte)0x01
-            };
-
-            _insideCallDoorByFloor[floorIndex1Based] = mappedDoor;
-            Debug.WriteLine(
-                $"[Innenruf][Mapping] Keine gueltige DOORPOS. EtageIndex={floorIndex1Based}, Anzeige='{GetFloorDisplayText(floorIndex1Based)}', " +
-                $"DoorMask=0x{doorMask:X2}, Fallback={FormatDoorByte(mappedDoor)}");
-            return new byte[] { mappedDoor };
         }
 
         private static void LoadFloorSigns()
@@ -562,6 +498,46 @@ namespace HSED_2_0
             });
         }
 
+        public static void ApplySingleReadCurrentFloor(int rawFloor)
+        {
+            if (rawFloor == 505 || rawFloor < 0)
+            {
+                return;
+            }
+
+            CurrentFloor = rawFloor + 1;
+            Debug.WriteLine($"Etage Einzelabfrage: raw = {rawFloor}, CurrentFloor = {CurrentFloor}");
+
+            Dispatcher.UIThread.Post(() =>
+            {
+                if (MainWindow.Instance?.ViewModel != null)
+                {
+                    MainWindow.Instance.ViewModel.RawCurrentFloor = rawFloor;
+                    MainWindow.Instance.ViewModel.CurrentFloor = CurrentFloor;
+                }
+            });
+        }
+
+        public static void ApplySingleReadBetriebsstunden(int newBStunden)
+        {
+            if (newBStunden == 505 || newBStunden < 0)
+            {
+                return;
+            }
+
+            Debug.WriteLine("Betriebsstunden Einzelabfrage: " + newBStunden);
+
+            Dispatcher.UIThread.Post(() =>
+            {
+                Betriebsstunden = newBStunden;
+
+                if (MainWindow.Instance?.ViewModel != null)
+                {
+                    MainWindow.Instance.ViewModel.CurrentBStunden = newBStunden;
+                }
+            });
+        }
+
         private static void setFahrtZahler(byte[] zustand)
         {
             if (!TryReadMonitoringNumericValue(zustand, out int newFahrtzahler))
@@ -678,6 +654,7 @@ namespace HSED_2_0
         {
             int newFahrkorb = BitConverter.ToInt32(new byte[] { zustand[4], zustand[5], zustand[6], zustand[7] }, 0);
             Debug.WriteLine("Fahrkorb: " + newFahrkorb);
+            LastRawKorbPosition = newFahrkorb;
             // Aktualisiere das ViewModel im UI-Thread:
             Dispatcher.UIThread.Post(() =>
             {
@@ -688,74 +665,81 @@ namespace HSED_2_0
             });
         }
 
+        public static void ApplySingleReadFahrkorb(int rawPosition)
+        {
+            if (rawPosition == 505 || rawPosition < 0)
+            {
+                return;
+            }
+
+            Debug.WriteLine("Fahrkorb Einzelabfrage: " + rawPosition);
+            LastRawKorbPosition = rawPosition;
+
+            Dispatcher.UIThread.Post(() =>
+            {
+                if (MainWindow.Instance?.ViewModel != null)
+                {
+                    MainWindow.Instance.ViewModel.CurrentFahrkorb = rawPosition;
+                }
+            });
+        }
+
         public static void setFahrkorbAnimationPosition(byte[] zustand)
         {
-            // ===== Konfiguration =====
-            const float yStep = 95f;     // Abstand zwischen Etagen (Pixel)
-            const float yOffsetPx = 0f;
-
-                // 1) Eingangsprüfungen
-                if (zustand == null || zustand.Length < 8)
+            if (!TryCalculateFahrkorbAnimationPosition(zustand, out float y))
                 return;
 
-            // Falls der Wert im Telegramm eigentlich Float32 ist, hier ToSingle benutzen
+            Debug.WriteLine("FahrkorbAnimationY: " + y);
+            LastKorbPosition = y;
+
+            Dispatcher.UIThread.Post(() =>
+            {
+                var vm = MainWindow.Instance?.ViewModel;
+                if (vm != null)
+                {
+                    vm.PositionY = y;
+                }
+            });
+        }
+
+        private static bool TryCalculateFahrkorbAnimationPosition(byte[] zustand, out float y)
+        {
+            y = 0f;
+
+            const float yStep = 95f;
+            const float yOffsetPx = 0f;
+
+            if (zustand == null || zustand.Length < 8)
+                return false;
+
             int raw = BitConverter.ToInt32(zustand, 4);
             float value = raw;
 
             int[] source = LievViewManager.IngrementEtage;
             if (source == null || source.Length == 0 || GesamtFloor <= 0)
-                return;
+                return false;
 
-            // 2) Floors kopieren und sortieren (Bottom → Top)
             int floorCount = Math.Min(GesamtFloor, source.Length);
-            if (floorCount <= 0) return;
+            if (floorCount <= 0)
+                return false;
 
             int[] floors = new int[floorCount];
             Array.Copy(source, floors, floorCount);
             Array.Sort(floors);
 
-            float y;
-
-            // 3) Degenerate Fälle
-            if (floorCount == 1)
+            if (floorCount == 1 || float.IsNaN(value) || float.IsInfinity(value))
             {
-                y = 0f + yOffsetPx; // Offset anwenden
-                Debug.WriteLine("FahrkorbAnimationY (single floor): " + y);
-                Dispatcher.UIThread.Post(() =>
-                {
-                    var vm = MainWindow.Instance?.ViewModel;
-                    if (vm != null)
-                    {
-                        vm.PositionY = y;
-                        LastKorbPosition = y;
-                    }
-                });
-                return;
+                y = 0f + yOffsetPx;
+                return true;
             }
 
-            if (float.IsNaN(value) || float.IsInfinity(value))
-            {
-                y = 0f + yOffsetPx; // Offset anwenden
-                Debug.WriteLine("FahrkorbAnimationY (NaN/Inf): " + y);
-                Dispatcher.UIThread.Post(() =>
-                {
-                    var vm = MainWindow.Instance?.ViewModel;
-                    if (vm != null)
-                    {
-                        vm.PositionY = y;
-                        LastKorbPosition = y;
-                    }
-                });
-                return;
-            }
-
-            // Hilfsfunktionen für Spannen, die nicht 0 sind
             static int FindFirstNonZeroSpan(int[] arr)
             {
                 for (int i = 0; i < arr.Length - 1; i++)
                     if (arr[i + 1] > arr[i]) return i;
                 return -1;
             }
+
             static int FindLastNonZeroSpan(int[] arr)
             {
                 for (int i = arr.Length - 2; i >= 0; i--)
@@ -763,81 +747,53 @@ namespace HSED_2_0
                 return -1;
             }
 
-            // 4) Drei Fälle: unterhalb, innerhalb, oberhalb
-
-            // Unterhalb der untersten Etage → Extrapolation nach unten mit erster gültiger Spanne
             if (value < floors[0])
             {
                 int idx = FindFirstNonZeroSpan(floors);
                 if (idx < 0)
                 {
-                    // Alle Werte identisch, keine Skala möglich
                     y = -((floorCount - 1) * yStep);
                 }
                 else
                 {
                     int a = floors[idx];
                     int b = floors[idx + 1];
-                    float span = b - a; // > 0 garantiert
-                    float tExtra = (value - floors[0]) / span; // negativ
+                    float span = b - a;
+                    float tExtra = (value - floors[0]) / span;
                     y = -((floorCount - 1) * yStep) + tExtra * yStep;
                 }
 
-                y += yOffsetPx; // Offset anwenden
-                Debug.WriteLine("FahrkorbAnimationY (underflow): " + y);
-
-                Dispatcher.UIThread.Post(() =>
-                {
-                    var vm = MainWindow.Instance?.ViewModel;
-                    if (vm != null)
-                    {
-                        vm.PositionY = y;
-                        LastKorbPosition = y;
-                    }
-                });
-                return;
+                y += yOffsetPx;
+                return true;
             }
 
-            // Oberhalb der obersten Etage → Extrapolation nach oben mit letzter gültiger Spanne
             if (value > floors[floorCount - 1])
             {
                 int idx = FindLastNonZeroSpan(floors);
                 if (idx < 0)
                 {
-                    // Alle Werte identisch, keine Skala möglich
                     y = 0f;
                 }
                 else
                 {
                     int a = floors[idx];
                     int b = floors[idx + 1];
-                    float span = b - a; // > 0 garantiert
-                    float tExtra = (value - floors[floorCount - 1]) / span; // positiv
+                    float span = b - a;
+                    float tExtra = (value - floors[floorCount - 1]) / span;
                     y = 0f + tExtra * yStep;
                 }
 
-                y += yOffsetPx; // Offset anwenden
-                Debug.WriteLine("FahrkorbAnimationY (overflow): " + y);
-
-                Dispatcher.UIThread.Post(() =>
-                {
-                    var vm = MainWindow.Instance?.ViewModel;
-                    if (vm != null)
-                    {
-                        vm.PositionY = y;
-                        LastKorbPosition = y;
-                    }
-                });
-                return;
+                y += yOffsetPx;
+                return true;
             }
 
-            // Innerhalb des Bereichs → UpperBound ohne Grenzüberschneidung
-            int lo = 0, hi = floorCount; // [lo, hi)
+            int lo = 0, hi = floorCount;
             while (lo < hi)
             {
                 int mid = (lo + hi) >> 1;
                 if (floors[mid] <= value) lo = mid + 1; else hi = mid;
             }
+
             int i = lo - 1;
             if (i < 0) i = 0;
             if (i > floorCount - 2) i = floorCount - 2;
@@ -848,35 +804,49 @@ namespace HSED_2_0
 
             if (spanLR == 0f)
             {
-                // Duplikate: konstante Höhe auf linken Rand des Blocks
                 int left = i;
                 while (left > 0 && floors[left - 1] == leftVal) left--;
-                float yLowerDup = -((floorCount - 1 - left) * yStep);
-                y = yLowerDup;
+                y = -((floorCount - 1 - left) * yStep);
             }
             else
             {
-                float t = (value - leftVal) / spanLR; // 0..1
+                float t = (value - leftVal) / spanLR;
                 if (t < 0f) t = 0f; else if (t > 1f) t = 1f;
 
                 float yLower = -((floorCount - 1 - i) * yStep);
                 y = yLower + t * yStep;
             }
 
-            y += yOffsetPx; // Offset anwenden
+            y += yOffsetPx;
+            return true;
+        }
 
-            Debug.WriteLine("FahrkorbAnimationY: " + y);
-
-            // 5) UI Update
-            Dispatcher.UIThread.Post(() =>
+        public static void ApplySingleReadKorbPosition(int rawPosition)
+        {
+            if (rawPosition == 505 || rawPosition < 0)
             {
-                var vm = MainWindow.Instance?.ViewModel;
-                if (vm != null)
-                {
-                    vm.PositionY = y;
-                    LastKorbPosition = y;
-                }
-            });
+                return;
+            }
+
+            ApplySingleReadFahrkorb(rawPosition);
+
+            byte[] pseudoMonitoringTelegram = new byte[8];
+            byte[] rawBytes = BitConverter.GetBytes(rawPosition);
+            Array.Copy(rawBytes, 0, pseudoMonitoringTelegram, 4, rawBytes.Length);
+
+            Debug.WriteLine("Korbposition Einzelabfrage roh: " + rawPosition);
+            setFahrkorbAnimationPosition(pseudoMonitoringTelegram);
+        }
+
+        public static void ApplySingleReadDoorZone(int rawDoorZone)
+        {
+            if (rawDoorZone == 505 || rawDoorZone < 0 || rawDoorZone > byte.MaxValue)
+            {
+                return;
+            }
+
+            Debug.WriteLine($"Signalgeber Einzelabfrage: 0x{rawDoorZone:X2}");
+            UpdateDoorZone((byte)rawDoorZone);
         }
 
 
@@ -987,46 +957,27 @@ namespace HSED_2_0
 
         public static void signal(byte[] zustand)
         {
-
             byte signal = zustand[4];
-            bool SGM;
-            bool SGO;
-            bool SGU;
+            UpdateDoorZone(signal);
+        }
 
-            if ((signal & 0x01) != 0)
-            {
-                 SGM = true;
-            }
-            else
-            {
-                 SGM = false;
-            }
-            if ((signal & 0x02) != 0)
-            {
-                 SGO = true;
-            }
-            else
-            {
-                 SGO = false;
-            }
-            if ((signal & 0x04) != 0)
-            {
-                 SGU = true;
-            }
-            else
-            {
-                 SGU = false;
-            }
+        private static void UpdateDoorZone(byte signal)
+        {
+            bool sgm = (signal & 0x01) != 0;
 
+            // The original DFUE logic evaluates bits 1-2 as one 2-bit field.
+            int upperLowerState = (signal >> 1) & 0x03;
+            bool sgo = upperLowerState == 1 || upperLowerState == 3;
+            bool sgu = upperLowerState == 2 || upperLowerState == 3;
 
-            // Aktualisiere das ViewModel im UI-Thread:
             Dispatcher.UIThread.Post(() =>
             {
                 if (MainWindow.Instance?.ViewModel != null)
                 {
-                    MainWindow.Instance.ViewModel.SGM = SGM;
-                    MainWindow.Instance.ViewModel.SGO = SGO;
-                    MainWindow.Instance.ViewModel.SGU = SGU;
+                    MainWindow.Instance.ViewModel.DoorZone = signal;
+                    MainWindow.Instance.ViewModel.SGM = sgm;
+                    MainWindow.Instance.ViewModel.SGO = sgo;
+                    MainWindow.Instance.ViewModel.SGU = sgu;
                 }
             });
         }
@@ -1222,7 +1173,7 @@ namespace HSED_2_0
                         MainWindow.Instance.ViewModel.DOP2 = DOP2;
                         MainWindow.Instance.ViewModel.DCL2 = DCL2;
                         MainWindow.Instance.ViewModel.DREV2 = DREV2;
-                        MainWindow.Instance.ViewModel.DOPNA1 = DOPNA2;
+                        MainWindow.Instance.ViewModel.DOPNA2 = DOPNA2;
                     }
                 });
             }
@@ -1274,7 +1225,7 @@ namespace HSED_2_0
                         MainWindow.Instance.ViewModel.DOP3 = DOP3;
                         MainWindow.Instance.ViewModel.DCL3 = DCL3;
                         MainWindow.Instance.ViewModel.DREV3 = DREV3;
-                        MainWindow.Instance.ViewModel.DOPNA1 = DOPNA3;
+                        MainWindow.Instance.ViewModel.DOPNA3 = DOPNA3;
                     }
                 });
             }
@@ -1480,6 +1431,11 @@ namespace HSED_2_0
                     $"[Terminal][Monitoring] 0x24B5 empfangen: Leitung={response[2]}, " +
                     $"Spalten={response[4]}, aktive Leitung={TerminalManager.CurrentLine}, aktive Spalten={TerminalManager.CurrentColumns}");
                 TerminalManager.ApplyTerminalCharacterWidthFromMonitoring(response[2], response[4]);
+            }
+            else if (response[0] == 0x24 && response[1] == 0x0A)
+            {
+                Debug.WriteLine("Setup Beendet Änderung erkannt.");
+                HandleSetupReadyMonitoring(response);
             }
         }
 

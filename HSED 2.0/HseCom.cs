@@ -88,6 +88,28 @@ namespace HSED_2_0
             return 505;
         }
 
+        public static void PrimeMonitoringSnapshotFromSingleReads()
+        {
+            try
+            {
+                int rawCurrentFloor = SendHse(1004);
+                MonetoringManager.ApplySingleReadCurrentFloor(rawCurrentFloor);
+
+                int betriebsstunden = SendHse(2045);
+                MonetoringManager.ApplySingleReadBetriebsstunden(betriebsstunden);
+
+                int rawKorbPosition = SendHse(6383);
+                MonetoringManager.ApplySingleReadKorbPosition(rawKorbPosition);
+
+                int rawDoorZone = SendHse(9807);
+                MonetoringManager.ApplySingleReadDoorZone(rawDoorZone);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Fehler beim Vorladen von Betriebsstunden/Korbposition per Einzelabfrage: {ex.Message}");
+            }
+        }
+
         /// <summary>
         /// Berechnet die CRC (Prüfsumme) für die Daten.
         /// </summary>
@@ -493,6 +515,32 @@ namespace HSED_2_0
                 catch (Exception ex)
                 {
                     Debug.WriteLine($"Fehler (3001): {ex.Message}\n{ex.StackTrace}");
+                    return 505;
+                }
+            }
+
+            if (Art == 6383)
+            {
+                try
+                {
+                    return ReadNumericParameter(0x63, 0x83, DataTypes.D_UNSIGNED32, DataTypes.D_UNSIGNED16, DataTypes.D_INTEGER16);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Fehler (6383): {ex.Message}\n{ex.StackTrace}");
+                    return 505;
+                }
+            }
+
+            if (Art == 9807)
+            {
+                try
+                {
+                    return ReadNumericParameter(0x26, 0x4F, DataTypes.D_UNSIGNED8);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Fehler (9807): {ex.Message}\n{ex.StackTrace}");
                     return 505;
                 }
             }

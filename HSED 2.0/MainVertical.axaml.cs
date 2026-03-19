@@ -351,6 +351,7 @@ namespace HSED_2._0
             SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x05, 0x01, 0x01 });
             Debug.WriteLine("Monetoring gestartet.");
             //EtageProgressBar.Maximum = gesamteFloors - 1;
+            HseCom.PrimeMonitoringSnapshotFromSingleReads();
 
             ViewModel.CurrentZustand = HseCom.SendHse(1005);
             LiftStateTracker.RegisterState(ViewModel.CurrentZustand);
