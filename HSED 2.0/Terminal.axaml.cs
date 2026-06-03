@@ -6,6 +6,9 @@ using HSED_2._0;
 using System;
 using System.Diagnostics;
 using Avalonia.Layout;
+using Avalonia.Input;
+using Avalonia.Threading;
+using System.Collections.Generic;
 
 namespace HSED_2_0
 {
@@ -38,6 +41,7 @@ namespace HSED_2_0
         // Canvas-Margin im Zoomzustand
         private const int ZOOM_MARGIN_LEFT = 320;  // hier spielen, bis es gut aussieht
         private const int ZOOM_MARGIN_TOP = -30;
+        private static readonly TimeSpan LongPressThreshold = TimeSpan.FromMilliseconds(900);
 
         private bool _isZoomed = false;
 
@@ -51,16 +55,27 @@ namespace HSED_2_0
         private readonly Grid[,] _cellContainers = new Grid[Rows, MaxCols];
         private readonly Image[,] _cellImages = new Image[Rows, MaxCols];
         private readonly Image[,] _cursorImages = new Image[Rows, MaxCols];
+        private readonly Dictionary<Button, string> _terminalKeyIds = new();
+        private readonly DispatcherTimer _longPressTimer;
         private bool _uiCacheInitialized = false;
+        private Button? _pressedTerminalButton;
+        private bool _longPressTriggered;
 
         public Terminal()
         {
             InitializeComponent();
 
+            _longPressTimer = new DispatcherTimer
+            {
+                Interval = LongPressThreshold
+            };
+            _longPressTimer.Tick += LongPressTimer_Tick;
+
             FensterSizeButton.Source = maximieren;
 
             // Cache direkt einmalig aufbauen (nach InitializeComponent!)
             BuildUiCache();
+            RegisterTerminalKeyHandlers();
             ImageGrid.SizeChanged += (_, __) => UpdateColumnSeparator();
 
             this.Position = new PixelPoint(NORMAL_SPAWN_X, NORMAL_SPAWN_Y);
@@ -103,6 +118,68 @@ namespace HSED_2_0
 
 
         // Klasse: Terminal
+
+        private void RegisterTerminalKeyHandlers()
+        {
+            if (KeyboardGrid == null)
+                return;
+
+            foreach (var child in KeyboardGrid.Children)
+            {
+                if (child is not Button button)
+                    continue;
+
+                string keyId = button.Tag?.ToString() ?? button.Content?.ToString() ?? string.Empty;
+                if (string.IsNullOrWhiteSpace(keyId))
+                    continue;
+
+                _terminalKeyIds[button] = keyId;
+                button.PointerPressed += TerminalKey_PointerPressed;
+                button.PointerReleased += TerminalKey_PointerReleased;
+                button.PointerCaptureLost += TerminalKey_PointerCaptureLost;
+            }
+        }
+
+        private void TerminalKey_PointerPressed(object? sender, PointerPressedEventArgs e)
+        {
+            if (sender is not Button button || !_terminalKeyIds.ContainsKey(button))
+                return;
+
+            _pressedTerminalButton = button;
+            _longPressTriggered = false;
+            _longPressTimer.Stop();
+            _longPressTimer.Start();
+        }
+
+        private void TerminalKey_PointerReleased(object? sender, PointerReleasedEventArgs e)
+            => StopLongPressTracking(sender as Button);
+
+        private void TerminalKey_PointerCaptureLost(object? sender, PointerCaptureLostEventArgs e)
+            => StopLongPressTracking(sender as Button);
+
+        private void StopLongPressTracking(Button? button)
+        {
+            if (_pressedTerminalButton == button)
+                _longPressTimer.Stop();
+        }
+
+        private void LongPressTimer_Tick(object? sender, EventArgs e)
+        {
+            _longPressTimer.Stop();
+
+            if (_pressedTerminalButton == null)
+                return;
+
+            if (!_terminalKeyIds.TryGetValue(_pressedTerminalButton, out string? keyId))
+                return;
+
+            if (!TryGetLongPressCode(keyId, out byte longPressCode))
+                return;
+
+            _longPressTriggered = true;
+            SendTerminalKey(longPressCode);
+            Debug.WriteLine($"Button {keyId} wurde lange gedrueckt.");
+        }
 
 
         // Klasse: Terminal
@@ -239,37 +316,80 @@ namespace HSED_2_0
         {
             if (sender is Button btn)
             {
-                string key = btn.Content?.ToString() ?? string.Empty;
-                Debug.WriteLine($"Button {key} wurde geklickt.");
-
-                byte code = key switch
+                if (_longPressTriggered && ReferenceEquals(_pressedTerminalButton, btn))
                 {
-                    "1" => 0x31,
-                    "2" => 0x32,
-                    "3" => 0x33,
-                    "4" => 0x34,
-                    "5" => 0x35,
-                    "6" => 0x36,
-                    "7" => 0x37,
-                    "8" => 0x38,
-                    "9" => 0x39,
-                    "0" => 0x30,
-                    "ESC" => 0x1B,
-                    "ENT" => 0x0D,
-                    "↑" => 0x26,
-                    "↓" => 0x28,
-                    "→" => 0x3D,
-                    "←" => 0x3C,
-                    "F1" => 0x3A,
-                    "F2" => 0x3B,
-                    _ => (byte)0x00
-                };
-
-                if (code != 0x00)
-                {
-                    SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x01, 0x03, 0x00, code });
+                    _pressedTerminalButton = null;
+                    _longPressTriggered = false;
+                    return;
                 }
+
+                string keyId = btn.Tag?.ToString() ?? btn.Content?.ToString() ?? string.Empty;
+                Debug.WriteLine($"Button {keyId} wurde geklickt.");
+
+                if (TryGetStandardCode(keyId, out byte code))
+                    SendTerminalKey(code);
+
+                _pressedTerminalButton = null;
+                _longPressTriggered = false;
             }
+        }
+
+        private static bool TryGetStandardCode(string keyId, out byte code)
+        {
+            code = keyId switch
+            {
+                "1" => 0x31,
+                "2" => 0x32,
+                "3" => 0x33,
+                "4" => 0x34,
+                "5" => 0x35,
+                "6" => 0x36,
+                "7" => 0x37,
+                "8" => 0x38,
+                "9" => 0x39,
+                "0" => 0x30,
+                "ESC" => 0x1B,
+                "ENT" => 0x0D,
+                "UP" => 0x26,
+                "DOWN" => 0x28,
+                "RIGHT" => 0x3D,
+                "LEFT" => 0x3C,
+                "↑" => 0x26,
+                "↓" => 0x28,
+                "→" => 0x3D,
+                "←" => 0x3C,
+                "F1" => 0x3A,
+                "F2" => 0x3B,
+                _ => 0x00
+            };
+
+            return code != 0x00;
+        }
+
+        private static bool TryGetLongPressCode(string keyId, out byte code)
+        {
+            code = keyId switch
+            {
+                "ESC" => 0x4C,
+                "ENT" => 0x4D,
+                "0" => 0x4E,
+                "1" => 0x3A,
+                "2" => 0x3B,
+                "3" => 0x3E,
+                "4" => 0x3F,
+                "5" => 0x4A,
+                "6" => 0x4B,
+                "7" => 0x3C,
+                "9" => 0x3D,
+                _ => 0x00
+            };
+
+            return code != 0x00;
+        }
+
+        private static void SendTerminalKey(byte code)
+        {
+            SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x01, 0x03, 0x00, code });
         }
 
         private void Button_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)

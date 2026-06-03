@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Avalonia.Media;
 
 namespace HSED_2_0;
@@ -202,6 +204,56 @@ public static class LiftStateCatalog
         return new LiftStatePresentation(text, brush, doorOverlayFinished);
     }
 
+    public static LiftStatePresentation GetPresentationForStateText(string? stateText)
+    {
+        string resolvedText = stateText?.Trim() ?? string.Empty;
+        if (string.IsNullOrWhiteSpace(resolvedText))
+            return new LiftStatePresentation(string.Empty, new SolidColorBrush(Colors.White));
+
+        if (resolvedText.Contains("Bereit", StringComparison.OrdinalIgnoreCase)
+            || resolvedText.Contains("Stillst", StringComparison.OrdinalIgnoreCase)
+            || resolvedText.Contains("Stillstand", StringComparison.OrdinalIgnoreCase))
+        {
+            return new LiftStatePresentation(resolvedText, new SolidColorBrush(Colors.White));
+        }
+
+        if (resolvedText.Contains("Einfahrt", StringComparison.OrdinalIgnoreCase))
+            return new LiftStatePresentation(resolvedText, CreateBrush(0xFA, 0xCC, 0x15), false);
+
+        if (resolvedText.Contains("Fahrt", StringComparison.OrdinalIgnoreCase))
+            return new LiftStatePresentation(resolvedText, CreateBrush(0x22, 0xC5, 0x5E));
+
+        var knownState = GermanTexts.FirstOrDefault(entry =>
+            string.Equals(entry.Value, resolvedText, StringComparison.OrdinalIgnoreCase));
+
+        if (!knownState.Equals(default(KeyValuePair<int, string>)))
+        {
+            var fallback = GetPresentation(knownState.Key);
+            return fallback with { Text = resolvedText };
+        }
+
+        return new LiftStatePresentation(resolvedText, new SolidColorBrush(Colors.White));
+    }
+
+    public static bool IsWhiteStateText(string? stateText)
+    {
+        string resolvedText = stateText?.Trim() ?? string.Empty;
+        if (string.IsNullOrWhiteSpace(resolvedText))
+            return false;
+
+        if (resolvedText.Contains("Bereit", StringComparison.OrdinalIgnoreCase)
+            || resolvedText.Contains("Stillst", StringComparison.OrdinalIgnoreCase)
+            || resolvedText.Contains("Stillstand", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        var knownState = GermanTexts.FirstOrDefault(entry =>
+            string.Equals(entry.Value, resolvedText, StringComparison.OrdinalIgnoreCase));
+
+        return knownState.Key == 0x04;
+    }
+
     public static bool IsPrimaryState(int state)
     {
         return PrimaryStates.Contains(state);
@@ -243,4 +295,3 @@ public static class LiftStateCatalog
         return new SolidColorBrush(Color.FromRgb(red, green, blue));
     }
 }
-

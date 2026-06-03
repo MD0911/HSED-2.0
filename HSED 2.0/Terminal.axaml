@@ -196,30 +196,30 @@
                     Canvas.Left="290"
                     CornerRadius="8"
                     Padding="5">
-				<UniformGrid Rows="5" Columns="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-					<Button Width="50" Height="40" Background="#2250C7" Content="1" FontSize="20" FontWeight="Bold" Margin="8,0"
+				<UniformGrid x:Name="KeyboardGrid" Rows="5" Columns="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+					<Button Tag="1" Width="50" Height="40" Background="#2250C7" Content="1" FontSize="20" FontWeight="Bold" Margin="8,0"
                             HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="OnKeyButtonClick"/>
-					<Button Width="50" Height="40" Background="#2250C7" Content="2" FontSize="20" FontWeight="Bold" Margin="8,0"
+					<Button Tag="2" Width="50" Height="40" Background="#2250C7" Content="2" FontSize="20" FontWeight="Bold" Margin="8,0"
                             HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="OnKeyButtonClick"/>
-					<Button Width="50" Height="40" Background="#2250C7" Content="3" FontSize="20" FontWeight="Bold" Margin="8,0"
+					<Button Tag="3" Width="50" Height="40" Background="#2250C7" Content="3" FontSize="20" FontWeight="Bold" Margin="8,0"
                             HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="OnKeyButtonClick"/>
-					<Button Width="50" Height="40" Background="#2250C7" Content="4" FontSize="20" FontWeight="Bold" Margin="8,0"
+					<Button Tag="4" Width="50" Height="40" Background="#2250C7" Content="4" FontSize="20" FontWeight="Bold" Margin="8,0"
                             HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="OnKeyButtonClick"/>
-					<Button Width="50" Height="40" Background="#2250C7" Content="5" FontSize="20" FontWeight="Bold" Margin="8,0"
+					<Button Tag="5" Width="50" Height="40" Background="#2250C7" Content="5" FontSize="20" FontWeight="Bold" Margin="8,0"
                             HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="OnKeyButtonClick"/>
-					<Button Width="50" Height="40" Background="#2250C7" Content="6" FontSize="20" FontWeight="Bold" Margin="8,0"
+					<Button Tag="6" Width="50" Height="40" Background="#2250C7" Content="6" FontSize="20" FontWeight="Bold" Margin="8,0"
                             HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="OnKeyButtonClick"/>
-					<Button Width="50" Height="40" Background="#2250C7" Content="7" FontSize="20" FontWeight="Bold" Margin="8,0"
+					<Button Tag="7" Width="50" Height="40" Background="#2250C7" Content="7" FontSize="20" FontWeight="Bold" Margin="8,0"
                             HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="OnKeyButtonClick"/>
-					<Button Width="50" Height="40" Background="#2250C7" Content="8" FontSize="20" FontWeight="Bold" Margin="8,0"
+					<Button Tag="8" Width="50" Height="40" Background="#2250C7" Content="8" FontSize="20" FontWeight="Bold" Margin="8,0"
                             HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="OnKeyButtonClick"/>
-					<Button Width="50" Height="40" Background="#2250C7" Content="9" FontSize="20" FontWeight="Bold" Margin="8,0"
+					<Button Tag="9" Width="50" Height="40" Background="#2250C7" Content="9" FontSize="20" FontWeight="Bold" Margin="8,0"
                             HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="OnKeyButtonClick"/>
-					<Button Width="50" Height="40" Background="#2250C7" Content="F1" FontSize="20" FontWeight="Bold" Margin="8,0"
+					<Button Tag="F1" Width="50" Height="40" Background="#2250C7" Content="F1" FontSize="20" FontWeight="Bold" Margin="8,0"
                             HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="OnKeyButtonClick"/>
-					<Button Width="50" Height="40" Background="#2250C7" Content="0" FontSize="20" FontWeight="Bold" Margin="8,0"
+					<Button Tag="0" Width="50" Height="40" Background="#2250C7" Content="0" FontSize="20" FontWeight="Bold" Margin="8,0"
                             HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="OnKeyButtonClick"/>
-					<Button Width="50" Height="40" Background="#2250C7" Content="F2" FontSize="20" FontWeight="Bold" Margin="8,0"
+					<Button Tag="F2" Width="50" Height="40" Background="#2250C7" Content="F2" FontSize="20" FontWeight="Bold" Margin="8,0"
 							HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="OnKeyButtonClick"/>
 					<Button Width="50" Height="40" Background="#facc15" Content="←" FontSize="20" FontWeight="Bold" Margin="8,0"
                             HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="OnKeyButtonClick"/>
@@ -227,11 +227,11 @@
                             HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="OnKeyButtonClick"/>
 					<Button Width="50" Height="40" Background="#facc15" Content="→" FontSize="20" FontWeight="Bold" Margin="10,0"
                             HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="OnKeyButtonClick"/>
-					<Button Width="50" Height="40" Background="#ef4444" Content="ESC" FontSize="17" FontWeight="Bold" Margin="10,0"
+					<Button Tag="ESC" Width="50" Height="40" Background="#ef4444" Content="ESC" FontSize="17" FontWeight="Bold" Margin="10,0"
                             HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="OnKeyButtonClick"/>
 					<Button Width="50" Height="40" Background="#facc15" Content="↓" FontSize="20" FontWeight="Bold" Margin="10,0"
 							HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="OnKeyButtonClick"/>
-					<Button Width="50" Height="40" Background="#22c55e" Content="ENT" FontSize="17" FontWeight="Bold" Margin="10,0"
+					<Button Tag="ENT" Width="50" Height="40" Background="#22c55e" Content="ENT" FontSize="17" FontWeight="Bold" Margin="10,0"
                             HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Click="OnKeyButtonClick"/>
 
 					<ContentControl />

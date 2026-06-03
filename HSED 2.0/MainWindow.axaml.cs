@@ -1388,8 +1388,10 @@ namespace HSED_2._0
         public void DisplayZustand()
         {
             var snapshot = LiftStateTracker.GetSnapshot();
+            var textSnapshot = LiftStateTextStore.GetSnapshot();
             var runtimeErrors = RuntimeErrorStore.GetSnapshot();
             var additionalTargets = new[] { Zustand2, Zustand3, Zustand4 };
+            string primaryText = textSnapshot.GetActivePrimaryText(DateTime.UtcNow) ?? string.Empty;
 
             foreach (var target in additionalTargets)
             {
@@ -1398,27 +1400,39 @@ namespace HSED_2._0
 
             if (!snapshot.PrimaryState.HasValue)
             {
-                Zustand.Text = string.Empty;
+                var primaryTextPresentation = LiftStateCatalog.GetPresentationForStateText(primaryText);
+                Zustand.Text = primaryTextPresentation.Text;
+                Zustand.Foreground = primaryTextPresentation.Brush;
                 DoorOverlayFinish = true;
             }
             else
             {
                 var primaryState = LiftStateCatalog.GetPresentation(snapshot.PrimaryState.Value);
-                Zustand.Text = primaryState.Text;
-                Zustand.Foreground = primaryState.Brush;
-                DoorOverlayFinish = primaryState.DoorOverlayFinished;
+                if (!string.IsNullOrWhiteSpace(primaryText))
+                {
+                    var primaryTextPresentation = LiftStateCatalog.GetPresentationForStateText(primaryText);
+                    Zustand.Text = primaryTextPresentation.Text;
+                    Zustand.Foreground = primaryTextPresentation.Brush;
+                    DoorOverlayFinish = primaryTextPresentation.DoorOverlayFinished;
+                }
+                else
+                {
+                    Zustand.Text = primaryState.Text;
+                    Zustand.Foreground = primaryState.Brush;
+                    DoorOverlayFinish = primaryState.DoorOverlayFinished;
+                }
             }
 
+            var additionalTexts = textSnapshot.GetAdditionalTexts();
             int visibleStateSlots = runtimeErrors.Count > 0
                 ? additionalTargets.Length - 1
                 : additionalTargets.Length;
 
             int index = 0;
-            for (; index < visibleStateSlots && index < snapshot.AdditionalStates.Count; index++)
+            for (; index < visibleStateSlots && index < additionalTexts.Count; index++)
             {
-                var additionalState = LiftStateCatalog.GetPresentation(snapshot.AdditionalStates[index]);
-                additionalTargets[index].Text = additionalState.Text;
-                additionalTargets[index].Foreground = additionalState.Brush;
+                additionalTargets[index].Text = additionalTexts[index];
+                additionalTargets[index].Foreground = new SolidColorBrush(Colors.White);
             }
 
             if (runtimeErrors.Count > 0)
@@ -1447,7 +1461,7 @@ namespace HSED_2._0
 
         private static void ApplyRuntimeErrorIndicatorStyle(TextBlock target)
         {
-            target.Foreground = new SolidColorBrush(Color.FromRgb(0xFA, 0xCC, 0x15));
+            target.Foreground = new SolidColorBrush(Color.FromRgb(0xEF, 0x44, 0x44));
             target.TextDecorations = TextDecorations.Underline;
             target.FontWeight = FontWeight.SemiBold;
         }

@@ -82,7 +82,7 @@
                 Width="80"
                 Height="58"
                 Classes="special"
-                Content="⬆"
+                Content="&#x2B06;"
                 Click="Shift_Click"
                 HorizontalContentAlignment="Center"
                 VerticalContentAlignment="Center"
@@ -107,7 +107,7 @@
                 Width="80"
                 Height="58"
                 Classes="special"
-                Content="⌫"
+                Content="&#x232B;"
                 Click="Backspace_Click"
                 HorizontalContentAlignment="Center"
                 VerticalContentAlignment="Center"
@@ -149,7 +149,7 @@
         <Button Grid.Column="3"
                 Width="90"
                 Classes="special bottom"
-                Content="↩"
+                Content="&#x21A9;"
                 Click="Enter_Click"/>
       </Grid>
 

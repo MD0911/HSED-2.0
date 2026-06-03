@@ -88,6 +88,61 @@ namespace HSED_2_0
             return 505;
         }
 
+        private static string? ReadVisibleStringParameter(byte telegramArtLow, byte indexHigh, byte indexLow, byte subIndex = 0x00)
+        {
+            try
+            {
+                byte[] request = new byte[] { 0x03, telegramArtLow, indexHigh, indexLow, subIndex, DataTypes.D_VIS_STRING };
+                byte[] response = SendHseCommand(request);
+                if (response == null || response.Length <= 11)
+                    return null;
+
+                if (response[6] != indexHigh || response[7] != indexLow || response[8] != subIndex)
+                    return null;
+
+                if (response[9] != DataTypes.D_VIS_STRING)
+                    return null;
+
+                int valueStart = 10;
+                int valueEndExclusive = response.Length - 2;
+                int maxCount = Math.Max(0, valueEndExclusive - valueStart);
+                int nullIndex = Array.IndexOf(response, (byte)0x00, valueStart, maxCount);
+                if (nullIndex >= 0)
+                    valueEndExclusive = nullIndex;
+
+                if (valueEndExclusive <= valueStart)
+                    return string.Empty;
+
+                return Encoding.ASCII.GetString(response, valueStart, valueEndExclusive - valueStart)
+                    .Trim('\0', ' ', '\t', '\r', '\n');
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Fehler beim Lesen des String-Parameters {indexHigh:X2}{indexLow:X2}: {ex.Message}");
+                return null;
+            }
+        }
+
+        public static string? ReadHcStateText()
+        {
+            return ReadVisibleStringParameter(0x06, 0x21, 0x00);
+        }
+
+        public static string? ReadMaintenanceText()
+        {
+            return ReadVisibleStringParameter(0x07, 0x26, 0x58);
+        }
+
+        public static string? ReadCallStateText()
+        {
+            return ReadVisibleStringParameter(0x08, 0x21, 0x06);
+        }
+
+        public static string? ReadDriverDirectionsText()
+        {
+            return ReadVisibleStringParameter(0x09, 0x26, 0x5B);
+        }
+
         public static void PrimeMonitoringSnapshotFromSingleReads()
         {
             try
@@ -103,6 +158,8 @@ namespace HSED_2_0
 
                 int rawDoorZone = SendHse(9807);
                 MonetoringManager.ApplySingleReadDoorZone(rawDoorZone);
+
+                LiftStateTextStore.RequestRefreshFromDevice();
             }
             catch (Exception ex)
             {

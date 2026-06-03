@@ -219,13 +219,25 @@ namespace HSED_2._0
         public void DisplayZustand()
         {
             var snapshot = LiftStateTracker.GetSnapshot();
+            var textSnapshot = LiftStateTextStore.GetSnapshot();
+            string primaryText = textSnapshot.GetActivePrimaryText(DateTime.UtcNow) ?? string.Empty;
             if (!snapshot.PrimaryState.HasValue)
             {
-                Zustand.Text = string.Empty;
+                var primaryTextPresentation = LiftStateCatalog.GetPresentationForStateText(primaryText);
+                Zustand.Text = primaryTextPresentation.Text;
+                Zustand.Foreground = primaryTextPresentation.Brush;
                 return;
             }
 
             var state = LiftStateCatalog.GetPresentation(snapshot.PrimaryState.Value);
+            if (!string.IsNullOrWhiteSpace(primaryText))
+            {
+                var primaryTextPresentation = LiftStateCatalog.GetPresentationForStateText(primaryText);
+                Zustand.Text = primaryTextPresentation.Text;
+                Zustand.Foreground = primaryTextPresentation.Brush;
+                return;
+            }
+
             Zustand.Text = state.Text;
             Zustand.Foreground = state.Brush;
         }

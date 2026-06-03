@@ -69,7 +69,10 @@ namespace HSED_2_0
                 while (!_cts.Token.IsCancellationRequested)
                 {
                     // Sende Monitoring-Befehl (z. B. 0x05,0x01) ohne auf Antwort zu warten.
-                   SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x05, 0x01 });
+                    SerialPortManager.Instance.SendWithoutResponse(new byte[] { 0x05, 0x01 });
+                    // Die String-Zustände werden nicht passiv per 0x05/0x02 geliefert,
+                    // daher ziehen wir sie in jedem Monitoring-Zyklus aktiv nach.
+                    LiftStateTextStore.RefreshFromMonitoringCycle();
                     try
                     {
                         await Task.Delay(1000, _cts.Token);
@@ -468,6 +471,7 @@ namespace HSED_2_0
 
             Debug.WriteLine("Zustand: " + newZustand);
             LiftStateTracker.RegisterState(newZustand);
+            LiftStateTextStore.RequestRefreshFromDevice();
             // Aktualisiere das ViewModel im UI-Thread:
             Dispatcher.UIThread.Post(() =>
             {

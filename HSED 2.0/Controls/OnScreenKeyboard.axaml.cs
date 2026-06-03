@@ -124,6 +124,7 @@ public partial class OnScreenKeyboard : UserControl
             AddRow(_row2, "@ # \u20ac _ & + ( ) / * :");
             AddRow(_row3, ". , ? ! ' \" =");
         }
+        else
         {
             AddRow(_row1, "[ ] { } < > ^ ~ | \\ `");
             AddRow(_row2, "\u00b0 \u00df \u00a7 % & / ( ) ; \u00b4");

@@ -18,7 +18,7 @@ public static class RuntimeErrorStore
         Upsert(
             SafetyCircuitMissingId,
             "Sicherheitskreis fehlt",
-            "Der Sicherheitskreis wird aktuell als fehlend gemeldet. Bitte prüfen Sie die Sicherheitskreis-Kette und die zugehörigen Eingänge.",
+            "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam",
             null);
     }
 
@@ -50,6 +50,7 @@ public static class RuntimeErrorStore
     }
 
     private static void PruneExpired(DateTime now)
+
     {
         var expiredIds = Errors
             .Where(entry => entry.Value.ActiveUntilUtc.HasValue && entry.Value.ActiveUntilUtc.Value <= now)
