@@ -327,6 +327,14 @@
 				<DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5" ></DropShadowEffect>
 			</Border.Effect>
 
+			<DockPanel Margin="0,0,0,10">
+				<Button Tag="Settings" x:Name="ButtonSettings2" Width="50" Height="40" HorizontalAlignment="Center" DockPanel.Dock="Bottom" Click="Button_Click_Settings" >
+					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+						<Image Source="Images/Icons/die-einstellungen.png"></Image>
+						<TextBlock Margin="10,5,0,0" x:Name="SettingsText2" IsVisible="False" Foreground="White">Settings</TextBlock>
+					</StackPanel>
+				</Button>
+
 			<StackPanel x:Name="StackPanelNavBar" HorizontalAlignment="Center" Margin="0,25,0,0">
 				<Button Tag="Menu" x:Name="ButtonSettings" Width="50" Height="40" Click="Button_Click_Settings" IsVisible="False" >
 					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
@@ -370,14 +378,8 @@
 					</StackPanel>
 				</Button>
 
-				<Button Tag="Settings" x:Name="ButtonSettings2" Width="50" Height="40" Margin="0,130,0,0"  Click="Button_Click_Settings" >
-					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-						<Image Source="Images/Icons/die-einstellungen.png"></Image>
-						<TextBlock Margin="10,5,0,0" x:Name="SettingsText2" IsVisible="False" Foreground="White">Settings</TextBlock>
-					</StackPanel>
-				</Button>
-
 			</StackPanel>
+			</DockPanel>
 		</Border>
 	</Canvas>
 

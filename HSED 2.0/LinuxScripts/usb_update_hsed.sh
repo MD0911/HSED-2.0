@@ -70,7 +70,7 @@ echo "USB Partition: $USB_PART"
 
 progress 30
 
-# Mountpoint prüfen
+# Mountpoint prï¿½fen
 MOUNTED_PATH="$(lsblk -no MOUNTPOINT "$USB_PART" | head -n 1 | tr -d '[:space:]' || true)"
 
 if [[ -z "$MOUNTED_PATH" ]]; then
@@ -114,7 +114,7 @@ cp -f "$ARCHIVE_PATH" "$LOCAL_ARCHIVE"
 
 progress 75
 
-echo "Starte Installation über update_hsed.sh --source"
+echo "Starte Installation ï¿½ber update_hsed.sh --source"
 chmod +x "$OTA_SCRIPT" || true
 
 /bin/bash "$OTA_SCRIPT" --source "$LOCAL_ARCHIVE"

@@ -1,7 +1,35 @@
 #!/bin/sh
 set -eu
 
-IFACE="${1:-wlan0}"
+detect_iface() {
+  if [ -n "${1:-}" ] && ip link show "$1" >/dev/null 2>&1; then
+    printf "%s\n" "$1"
+    return 0
+  fi
+
+  if command -v iw >/dev/null 2>&1; then
+    IFACE_CANDIDATE="$(iw dev 2>/dev/null | awk '$1=="Interface"{print $2; exit}')"
+    if [ -n "$IFACE_CANDIDATE" ]; then
+      printf "%s\n" "$IFACE_CANDIDATE"
+      return 0
+    fi
+  fi
+
+  IFACE_CANDIDATE="$(ip -o link show 2>/dev/null | awk -F': ' '{print $2}' | grep -E '^(wl|wlan)' | head -n1 || true)"
+  if [ -n "$IFACE_CANDIDATE" ]; then
+    printf "%s\n" "$IFACE_CANDIDATE"
+    return 0
+  fi
+
+  return 1
+}
+
+IFACE="$(detect_iface "${1:-}" || true)"
+
+if [ -z "$IFACE" ]; then
+  echo "{\"state\":\"unknown\",\"ssid\":\"\",\"ip\":\"\"}"
+  exit 0
+fi
 
 if command -v nmcli >/dev/null 2>&1 && nmcli general status >/dev/null 2>&1; then
   STATE_RAW="$(nmcli -t -g GENERAL.STATE device show "$IFACE" 2>/dev/null | head -n1 || true)"

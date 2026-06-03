@@ -12,8 +12,6 @@ namespace HSED_2._0.ViewModels;
 
 public sealed class WifiViewModel : ViewModelBase
 {
-    // Passe das an deinen echten Pfad an, damit es auf allen Pis unabhängig vom Working Directory funktioniert
-    // Beispiel: "/opt/hsed/LinuxScripts"
     private const string ScriptsDir = "LinuxScripts";
 
     public ObservableCollection<WifiNetworkItem> Networks { get; } = new();
@@ -114,7 +112,7 @@ public sealed class WifiViewModel : ViewModelBase
         try
         {
             string script = $"{ScriptsDir}/scan_wifi.sh";
-            string json = await RunScriptAsync(script, "wlan0", useSudo: true);
+            string json = await RunScriptAsync(script, "", useSudo: true);
 
             var items = JsonSerializer.Deserialize<List<WifiNetworkItem>>(
                 json,
@@ -176,19 +174,22 @@ public sealed class WifiViewModel : ViewModelBase
 
     private static async Task<string> RunScriptAsync(string scriptPath, string args, bool useSudo)
     {
-        // Lösung B: immer über /bin/sh starten, damit keine +x Rechte nötig sind
         string fileName;
         string arguments;
 
         if (useSudo)
         {
             fileName = "sudo";
-            arguments = $"/bin/sh \"{scriptPath}\" {args}";
+            arguments = string.IsNullOrWhiteSpace(args)
+                ? $"/bin/sh \"{scriptPath}\""
+                : $"/bin/sh \"{scriptPath}\" {args}";
         }
         else
         {
             fileName = "/bin/sh";
-            arguments = $"\"{scriptPath}\" {args}";
+            arguments = string.IsNullOrWhiteSpace(args)
+                ? $"\"{scriptPath}\""
+                : $"\"{scriptPath}\" {args}";
         }
 
         var psi = new ProcessStartInfo

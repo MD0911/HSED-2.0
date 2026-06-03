@@ -1,7 +1,30 @@
 #!/bin/sh
 set -eu
 
-IFACE="${IFACE:-wlan0}"
+detect_iface() {
+  if [ -n "${1:-}" ] && ip link show "$1" >/dev/null 2>&1; then
+    printf "%s\n" "$1"
+    return 0
+  fi
+
+  if command -v iw >/dev/null 2>&1; then
+    IFACE_CANDIDATE="$(iw dev 2>/dev/null | awk '$1=="Interface"{print $2; exit}')"
+    if [ -n "$IFACE_CANDIDATE" ]; then
+      printf "%s\n" "$IFACE_CANDIDATE"
+      return 0
+    fi
+  fi
+
+  IFACE_CANDIDATE="$(ip -o link show 2>/dev/null | awk -F': ' '{print $2}' | grep -E '^(wl|wlan)' | head -n1 || true)"
+  if [ -n "$IFACE_CANDIDATE" ]; then
+    printf "%s\n" "$IFACE_CANDIDATE"
+    return 0
+  fi
+
+  return 1
+}
+
+IFACE="$(detect_iface "${IFACE:-}" || true)"
 CTRL="/run/wpa_supplicant"
 SSID="${1:-}"
 PSK="${2:-}"
@@ -30,6 +53,11 @@ emit() {
 if [ -z "$SSID" ]; then
   emit false "Fehler beim Verbinden" "missing_ssid" "" ""
   exit 1
+fi
+
+if [ -z "$IFACE" ]; then
+  emit false "Fehler beim Verbinden" "iface_not_found" "$SSID" ""
+  exit 2
 fi
 
 if [ -n "$PSK" ]; then
