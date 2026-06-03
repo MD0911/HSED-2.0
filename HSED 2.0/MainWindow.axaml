@@ -287,9 +287,9 @@
 			<StackPanel Name="ZustandPanel" HorizontalAlignment="Center">
 				<TextBlock VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,5,0,5" Foreground="#9ca3af" FontSize="15">Zustand</TextBlock>
 				<TextBlock Name="Zustand" VerticalAlignment="Center" HorizontalAlignment="Center"  Margin="0" Foreground="White" Text="lese..." FontSize="20"/>
-				<TextBlock x:Name="Zustand2" VerticalAlignment="Center" HorizontalAlignment="Center"  Margin="0" Foreground="White" Text="" FontSize="20"/>
-				<TextBlock x:Name="Zustand3" VerticalAlignment="Center" HorizontalAlignment="Center"  Margin="0" Foreground="White" Text="" FontSize="20"/>
-				<TextBlock x:Name="Zustand4" VerticalAlignment="Center" HorizontalAlignment="Center"  Margin="0" Foreground="White" Text="" FontSize="20"/>
+				<TextBlock x:Name="Zustand2" VerticalAlignment="Center" HorizontalAlignment="Center"  Margin="0" Foreground="White" Text="" FontSize="20" PointerPressed="RuntimeErrorIndicator_PointerPressed"/>
+				<TextBlock x:Name="Zustand3" VerticalAlignment="Center" HorizontalAlignment="Center"  Margin="0" Foreground="White" Text="" FontSize="20" PointerPressed="RuntimeErrorIndicator_PointerPressed"/>
+				<TextBlock x:Name="Zustand4" VerticalAlignment="Center" HorizontalAlignment="Center"  Margin="0" Foreground="White" Text="" FontSize="20" PointerPressed="RuntimeErrorIndicator_PointerPressed"/>
 			</StackPanel>
 		</Border>
 
@@ -468,7 +468,7 @@
 		<Border x:Name="Overlap" Background="#1f2937" Width="800" Height="480" Opacity="1" IsVisible="False"/>
 		<Border x:Name="NavBar" Background="#1f2937" Width="60" Height="480">
 			<StackPanel  x:Name="StackPanelNavBar" HorizontalAlignment="Center" Margin="0,25,0,0">
-				<Button Background="#1f2937" Tag="Menu" x:Name="ButtonSettings" Width="50" Height="40" Click="Button_Click_Settings">
+				<Button Background="#1f2937" Tag="Menu" x:Name="ButtonSettings" Width="50" Height="40" Click="Button_Click_Settings" IsVisible="False">
 					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
 						<Image Source="Images\Icons\menu-offnen.png" RenderOptions.BitmapInterpolationMode="LowQuality">
 							<Image.RenderTransform>

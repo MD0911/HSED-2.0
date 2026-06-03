@@ -124,19 +124,36 @@ public partial class OnScreenKeyboard : UserControl
             AddRow(_row2, "@ # \u20ac _ & + ( ) / * :");
             AddRow(_row3, ". , ? ! ' \" =");
         }
-        else
         {
             AddRow(_row1, "[ ] { } < > ^ ~ | \\ `");
-            AddRow(_row2, "\u00b0 \u00b7 \u2022 \u2713 \u00d7 \u00f7 \u00a7 \u00a9 \u00ae \u2122");
+            AddRow(_row2, "\u00b0 \u00df \u00a7 % & / ( ) ; \u00b4");
             AddRow(_row3, "+ - _ $ \u20ac \u00a3 \u00a5");
         }
 
         if (_modeLeftBtn != null)
-            _modeLeftBtn.Content = _mode == KeyboardMode.Letters ? "123" : "ABC";
+            _modeLeftBtn.Content = GetLeftModeLabel();
 
         if (_modeRightBtn != null)
-            _modeRightBtn.Content = _mode == KeyboardMode.Letters ? "#+=" : "123";
+            _modeRightBtn.Content = GetRightModeLabel();
     }
+
+    private string GetLeftModeLabel()
+        => _mode switch
+        {
+            KeyboardMode.Letters => "123",
+            KeyboardMode.Numbers => "ABC",
+            KeyboardMode.Symbols => "ABC",
+            _ => "ABC"
+        };
+
+    private string GetRightModeLabel()
+        => _mode switch
+        {
+            KeyboardMode.Letters => "#+=",
+            KeyboardMode.Numbers => "#+=",
+            KeyboardMode.Symbols => "123",
+            _ => "123"
+        };
 
     private void AddRow(ObservableCollection<string> row, string keys)
     {
@@ -200,17 +217,27 @@ public partial class OnScreenKeyboard : UserControl
 
     private void ModeLeft_Click(object? sender, RoutedEventArgs e)
     {
-        _mode = _mode == KeyboardMode.Letters ? KeyboardMode.Numbers : KeyboardMode.Letters;
+        _mode = _mode switch
+        {
+            KeyboardMode.Letters => KeyboardMode.Numbers,
+            KeyboardMode.Numbers => KeyboardMode.Letters,
+            KeyboardMode.Symbols => KeyboardMode.Letters,
+            _ => KeyboardMode.Letters
+        };
+
         _shift = false;
         BuildLayout();
     }
 
     private void ModeRight_Click(object? sender, RoutedEventArgs e)
     {
-        if (_mode == KeyboardMode.Letters)
-            _mode = KeyboardMode.Symbols;
-        else
-            _mode = KeyboardMode.Numbers;
+        _mode = _mode switch
+        {
+            KeyboardMode.Letters => KeyboardMode.Symbols,
+            KeyboardMode.Numbers => KeyboardMode.Symbols,
+            KeyboardMode.Symbols => KeyboardMode.Numbers,
+            _ => KeyboardMode.Numbers
+        };
 
         _shift = false;
         BuildLayout();

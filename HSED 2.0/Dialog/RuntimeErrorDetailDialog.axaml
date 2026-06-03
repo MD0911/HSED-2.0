@@ -1,0 +1,76 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="HSED_2._0.RuntimeErrorDetailDialog"
+        Width="260"
+        Height="540"
+        Background="Transparent"
+        CanResize="False"
+        SystemDecorations="None"
+        WindowStartupLocation="CenterOwner">
+
+  <Window.Styles>
+    <Style Selector="Border.dialogCard">
+      <Setter Property="CornerRadius" Value="18"/>
+      <Setter Property="Background" Value="#1f2937"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="BorderBrush" Value="#2b3546"/>
+      <Setter Property="BoxShadow" Value="0 14 40 #00000066"/>
+      <Setter Property="Padding" Value="18"/>
+    </Style>
+
+    <Style Selector="TextBlock.dTitle">
+      <Setter Property="Foreground" Value="White"/>
+      <Setter Property="FontSize" Value="22"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+      <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+
+    <Style Selector="TextBlock.dSub">
+      <Setter Property="Foreground" Value="#d1d5db"/>
+      <Setter Property="FontSize" Value="15"/>
+      <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+
+    <Style Selector="Button.close">
+      <Setter Property="Width" Value="120"/>
+      <Setter Property="Height" Value="44"/>
+      <Setter Property="CornerRadius" Value="12"/>
+      <Setter Property="Background" Value="#111827"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="BorderBrush" Value="#374151"/>
+      <Setter Property="Foreground" Value="#d1d5db"/>
+      <Setter Property="FontSize" Value="16"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+  </Window.Styles>
+
+  <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+    <Border Classes="dialogCard" Width="420" Height="220">
+      <Border.RenderTransform>
+        <RotateTransform Angle="90"/>
+      </Border.RenderTransform>
+
+      <Grid RowDefinitions="Auto,*,Auto">
+        <TextBlock x:Name="TitleText"
+                   Classes="dTitle"
+                   TextAlignment="Center"
+                   HorizontalAlignment="Center"/>
+
+        <TextBlock x:Name="DetailText"
+                   Grid.Row="1"
+                   Classes="dSub"
+                   Width="330"
+                   Margin="0,16"
+                   TextAlignment="Center"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"/>
+
+        <Button Grid.Row="2"
+                Classes="close"
+                HorizontalAlignment="Center"
+                Click="Close_Click">Schließen</Button>
+      </Grid>
+    </Border>
+  </Grid>
+</Window>

@@ -18,6 +18,14 @@ public static class LiftStateTracker
     {
         lock (SyncRoot)
         {
+            if (state == 0x11)
+            {
+                RuntimeErrorStore.ReportSafetyCircuitMissing();
+                return;
+            }
+
+            RuntimeErrorStore.ClearSafetyCircuitMissing();
+
             if (LiftStateCatalog.IsPrimaryState(state))
             {
                 _primaryState = state;

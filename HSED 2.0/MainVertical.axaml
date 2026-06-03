@@ -199,7 +199,7 @@
 			</Border.Effect>
 
 			<StackPanel x:Name="StackPanelNavBar" HorizontalAlignment="Center" Margin="0,25,0,0">
-				<Button Tag="Menu" x:Name="ButtonSettings" Width="50" Height="40" Click="Button_Click_Settings" >
+				<Button Tag="Menu" x:Name="ButtonSettings" Width="50" Height="40" Click="Button_Click_Settings" IsVisible="False" >
 					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
 						<Image Source="Images\Icons\menu-offnen.png"></Image>
 						<TextBlock Margin="10,5,0,0" x:Name="SettingsText" IsVisible="False" Foreground="White">Menue</TextBlock>

@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
@@ -42,6 +43,7 @@ namespace HSED_2._0
         public bool DoorOverlayFinish = false;
 
         private bool _reconnectPending;
+        private TextBlock? _runtimeErrorIndicator;
 
         private bool _lastTerminalActive = false;
         private SerialSettingsWindow? _serialSettingsWindow;
@@ -916,6 +918,11 @@ namespace HSED_2._0
             var carGroup = (TransformGroup)FahrkorbImage.RenderTransform;
             var carTrans = (TranslateTransform)carGroup.Children[1];
             carTrans.Y = y;
+
+            // Türoverlays immer an die Kabinenposition koppeln.
+            if (_o1TT != null) _o1TT.Y = y;
+            if (_o2TT != null) _o2TT.Y = y;
+            if (_o3TT != null) _o3TT.Y = y;
         }
 
         public void PauseLogic()
@@ -1007,14 +1014,8 @@ namespace HSED_2._0
 
         public void DisplayFahrkorbAnimation()
         {
-            ((TranslateTransform)((TransformGroup)PositionControl.RenderTransform).Children[1]).Y = 0;
-            ((TranslateTransform)((TransformGroup)PositionControl2.RenderTransform).Children[1]).Y = 0;
-
-            var carGroup = (TransformGroup)FahrkorbImage.RenderTransform;
-            var carTrans = (TranslateTransform)carGroup.Children[1];
-
             double y = -ViewModel.PositionY;
-            carTrans.Y = y;
+            SetCarTransform(y);
 
             AutoFollowIfNeeded();
         }
@@ -1387,36 +1388,87 @@ namespace HSED_2._0
         public void DisplayZustand()
         {
             var snapshot = LiftStateTracker.GetSnapshot();
+            var runtimeErrors = RuntimeErrorStore.GetSnapshot();
+            var additionalTargets = new[] { Zustand2, Zustand3, Zustand4 };
+
+            foreach (var target in additionalTargets)
+            {
+                ResetRuntimeErrorIndicatorStyle(target);
+            }
+
             if (!snapshot.PrimaryState.HasValue)
             {
                 Zustand.Text = string.Empty;
-                Zustand2.Text = string.Empty;
-                Zustand3.Text = string.Empty;
-                Zustand4.Text = string.Empty;
                 DoorOverlayFinish = true;
-                return;
             }
-
-            var primaryState = LiftStateCatalog.GetPresentation(snapshot.PrimaryState.Value);
-            Zustand.Text = primaryState.Text;
-            Zustand.Foreground = primaryState.Brush;
-            DoorOverlayFinish = primaryState.DoorOverlayFinished;
-
-            var additionalTargets = new[] { Zustand2, Zustand3, Zustand4 };
-            for (int index = 0; index < additionalTargets.Length; index++)
+            else
             {
-                var target = additionalTargets[index];
-                if (index < snapshot.AdditionalStates.Count)
-                {
-                    var additionalState = LiftStateCatalog.GetPresentation(snapshot.AdditionalStates[index]);
-                    target.Text = additionalState.Text;
-                    target.Foreground = additionalState.Brush;
-                }
-                else
-                {
-                    target.Text = string.Empty;
-                }
+                var primaryState = LiftStateCatalog.GetPresentation(snapshot.PrimaryState.Value);
+                Zustand.Text = primaryState.Text;
+                Zustand.Foreground = primaryState.Brush;
+                DoorOverlayFinish = primaryState.DoorOverlayFinished;
             }
+
+            int visibleStateSlots = runtimeErrors.Count > 0
+                ? additionalTargets.Length - 1
+                : additionalTargets.Length;
+
+            int index = 0;
+            for (; index < visibleStateSlots && index < snapshot.AdditionalStates.Count; index++)
+            {
+                var additionalState = LiftStateCatalog.GetPresentation(snapshot.AdditionalStates[index]);
+                additionalTargets[index].Text = additionalState.Text;
+                additionalTargets[index].Foreground = additionalState.Brush;
+            }
+
+            if (runtimeErrors.Count > 0)
+            {
+                var errorTarget = additionalTargets[Math.Min(index, additionalTargets.Length - 1)];
+                errorTarget.Text = FormatRuntimeErrorCount(runtimeErrors.Count);
+                ApplyRuntimeErrorIndicatorStyle(errorTarget);
+                _runtimeErrorIndicator = errorTarget;
+                index = Array.IndexOf(additionalTargets, errorTarget) + 1;
+            }
+            else
+            {
+                _runtimeErrorIndicator = null;
+            }
+
+            for (; index < additionalTargets.Length; index++)
+            {
+                additionalTargets[index].Text = string.Empty;
+            }
+        }
+
+        private static string FormatRuntimeErrorCount(int count)
+        {
+            return count == 1 ? "1 Fehler" : $"{count} Fehler";
+        }
+
+        private static void ApplyRuntimeErrorIndicatorStyle(TextBlock target)
+        {
+            target.Foreground = new SolidColorBrush(Color.FromRgb(0xFA, 0xCC, 0x15));
+            target.TextDecorations = TextDecorations.Underline;
+            target.FontWeight = FontWeight.SemiBold;
+        }
+
+        private static void ResetRuntimeErrorIndicatorStyle(TextBlock target)
+        {
+            target.TextDecorations = null;
+            target.FontWeight = FontWeight.Normal;
+        }
+
+        private void RuntimeErrorIndicator_PointerPressed(object? sender, PointerPressedEventArgs e)
+        {
+            if (sender is not TextBlock textBlock || textBlock != _runtimeErrorIndicator)
+                return;
+
+            var errors = RuntimeErrorStore.GetSnapshot();
+            if (errors.Count == 0)
+                return;
+
+            var dialog = new RuntimeErrorListDialog(errors);
+            dialog.Show(this);
         }
 
         public void DisplayLast()
